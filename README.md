@@ -1,369 +1,291 @@
-## Blynk_Esp8266AT_WM
+# ESP_AT_WM_Lite (Light Weight Credentials / WiFi Manager for ESP8266 AT shields)
 
-[![arduino-library-badge](https://www.ardu-badge.com/badge/Blynk_Esp8266AT_WM.svg?)](https://www.ardu-badge.com/Blynk_Esp8266AT_WM)
+[![arduino-library-badge](https://www.ardu-badge.com/badge/ESP_AT_WM_Lite.svg?)](https://www.ardu-badge.com/ESP_AT_WM_Lite)
 
-### New Version v1.0.3
+This library is a Light Weight Credentials / WiFi Manager for ESP8266 AT shields, specially designed to support ***Teensy, SAM DUE, SAMD, STM32, etc. boards running ESP8266 AT-command shields.*** with smaller memory (64+K bytes)
 
-1. Add support to STM32 (STM32F1, F2, F3, F4, F7, etc) boards
-2. Add clearConfigData() function.
+The AVR-family boards (UNO, Nano, etc.) are ***not supported*** as they don't have enough memory to run Config Portal WebServer.
 
-### New Version v1.0.2
+This is a Credentials / WiFi Connection Manager with fallback web configuration portal.
 
-1. Add support to SAMD (DUE, ZERO, MKR, NANO_33_IOT, M0, M0 Pro, AdaFruit CIRCUITPLAYGROUND_EXPRESS, etc.) boards
+The web configuration portal, served from the `ESP8266 AT-command shields` is operating as an access point (AP) with configurable static IP address or use default IP Address of 192.168.4.1
 
-To help you to eliminate `hardcoding` your Wifi and Blynk credentials for Mega/Teensy boards running ESP8266 AT shields, and updating/reflashing every time when you need to change them. Configuration data are saved in configurable locatioon in EEPROM.
-
-With version `v1.0.0` or later, you now can configure:
-
-1. `Config Portal Static IP address, Name and Password.`
-2. `Static IP address, Gateway, Subnet Mask and 2 DNS Servers IP addresses.`
+The configuration portal is captive, so it will present the configuration dialogue regardless of the web address selected, excluding https requests.
 
 ## Prerequisite
 1. [`Arduino IDE 1.8.12 or later` for Arduino](https://www.arduino.cc/en/Main/Software)
-2. [`Blynk library 0.6.1 or later`](https://www.arduino.cc/en/guide/libraries#toc3)
-3. [`ESP8266_AT_WebServer library`](https://github.com/khoih-prog/ESP8266_AT_WebServer)
-4. `Arduino AVR core 1.8.2 or later` for AVR boards (Use Arduino Board Manager)
-5. [`Teensy core 1.51 or later`](https://www.pjrc.com/teensy/td_download.html) for Teensy boards
-6. [`Arduino Core for STM32 v1.8.0 or later`](https://github.com/stm32duino/Arduino_Core_STM32) for STM32 boards
-7. [`FlashStorage library`](https://github.com/khoih-prog/FlashStorage) for SAMD boards
+2. [`Arduino Core for STM32 v1.8.0 or later`](https://github.com/khoih-prog/Arduino_Core_STM32) for STM32 boards
+3. [`Teensy core 1.51 or later`](https://www.pjrc.com/teensy/td_download.html) for Teensy (4.0, 3.6, 3.5, 3,2, 3.1, 3.0) boards
+4. [`ESP8266_AT_WebServer library`](https://github.com/khoih-prog/ESP8266_AT_WebServer)
+5. [`FlashStorage library`](https://github.com/khoih-prog/FlashStorage) for SAMD boards (ZERO, MKR, NANO_33_IOT, M0, M0 Pro, AdaFruit CIRCUITPLAYGROUND_EXPRESS, etc.)
+6. [`DueFlashStorage library`](https://github.com/sebnil/DueFlashStorage) for SAM DUE
 
-## Installation
 
-### Use Arduino Library Manager
-The best and easiest way is to use `Arduino Library Manager`. Search for `Blynk_Esp8266AT_WM`, then select / install the latest version.
-You can also use this link [![arduino-library-badge](https://www.ardu-badge.com/badge/Blynk_Esp8266AT_WM.svg?)](https://www.ardu-badge.com/Blynk_Esp8266AT_WM) for more detailed instructions.
+## How It Works
+
+- The [Mega_ESP8266Shield](examples/Mega_ESP8266Shield) example shows how it works and should be used as the basis for a sketch that uses this library.
+- The concept of [Mega_ESP8266Shield](examples/Mega_ESP8266Shield) is that a new `ESP8266 AT shield` will start a WiFi configuration portal when powered up and has no stored Credentials. It will then save the configuration data in host's non-volatile memory. If there is valid stored Credentials, it'll go directly to connect to WiFi without starting / using the Config Portal.
+- Using any WiFi enabled device with a browser (computer, phone, tablet) connect to the newly created AP and type in the AP IP address (default 192.168.4.1).
+- Input SSID and Password of the APs to be connected, thn click `Save`.
+- `ESP8266 AT shield` will try to connect. If successful, the dynamic DHCP or configured static IP address will be displayed in the configuration portal. 
+- The `ESP8266 AT shield` WiFi Config Portal network and Web Server will shutdown to return control to the sketch code.
+
+## Quick Start
+
+The best and easiest way is to use `Arduino Library Manager`. Search for `ESP_AT_WM_Lite`, then select / install the latest version.
+You can also use this link [![arduino-library-badge](https://www.ardu-badge.com/badge/ESP_AT_WM_Lite.svg?)](https://www.ardu-badge.com/ESP_AT_WM_Lite) for more detailed instructions.
 
 ### Manual Install
 
 Another way to install is to:
 
-1. Navigate to [Blynk_Esp8266AT_WM](https://github.com/khoih-prog/Blynk_Esp8266AT_WM) page.
-2. Download the latest release `Blynk_Esp8266AT_WM-master.zip`.
-3. Extract the zip file to `Blynk_Esp8266AT_WM-master` directory 
-4. Copy whole `Blynk_Esp8266AT_WM-master/src` folder to Arduino libraries' directory such as `~/Arduino/libraries/`.
+1. Navigate to [ESP_AT_WM_Lite](https://github.com/khoih-prog/ESP_AT_WM_Lite) page.
+2. Download the latest release `ESP_AT_WM_Lite-master.zip`.
+3. Extract the zip file to `ESP_AT_WM_Lite-master` directory 
+4. Copy whole `ESP_AT_WM_Lite-master/src` folder to Arduino libraries' directory such as `~/Arduino/libraries/`.
 
-### How to use
+### Using
+- Include in your sketch
+```cpp
 
-In your code, to use WiFiManager Blynk features, replace
-1. `BlynkSimpleShieldEsp8266.h` with `BlynkSimpleShieldEsp8266_WM.h` for Mega boards.
-2. `BlynkSimpleShieldEsp8266.h` with `BlynkSimpleShieldEsp8266_Teensy_WM.h`  for Teensy boards.
-3. `BlynkSimpleShieldEsp8266.h` with `BlynkSimpleShieldEsp8266_SAMD_WM.h`  for SAMD boards.
-4. `BlynkSimpleShieldEsp8266.h` with `BlynkSimpleShieldEsp8266_STM32_WM.h`  for STM32 boards.
+// Select depending on board
+#define EspSerial Serial1
 
-to use Blynk only, with hardcoded Credentials, replace
-1. `BlynkSimpleShieldEsp8266.h` with `BlynkSimpleShieldEsp8266_Teensy.h`  for Teensy boards.
-2. `BlynkSimpleShieldEsp8266.h` with `BlynkSimpleShieldEsp8266_SAMD.h`  for SAMD boards.
-3. `BlynkSimpleShieldEsp8266.h` with `BlynkSimpleShieldEsp8266_STM32.h`  for STM32 boards.
-4. Keep the same`BlynkSimpleShieldEsp8266.h` for Mega boards
+// Must be before #include <Esp8266_AT_WM_Lite.h>
+// Start location in EEPROM to store config data. Default 0
+// Config data Size currently is 84 bytes)
+#define EEPROM_START      (64)
 
-to use EEPROM ( 156 bytes for Mega, 180 bytes for Teensy from address EEPROM_START ) to save your configuration data.
-EEPROM_SIZE can be specified from 256 to 4096 bytes.
-For SAMD boards, data is stored in Flash using 256-byte block.
+#include <Esp8266_AT_WM_Lite.h>
 
-See examples 
+ESP_AT_WiFiManager_Lite* ESP_AT_WiFiManager; 
+
+// Your Mega <-> ESP8266 baud rate:
+#define ESP8266_BAUD 115200
+```
+
+- When you want to open a config portal, just add
+
+```cpp
+ESP_AT_WiFiManager = new ESP_AT_WiFiManager_Lite(&EspSerial, ESP8266_BAUD);
+ESP_AT_WiFiManager->begin();
+```
+
+- To not use default AP WiFi Channel 10 to avoid conflict with other WiFi APs, call 
+```cpp
+ESP_AT_WiFiManager->setConfigPortalChannel(newChannel);
+```
+
+- To use different static AP IP (not use default `192.168.4.1`), call 
+```cpp
+ESP_AT_WiFiManager->setConfigPortalIP(IPAddress(xxx,xxx,xxx,xxx));
+```
+
+While in AP mode, connect to it using its `SSID` (ESP_AT_XXXXXX) / `Password` ("MyESP_AT_XXXXXX"), then open a browser to the Portal AP IP, default `192.168.4.1`, configure wifi then save. The Credentials / WiFi connection information will be saved in non-volatile memory. It will then autoconnect.
+
+
+OnceCredentials / WiFi network information is saved in the host non-volatile memory, it will try to autoconnect to WiFi every time it is started, without requiring any function calls in the sketch.
+
+
+Also see examples: 
 1. [Mega_ESP8266Shield](examples/Mega_ESP8266Shield)
 2. [Teensy40_ESP8266Shield](examples/Teensy40_ESP8266Shield)
 3. [SAMD_ESP8266Shield](examples/SAMD_ESP8266Shield)
-3. [STM32_ESP8266Shield](examples/STM32_ESP8266Shield)
-
-
-```
-// Force some params in Blynk, only valid for library version 1.0.0 and later
-#define TIMEOUT_RECONNECT_WIFI                    10000L
-#define RESET_IF_CONFIG_TIMEOUT                   true
-#define CONFIG_TIMEOUT_RETRYTIMES_BEFORE_RESET    5
-
-```
-
-Then replace `Blynk.begin(...)` with :
-
-1. `Blynk.begin()`
-
-in your code. Keep `Blynk.run()` intact.
-
-That's it.
-
+4. [SAM_DUE_ESP8266Shield](examples/SAM_DUE_ESP8266Shield)
+5. [STM32_ESP8266Shield](examples/STM32_ESP8266Shield)
 
 ## So, how it works?
-If it cannot connect to the Blynk server in 30 seconds, it will switch to `Configuration Mode`. You will see your built-in LED turned ON. In `Configuration Mode`, it starts a configurable access point, default called `Teensy4_XXXXXX`, `SAMD_XXXXXX`, `Mega_XXXXXX` or `STM32_XXXXXX`. Connect to it using password `MyTeensy4_XXXXXX`, `MySAMD_XXXXXX`, `MyMega_XXXXXX` or `MySTM32_XXXXXX`.
-
-<p align="center">
-    <img src="https://github.com/khoih-prog/Blynk_Esp8266AT_WM/blob/master/pics/AccessPoint.jpg">
-</p>
-
-After you connected, please, go to http://192.168.4.1 or the AP IP you specified.
-
-<p align="center">
-    <img src="https://github.com/khoih-prog/Blynk_Esp8266AT_WM/blob/master/pics/Config_Portal.png">
-</p>
-
-Enter your credentials, then click `Save`. After you restarted, you will see your built-in LED turned OFF. That means, it connected to your Blynk server successfully.
-
-The following is the sample terminal output when running example [Teensy40_ESP8266Shield](examples/Teensy40_ESP8266Shield)
-
-1. No Config Data => Config Portal
-
-```
-Start Blynk WiFiManager using ESP8266_AT_Shield on TEENSY 4.0
-Start Blynk_WM
-[7866] AT version:0.40.0.0(Aug  8 2015 14:45:58)
-SDK version:1.3.0
-Ai-Thinker Technology Co.,Ltd.
-Build:1.3.0.2 Sep 11 2015 11:48:04
-OK
-[8392] Init new EEPROM, size = 1080
-[8393] bg: No configdat. Stay forever in config portal
-[12836] startConfig: SSID = Teensy4_CCE61, PW = MyTeensy4_CCE61, IP = 192.168.100.1
-
-```
-
-2. Config Data Ready => Run
-
-
-```
-Start Blynk WiFiManager using ESP8266_AT_Shield on TEENSY 4.0
-Start Blynk_WM
-[7866] AT version:0.40.0.0(Aug  8 2015 14:45:58)
-SDK version:1.3.0
-Ai-Thinker Technology Co.,Ltd.
-Build:1.3.0.2 Sep 11 2015 11:48:04
-OK
-[8390] Header = SHD_ESP8266, SSID = ****, PW = ****
-[8390] Server = ****.duckdns.org, Port = 8080, Token = ****
-[8390] Board Name = Teensy4-WM
-[8390] 
-    ___  __          __
-   / _ )/ /_ _____  / /__
-  / _  / / // / _ \/  '_/
- /____/_/\_, /_//_/_/\_\
-        /___/ v0.6.1 on Teensy 4.0
-
-[8390] con2WF: start
-[8390] connectToWifi: Try connectWiFi
-[8390] Connecting to ****
-[14956] AT version:0.40.0.0(Aug  8 2015 14:45:58)
-SDK version:1.3.0
-Ai-Thinker Technology Co.,Ltd.
-Build:1.3.0.2 Sep 11 2015 11:48:04
-OK
-[15493] Get macAddress = 5c:cf:7f:66:05:d2
-[22526] IP = 192.168.2.107
-
-[22543] Connected to WiFi
-[22543] con2WF: con OK
-[22543] IP = 192.168.2.107
-
-[22560] bg: WiFi connected. Try Blynk
-[32717] Ready (ping: 18ms).
-[32932] bg: WiFi+Blynk connected
-BBBBBBBBBB BBBBBBBBBB BBBBBBBBBB BBBBBBBBBB 
-F[634808] run: Blynk lost. Connect Blynk
-F[649868] run: Blynk lost. Connect Blynk
-F[664928] run: Blynk lost. Connect Blynk
-[675040] Ready (ping: 13ms).
-[675265] run: Blynk reconnected
-BBBBBBBBBB BBBBBBBBBB BBBBBBBBBB BBBBBBBBBB 
-
-```
-
-This `Blynk.begin()` is not a blocking call, so you can use it for critical functions requiring in loop(). 
-Anyway, this is better for projects using Blynk just for GUI (graphical user interface).
-
-In operation, if WiFi or Blynk connection is lost, `Blynk.run()` will try reconnecting automatically. Therefore, `Blynk.run()` must be called in the `loop()` function. Don't use:
+In `Configuration Portal Mode`, it starts an AP called `ESP_AT_XXXXXX`. Connect to it using the `configurable password` you can define in the code. For example, `MyESP_AT_XXXXXX` (see examples):
 
 ```cpp
-void loop()
-{
-  if (Blynk.connected())
-     Blynk.run();
-     
-  ...
-}
+// SSID and PW for Config Portal
+String ssid = "ESP_AT_" + String(0x1ABCDEF, HEX);
+const char* password = "ESP_AT_PW";
 ```
-just
+After you connected, please, go to http://192.168.4.1 or newly configured AP IP, you'll see this `Main` page:
+
+<p align="center">
+    <img src="https://github.com/khoih-prog/ESP_AT_WM_Lite/blob/master/Images/Main.png">
+</p>
+
+Enter your credentials, 
+
+<p align="center">
+    <img src="https://github.com/khoih-prog/ESP_AT_WM_Lite/blob/master/Images/Input.png">
+</p>
+
+then click `Save`. 
+
+<p align="center">
+    <img src="https://github.com/khoih-prog/ESP_AT_WM_Lite/blob/master/Images/Save.png">
+</p>
+
+The WiFi Credentials will be saved and the board connect to the selected WiFi AP.
+
+If you're already connected to a listed WiFi AP and don't want to change anything, just select `Exit` from the `Main` page to reboot the board and connect to the previously-stored AP. The WiFi Credentials are still intact.
+
+
+#### On Demand Configuration Portal
+
+Sample Code
 
 ```cpp
-void loop()
-{
-  Blynk.run();
-  ...
-}
-```
+/* Comment this out to disable prints and save space */
+#define ESP_AT_DEBUG_OUTPUT Serial
 
-## TO DO
-
-1. Same features for other boards ESP8266 AT-command WiFi shields.
-2. To fix the ***EEPROM not working*** in some STM32 boards
-
-## DONE
-
- 1. Permit EEPROM size and location configurable to avoid conflict with others.
- 2. More flexible to configure reconnection timeout.
- 3. For fresh config data, don't need to wait for connecting timeout before entering config portal.
- 4. If the config data not entered completely (SSID, password, Server and Blynk token), entering config portal
- 5. Add configurable Config Portal IP, SSID and Password
- 6. Add configurable Static IP, GW, Subnet Mask and 2 DNS Servers' IP Addresses.
-
-## Example
-Please take a look at examples, as well.
-
-```
-#define BLYNK_PRINT Serial
+#define ESP_AT_DEBUG    true
 
 #if ( defined(ESP8266) || defined(ESP32) || defined(ARDUINO_AVR_MEGA) || defined(ARDUINO_AVR_MEGA2560) || !defined(CORE_TEENSY) )
 #error This code is intended to run on Teensy platform! Please check your Tools->Board setting.
 #endif
 
 #ifdef CORE_TEENSY
-  // For Teensy 4.0
-  #define EspSerial Serial2   //Serial2, Pin RX2 : 7, TX2 : 8
-  #if defined(__IMXRT1062__)
-    #define BOARD_TYPE      "TEENSY 4.0"
-  #else
-    #define BOARD_TYPE      BLYNK_INFO_DEVICE
-  #endif
-
+// For Teensy 4.0
+#define EspSerial Serial2   //Serial2, Pin RX2 : 7, TX2 : 8
+#if defined(__IMXRT1062__)
+#define BOARD_TYPE      "TEENSY 4.0"
 #else
-// For Mega
-#define EspSerial Serial3
-#define BOARD_TYPE      "AVR Mega"
+#define BOARD_TYPE      BLYNK_INFO_DEVICE
 #endif
 
-#include <ESP8266_Lib.h>
+#else
+// For Other Boards
+#define EspSerial Serial3
+#define BOARD_TYPE      "Unknown Board"
+#endif
 
 // Start location in EEPROM to store config data. Default 0
 // Config data Size currently is 128 bytes)
 #define EEPROM_START     0
 
-#define USE_BLYNK_WM      true
-//#define USE_BLYNK_WM      false
-
-#if USE_BLYNK_WM
-  #ifdef CORE_TEENSY
-    #include <BlynkSimpleShieldEsp8266_Teensy_WM.h>
-  #else
-    #include <BlynkSimpleShieldEsp8266_WM.h>
-  #endif
-#else
-  #include <BlynkSimpleShieldEsp8266_Teensy.h>
-
-  #define USE_LOCAL_SERVER      true
-
-  #if USE_LOCAL_SERVER
-    char auth[] = "****";
-    String BlynkServer = "account.duckdns.org";
-    //String BlynkServer = "192.168.2.112";
-  #else
-    char auth[] = "****";
-    String BlynkServer = "blynk-cloud.com";
-  #endif
-
-  #define BLYNK_SERVER_HARDWARE_PORT    8080
-
-  // Your WiFi credentials.
-  char ssid[] = "****";
-  char pass[] = "****";
-  
-#endif
+#include <Esp8266_AT_WM_Lite_Teensy.h>
 
 // Your Teensy <-> ESP8266 baud rate:
 #define ESP8266_BAUD 115200
-
-ESP8266 wifi(&EspSerial);
 
 void heartBeatPrint(void)
 {
   static int num = 1;
 
-  if (Blynk.connected())
-  {
-    Serial.print("B");
-  }
+  if (WiFi.status() == WL_CONNECTED)
+    Serial.print("H");        // H means connected to WiFi
   else
-  {
-    Serial.print("F");
-  }
-  
-  if (num == 80) 
+    Serial.print("F");        // F means not connected to WiFi
+
+  if (num == 80)
   {
     Serial.println();
     num = 1;
   }
-  else if (num++ % 10 == 0) 
+  else if (num++ % 10 == 0)
   {
     Serial.print(" ");
   }
-} 
+}
 
 void check_status()
 {
   static unsigned long checkstatus_timeout = 0;
 
-#define STATUS_CHECK_INTERVAL     15000L
-
-  // Send status report every STATUS_REPORT_INTERVAL (60) seconds: we don't need to send updates frequently if there is no status change.
+  //KH
+#define HEARTBEAT_INTERVAL    10000L
+  // Print hearbeat every HEARTBEAT_INTERVAL (10) seconds.
   if ((millis() > checkstatus_timeout) || (checkstatus_timeout == 0))
   {
-    // report status to Blynk
     heartBeatPrint();
-
-    checkstatus_timeout = millis() + STATUS_CHECK_INTERVAL;
+    checkstatus_timeout = millis() + HEARTBEAT_INTERVAL;
   }
 }
 
-void setup() 
+ESP_AT_WiFiManager_Lite* ESP_AT_WiFiManager;    //(&EspSerial, ESP8266_BAUD);
+
+void setup()
 {
   // Debug console
   Serial.begin(115200);
   delay(1000);
- 
-  // initialize serial for ESP module
-  EspSerial.begin(ESP8266_BAUD);
-  Serial.println("\nStart Blynk WiFiManager using ESP8266_AT_Shield on " + String(BOARD_TYPE));
 
-  #if USE_BLYNK_WM
-    Serial.println("Start Blynk_WM");
-    Blynk.setConfigPortalIP(IPAddress(192, 168, 100, 1));
-    //Blynk.setConfigPortal("Teensy4", "MyTeensy4");
-    Blynk.begin(wifi);
-  #else
-    Serial.println("Start Blynk");
-    Blynk.begin(auth, wifi, ssid, pass, BlynkServer.c_str(), BLYNK_SERVER_HARDWARE_PORT);
-  #endif
+  Serial.println("\nStart Teensy_ESP8266Shield on " + String(BOARD_TYPE));
+
+  // initialize serial for ESP module
+  EspSerial.begin(115200);
+
+  ESP_AT_WiFiManager = new ESP_AT_WiFiManager_Lite(&EspSerial, ESP8266_BAUD);
+
+  // Optional to change default AP IP(192.168.4.1) and channel(10)
+  //ESP_AT_WiFiManager->setConfigPortalIP(IPAddress(192, 168, 120, 1));
+  //ESP_AT_WiFiManager->setConfigPortalChannel(1);
+
+  ESP_AT_WiFiManager->begin();
 }
 
 void loop()
 {
-  Blynk.run();
+  ESP_AT_WiFiManager->run();
   check_status();
 }
 ```
-### New Version v1.0.3
 
-1. Add support to STM32 (STM32F1, F2, F3, F4, F7, etc) boards
-2. Add clearConfigData() function.
+This is the terminal output when running [Teensy_ESP8266Shield](examples/Teensy_ESP8266Shield) example on ***Teensy 4.0***:
 
-### New Release v1.0.2
+1. Open Config Portal
 
-1. Add support to SAMD (DUE, ZERO, MKR, NANO_33_IOT, M0, M0 Pro, AdaFruit CIRCUITPLAYGROUND_EXPRESS, etc.) boards
+```
+Start Teensy_ESP8266Shield on TEENSY 4.0
+*AT: CCsum=5543,RCsum=1127042391
+*AT: Init EEPROM sz=1080
+*AT: Open Portal
+*AT: SSID=ESP_AT_CCE61, PW=MyESP_AT_CCE61
+*AT: IP=192.168.4.1, CH=10
+FFF
+```
 
-### Release v1.0.1
+2. Got valid Credential from onfig Portal, then connected to WiFi
 
-1. Add ESP8266_AT_WebServer dependency for autoinstall via Library Manager
-2. Add prerequisite to README.md
-3. Add checksum, fix bug
+```
+Start Teensy_ESP8266Shield on TEENSY 4.0
+*AT: CCsum=2271,RCsum=2271
+*AT: Hdr=SHD_ESP8266, SSID=HueNet1, PW=****
+*AT: con2WF:start
+*AT: con2WF:spent millis=0
+*AT: Con2 HueNet1
+*AT: IP=192.168.2.82
+*AT: WiFi OK
+*AT: con2WF:OK
+*AT: IP=192.168.2.82
+*AT: WiFi OK
+HHHHHHHHHH HHHHHHHHHH HHHHHHHHHH HHHHHHHHHH HHHHHHHHHH HHHHHHHHHH HHHHHHHHHH HHHHHHHHHH
+HHHHHHHHHH HHHHHHHHHH HHHHHHHHHH HHHHHHHHHH HHHHHHHHHH HHHHHHHHHH HHHHHHHHHH HHHHHHHHHH
 
-### Release v1.0.0
+```
 
-***Features***
+#### Debug
+Debug is enabled by default on Serial. To disable, add at the beginning of sketch
 
-1. This release of very-easy-to-use will help you to eliminate hardcoding your Wifi and Blynk credentials for Mega/Teensy boards running ESP8266 AT shields, and updating/reflashing every time when you need to change them.
-2. Configuration data are stored in configurable location in EEPROM.
-3. When WiFi and/or Blynk connection is lost, the WM will try auto-reconnect.
-4. `Config Portal Static IP address, Name and Password.`
-5. `Static IP address, Gateway, Subnet Mask.`
+```cpp
+/* Comment this out to disable prints and save space */
+#define ESP_AT_DEBUG_OUTPUT Serial
 
-## Contributing
+#define ESP_AT_DEBUG    false
+```
+
+## Troubleshooting
+If you get compilation errors, more often than not, you may need to install a newer version of the board's core, `ESP8266 AT shield` AT-command or this library version.
+
+Sometimes, the library will only work if you update the `ESP8266 AT shield` core to the newer or older version because some function compatibility.
+
+### TO DO
+
+1. Too many things to list, EEPROM, SPIFFS/FS/FAT FS (if available)
+2. Find better and easier way to add more parameters.
+3. Add more examples 
+
+#### New in v1.0.0
+
+- This is a Light-Weight Credentials / WiFi Connection Manager with fallback web configuration portal. Completely new to support ***Teensy, SAM DUE, SAMD, STM32, etc. boards running ESP8266 AT-command shields.*** with small memory (64+K bytes)
+
+
+### Contributing
 
 If you want to contribute to this project:
 - Report bugs and errors
@@ -371,6 +293,8 @@ If you want to contribute to this project:
 - Create issues and pull requests
 - Tell other people about this library
 
-## Copyright
+### Copyright
 
 Copyright 2020- Khoi Hoang
+
+
