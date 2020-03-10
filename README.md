@@ -140,23 +140,39 @@ Sample Code
 #endif
 
 #ifdef CORE_TEENSY
+
+#if defined(__IMXRT1062__)
 // For Teensy 4.0
 #define EspSerial Serial2   //Serial2, Pin RX2 : 7, TX2 : 8
-#if defined(__IMXRT1062__)
 #define BOARD_TYPE      "TEENSY 4.0"
-#else
-#define BOARD_TYPE      BLYNK_INFO_DEVICE
-#endif
-
+#elif defined(__MK66FX1M0__)
+#define BOARD_TYPE "Teensy 3.6"
+#elif defined(__MK64FX512__)
+#define BOARD_TYPE "Teensy 3.5"
+#elif defined(__MKL26Z64__)
+#define BOARD_TYPE "Teensy LC"
+#elif defined(__MK20DX256__)
+#define BOARD_TYPE "Teensy 3.2" // and Teensy 3.1 (obsolete)
+#elif defined(__MK20DX128__)
+#define BOARD_TYPE "Teensy 3.0"
+#elif defined(__AVR_AT90USB1286__)
+#error Teensy 2.0++ not supported yet
+#elif defined(__AVR_ATmega32U4__)
+#error Teensy 2.0 not supported yet
 #else
 // For Other Boards
 #define EspSerial Serial3
-#define BOARD_TYPE      "Unknown Board"
+#define BOARD_TYPE      "Unknown Teensy Board"
+#endif
+#endif
+
+#if !defined(EspSerial)
+#define EspSerial Serial1
 #endif
 
 // Start location in EEPROM to store config data. Default 0
 // Config data Size currently is 128 bytes)
-#define EEPROM_START     0
+#define EEPROM_START     256
 
 #include <Esp8266_AT_WM_Lite_Teensy.h>
 
