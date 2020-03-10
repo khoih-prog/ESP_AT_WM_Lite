@@ -22,6 +22,12 @@
 #error This code is intended to run on Teensy platform! Please check your Tools->Board setting.
 #endif
 
+#if defined(__AVR_AT90USB1286__)
+#error Teensy 2.0++ not supported yet
+#elif defined(__AVR_ATmega32U4__)
+#error Teensy 2.0 not supported yet
+#endif
+
 #include <ESP8266_AT_WebServer.h>
 #include <EEPROM.h>
 #include <Esp8266_AT_WM_Lite_Debug.h>
@@ -318,7 +324,13 @@ class ESP_AT_WiFiManager_Lite
 
     void resetFunc()
     {
-      SCB_AIRCR = 0x05FA0004; //write value for restart for Teensy
+      #if defined(__IMXRT1062__)
+        // Teensy 4.0
+        SCB_AIRCR = 0x05FA0004; //write value for restart for Teensy
+      #else 
+        void(*resetFunc)(void) = 0;
+        resetFunc();
+      #endif
     }
 
   private:
