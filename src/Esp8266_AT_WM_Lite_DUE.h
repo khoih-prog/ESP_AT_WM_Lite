@@ -1,5 +1,5 @@
 /****************************************************************************************************************************
-   Esp8266_AT_WM_Lite_SAMD.h
+   Esp8266_AT_WM_Lite_DUE.h
    For SAM DUE boards using ESP8266 AT WiFi Shields, using much less code to support boards with smaller memory
 
    Esp8266_AT_WM_Lite is a library for the Mega, Teensy, SAM DUE, SAMD and STM32 boards (https://github.com/khoih-prog/ESP_AT_WM_Lite)
@@ -15,8 +15,8 @@
     1.0.0   K Hoang      09/03/2020  Initial coding
  *****************************************************************************************************************************/
 
-#ifndef Esp8266_AT_WM_Lite_SAMD_h
-#define Esp8266_AT_WM_Lite_SAMD_h
+#ifndef Esp8266_AT_WM_Lite_DUE_h
+#define Esp8266_AT_WM_Lite_DUE_h
 
 #if ( defined(ARDUINO_SAM_DUE) || defined(__SAM3X8E__) )
   #if defined(ESP8266_AT_USE_SAM_DUE)
@@ -600,4 +600,4 @@ class ESP_AT_WiFiManager_Lite
 };
 
 
-#endif    //Esp8266_AT_WM_Lite_SAMD_h
+#endif    //Esp8266_AT_WM_Lite_DUE_h
