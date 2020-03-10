@@ -105,19 +105,19 @@ const char* password = "ESP_AT_PW";
 After you connected, please, go to http://192.168.4.1 or newly configured AP IP, you'll see this `Main` page:
 
 <p align="center">
-    <img src="https://github.com/khoih-prog/ESP_AT_WM_Lite/blob/master/Images/Main.png">
+    <img src="https://github.com/khoih-prog/ESP_AT_WM_Lite/blob/master/pics/Main.png">
 </p>
 
 Enter your credentials, 
 
 <p align="center">
-    <img src="https://github.com/khoih-prog/ESP_AT_WM_Lite/blob/master/Images/Input.png">
+    <img src="https://github.com/khoih-prog/ESP_AT_WM_Lite/blob/master/pics/Input.png">
 </p>
 
 then click `Save`. 
 
 <p align="center">
-    <img src="https://github.com/khoih-prog/ESP_AT_WM_Lite/blob/master/Images/Save.png">
+    <img src="https://github.com/khoih-prog/ESP_AT_WM_Lite/blob/master/pics/Save.png">
 </p>
 
 The WiFi Credentials will be saved and the board connect to the selected WiFi AP.
