@@ -54,33 +54,11 @@ uint16_t CONFIG_DATA_SIZE = sizeof(ESP8266_AT_Configuration);
 
 #define root_html_template "\
 <!DOCTYPE html>\
-<html>\
-<head>\
-<title>SAM_DUE_WM</title>\
-</head>\
-<body>\
-<div align=\"center\">\
-<table>\
-<tbody>\
-<tr>\
-<th colspan=\"2\">WiFi</th>\
-</tr>\
-<tr>\
-<td>SSID</td>\
-<td><input type=\"text\" value=\"[[id]]\" id=\"id\"></td>\
-</tr>\
-<tr>\
-<td>PWD</td>\
-<td><input type=\"text\" value=\"[[pw]]\" id=\"pw\"></td>\
-</tr>\
-<tr>\
-<td colspan=\"2\" align=\"center\">\
-<button onclick=\"sv()\">Save</button>\
-</td>\
-</tr>\
-</tbody>\
-</table>\
-</div>\
+<html><head><title>SAM_DUE_WM</title><style>.em{padding-bottom:0px;}div,input{padding:5px;font-size:1em;}input{width:95%;}\
+body{text-align: center;}button{background-color:#16A1E7;color:#fff;line-height:2.4rem;font-size:1.2rem;width:100%;}fieldset{border-radius:0.3rem;margin:0px;}\
+</style></head><div style=\"text-align:left;display:inline-block;min-width:260px;\"><fieldset><div class=\"\"><label for=\"id\">SSID</label>\
+<input type=\"text\"id=\"id\"><div class=\"em\"></div></div><div class=\"\"><label for=\"pw\">PWD</label><input id=\"pw\"><div class=\"em\"></div></div>\
+</fieldset><button onclick=\"sv()\">Save</button></div>\
 <script id=\"jsbin-javascript\">\
 function udVal(key,val){\
 var request=new XMLHttpRequest();\
