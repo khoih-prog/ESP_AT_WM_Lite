@@ -53,27 +53,17 @@ typedef struct Configuration
 uint16_t CONFIG_DATA_SIZE = sizeof(ESP8266_AT_Configuration);
 
 #define root_html_template "\
-<!DOCTYPE html>\
-<html><head><title>SAM_DUE_WM</title><style>.em{padding-bottom:0px;}div,input{padding:5px;font-size:1em;}input{width:95%;}\
+<!DOCTYPE html><html><head><title>SAM_DUE_WM</title><style>.em{padding-bottom:0px;}div,input{padding:5px;font-size:1em;}input{width:95%;}\
 body{text-align: center;}button{background-color:#16A1E7;color:#fff;line-height:2.4rem;font-size:1.2rem;width:100%;}fieldset{border-radius:0.3rem;margin:0px;}\
-</style></head><div style=\"text-align:left;display:inline-block;min-width:260px;\"><fieldset><div class=\"\"><label for=\"id\">SSID</label>\
-<input type=\"text\"id=\"id\"><div class=\"em\"></div></div><div class=\"\"><label for=\"pw\">PWD</label><input id=\"pw\"><div class=\"em\"></div></div>\
-</fieldset><button onclick=\"sv()\">Save</button></div>\
+</style></head><div style=\"text-align:left;display:inline-block;min-width:260px;\"><fieldset>\
+<div class=\"\"><label for=\"id\">SSID</label><input type=\"text\"value=\"[[id]]\"id=\"id\"><div class=\"em\"></div></div>\
+<div class=\"\"><label for=\"pw\">PWD</label><input value=\"[[pw]]\"id=\"pw\"><div class=\"em\"></div></div></fieldset>\
+<button onclick=\"sv()\">Save</button></div>\
 <script id=\"jsbin-javascript\">\
-function udVal(key,val){\
-var request=new XMLHttpRequest();\
-var url='/?key='+key+'&value='+val;\
-request.open('GET',url,false);\
-request.send(null);\
-}\
-function sv(){\
-udVal('id',document.getElementById('id').value);\
-udVal('pw',document.getElementById('pw').value);\
-alert('Updated');\
-}\
-</script>\
-</body>\
-</html>"
+function udVal(key,val){var request=new XMLHttpRequest();var url='/?key='+key+'&value='+val;request.open('GET',url,false);request.send(null);}\
+function sv(){udVal('id',document.getElementById('id').value);udVal('pw',document.getElementById('pw').value);alert('Updated');}\
+</script></html>"
+
 
 String IPAddressToString(IPAddress _address)
 {
