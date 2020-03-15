@@ -569,7 +569,23 @@ class ESP_AT_WiFiManager_Lite
         }
       }   // if (server)
     }
-
+    
+    #if 0
+    uint8_t macTeensy[6];
+    
+    static void teensyMAC(uint8_t *mac)
+    {
+      uint32_t m1 = HW_OCOTP_MAC1;
+      uint32_t m2 = HW_OCOTP_MAC0;
+      mac[0] = m1 >> 8;
+      mac[1] = m1 >> 0;
+      mac[2] = m2 >> 24;
+      mac[3] = m2 >> 16;
+      mac[4] = m2 >> 8;
+      mac[5] = m2 >> 0;
+    } 
+    #endif
+    
     void startConfigurationMode()
     {
 #define CONFIG_TIMEOUT			60000L
@@ -579,15 +595,15 @@ class ESP_AT_WiFiManager_Lite
 
       if ( (portal_ssid == "") || portal_pass == "" )
       {
-        String randomNum = String(random(0xFFFFFF), HEX);
-        randomNum.toUpperCase();
-
-        portal_ssid = "ESP_AT_" + randomNum;
-        portal_pass = "MyESP_AT_" + randomNum;
+        String hardwareID = String(HW_OCOTP_MAC0, HEX);
+        hardwareID.toUpperCase();
+        
+        portal_ssid = "ESP_AT_" + hardwareID;
+        portal_pass = "MyESP_AT_" + hardwareID;
       }
 
-      INFO_WM4(F("SSID="), portal_ssid, F(", PW="), portal_pass);
-      INFO_WM4(F("IP="), portal_apIP, F(", CH="), AP_channel);
+      INFO_WM4(F("SSID="), portal_ssid, F(",PW="), portal_pass);
+      INFO_WM4(F("IP="), portal_apIP, F(",CH="), AP_channel);
 
       // start access point, AP only, channel 10
       
