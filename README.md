@@ -299,7 +299,7 @@ Sometimes, the library will only work if you update the `ESP8266 AT shield` core
 #### New in v1.0.0
 
 - This is a Light-Weight Credentials / WiFi Connection Manager with fallback web configuration portal. Completely new to support ***Teensy, SAM DUE, SAMD, STM32, etc. boards running ESP8266 AT-command shields.*** with small memory (64+K bytes)
-
+- Config Portal AP SSID and Password will use 4 bytes of hardware unique macAddress, only for Teensy.
 
 ### Contributing
 
