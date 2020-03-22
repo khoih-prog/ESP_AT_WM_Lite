@@ -8,11 +8,12 @@
 
    Built by Khoi Hoang https://github.com/khoih-prog/ESP_AT_WM_Lite
    Licensed under MIT license
-   Version: 1.0.0
+   Version: 1.0.1
 
    Version Modified By   Date        Comments
    ------- -----------  ----------   -----------
     1.0.0   K Hoang      09/03/2020  Initial coding
+    1.0.1   K Hoang      20/03/2020  Add feature to enable adding dynamically more Credentials parameters in sketch
  *****************************************************************************************************************************/
 
 /* Comment this out to disable prints and save space */
@@ -35,9 +36,31 @@
 
 // Start location in EEPROM to store config data. Default 0
 // Config data Size currently is 128 bytes)
-#define EEPROM_START      (64)
+#define EEPROM_START      0
 
 #include <Esp8266_AT_WM_Lite.h>
+
+#define MAX_BLYNK_SERVER_LEN      34
+char Blynk_Server [MAX_BLYNK_SERVER_LEN]  = "";
+
+#define MAX_BLYNK_TOKEN_LEN       34
+char Blynk_Token  [MAX_BLYNK_TOKEN_LEN]   = "";
+
+#define MAX_BLYNK_PORT_LEN        6
+char Blynk_Port   [MAX_BLYNK_PORT_LEN]  = "";
+
+#define MAX_MQTT_SERVER_LEN      34
+char MQTT_Server  [MAX_MQTT_SERVER_LEN]   = "";
+
+MenuItem myMenuItems [] = 
+{
+  { "sv", "Blynk Server", Blynk_Server, MAX_BLYNK_SERVER_LEN },
+  { "tk", "Token",        Blynk_Token,  MAX_BLYNK_TOKEN_LEN },
+  { "pt", "Port",         Blynk_Port,   MAX_BLYNK_PORT_LEN },
+  { "mq", "MQTT Server",  MQTT_Server,  MAX_MQTT_SERVER_LEN },
+};
+
+uint16_t NUM_MENU_ITEMS = sizeof(myMenuItems) / sizeof(MenuItem);  //MenuItemSize;
 
 // Your Mega <-> ESP8266 baud rate:
 #define ESP8266_BAUD 115200
@@ -47,9 +70,9 @@ void heartBeatPrint(void)
   static int num = 1;
 
   if (WiFi.status() == WL_CONNECTED)
-    Serial.print("H");        // H means connected to WiFi
+    Serial.print(F("H"));        // H means connected to WiFi
   else
-    Serial.print("F");        // F means not connected to WiFi
+    Serial.print(F("F"));        // F means not connected to WiFi
   
   if (num == 80) 
   {
@@ -58,7 +81,7 @@ void heartBeatPrint(void)
   }
   else if (num++ % 10 == 0) 
   {
-    Serial.print(" ");
+    Serial.print(F(" "));
   }
 } 
 
@@ -66,9 +89,8 @@ void check_status()
 {
   static unsigned long checkstatus_timeout = 0;
 
-  //KH
-  #define HEARTBEAT_INTERVAL    10000L
-  // Print hearbeat every HEARTBEAT_INTERVAL (10) seconds.
+#define HEARTBEAT_INTERVAL    600000L
+  // Print hearbeat every HEARTBEAT_INTERVAL (600) seconds.
   if ((millis() > checkstatus_timeout) || (checkstatus_timeout == 0))
   {
     heartBeatPrint();
@@ -84,7 +106,8 @@ void setup()
   Serial.begin(115200);
   delay(1000);
 
-  Serial.println("\nStart Mega_ESP8266Shield on " + String(BOARD_TYPE));
+  Serial.print(F("\nStart Mega_ESP8266Shield on "));
+  Serial.println(BOARD_TYPE);
 
   // initialize serial for ESP module
   EspSerial.begin(115200);
@@ -98,8 +121,38 @@ void setup()
   ESP_AT_WiFiManager->begin();
 }
 
+void displayCredentials(void)
+{
+  Serial.println("Your stored Credentials :");
+
+  for (int i = 0; i < NUM_MENU_ITEMS; i++)
+  {
+    Serial.println(String(myMenuItems[i].displayName) + " = " + myMenuItems[i].pdata);
+  }
+}
+
 void loop()
 {
   ESP_AT_WiFiManager->run();
+
+  static bool displayedCredentials = false;
+
+  if (!displayedCredentials)
+  {
+    for (int i = 0; i < NUM_MENU_ITEMS; i++)
+    {
+      if (!strlen(myMenuItems[i].pdata))
+      {
+        break;
+      }
+
+      if ( i == (NUM_MENU_ITEMS - 1) )
+      {
+        displayedCredentials = true;
+        displayCredentials();
+      }
+    }
+  }
+
   check_status();
 }

@@ -8,6 +8,7 @@
 
 ESP_AT_WiFiManager_Lite	KEYWORD1
 ESP8266_AT_Configuration KEYWORD1
+ESP8266_AT_Configuration  KEYWORD1
 
 #######################################
 # Methods and Functions (KEYWORD2)
@@ -22,6 +23,7 @@ setSTAStaticIPConfig	KEYWORD2
 getFullConfigData KEYWORD2
 localIP KEYWORD2
 clearConfigData KEYWORD2
+isConfigDataValid KEYWORD2
 resetFunc	KEYWORD2
 
 IPAddressToString KEYWORD2
@@ -33,3 +35,4 @@ IPAddressToString KEYWORD2
 #	LITERAL1
 
 CONFIG_DATA_SIZE  LITERAL1
+NUM_MENU_ITEMS  LITERAL1

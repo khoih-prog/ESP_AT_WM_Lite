@@ -1,16 +1,27 @@
-# ESP_AT_WM_Lite (Light Weight Credentials / WiFi Manager for ESP8266 AT shields)
+## ESP_AT_WM_Lite (Light Weight Credentials / WiFi Manager for ESP8266 AT shields)
 
 [![arduino-library-badge](https://www.ardu-badge.com/badge/ESP_AT_WM_Lite.svg?)](https://www.ardu-badge.com/ESP_AT_WM_Lite)
+
+#### New in v1.0.1
+
+1. New ***powerful-yet-simple-to-use feature to enable adding dynamic custom parameters*** from sketch and input using the same Config Portal. Config Portal will be auto-adjusted to match the number of dynamic parameters.
+2. Dynamic custom parameters to be saved ***automatically in EEPROM, SAMD EEPROM-emulated FlashStorage or SAM DUE DueFlashStorage***.
+
+## Features
 
 This library is a Light Weight Credentials / WiFi Manager for ESP8266 AT shields, specially designed to support ***Teensy, SAM DUE, SAMD, STM32, etc. boards running ESP8266 AT-command shields.*** with smaller memory (64+K bytes)
 
 The AVR-family boards (UNO, Nano, etc.) are ***not supported*** as they don't have enough memory to run Config Portal WebServer.
 
-This is a Credentials / WiFi Connection Manager with fallback web configuration portal.
+This is a Credentials / WiFi Connection Manager, permitting the addition of custom parameters to be configured in Config Portal. The parameters then will be saved automatically, ***without the complicated callback functions*** to handle data saving / retrieving.
+
+If you have used the full-fledge WiFiManager such as :
+1. [`Tzapu WiFiManager`](https://github.com/tzapu/WiFiManager)
+2. [`Ken Taylor WiFiManager`](https://github.com/kentaylor/WiFiManager)
+3. [`ESP_WiFiManager`](https://github.com/khoih-prog/ESP_WiFiManager)
+and have to write complicated callback functions to save custom parameters in SPIFFS, you'd appreciate the simplicity of this Light-Weight Credentials / WiFiManager
 
 The web configuration portal, served from the `ESP8266 AT-command shields` is operating as an access point (AP) with configurable static IP address or use default IP Address of 192.168.4.1
-
-The configuration portal is captive, so it will present the configuration dialogue regardless of the web address selected, excluding https requests.
 
 ## Prerequisite
 1. [`Arduino IDE 1.8.12 or later` for Arduino](https://www.arduino.cc/en/Main/Software)
@@ -23,10 +34,13 @@ The configuration portal is captive, so it will present the configuration dialog
 
 ## How It Works
 
-- The [Mega_ESP8266Shield](examples/Mega_ESP8266Shield) example shows how it works and should be used as the basis for a sketch that uses this library.
-- The concept of [Mega_ESP8266Shield](examples/Mega_ESP8266Shield) is that a new `ESP8266 AT shield` will start a WiFi configuration portal when powered up and has no stored Credentials. It will then save the configuration data in host's non-volatile memory. If there is valid stored Credentials, it'll go directly to connect to WiFi without starting / using the Config Portal.
-- Using any WiFi enabled device with a browser (computer, phone, tablet) connect to the newly created AP and type in the AP IP address (default 192.168.4.1).
-- Input SSID and Password of the APs to be connected, thn click `Save`.
+- The [Teensy40_ESP8266Shield](examples/Teensy40_ESP8266Shield) example shows how it works and should be used as the basis for a sketch that uses this library.
+- The concept of [Teensy40_ESP8266Shield](examples/Teensy40_ESP8266Shield) is that a new `ESP8266 AT shield` will start a WiFi configuration portal when powered up, but has no valid stored Credentials. 
+- There are 6 more custom parameters added in the sketch which you can use in your program later. In the example, they are: 2 sets of Blynk Servers and Tokens, Blynk Port and MQTT Server.
+- Using any WiFi enabled device with a browser (computer, phone, tablet) connect to the newly created AP and type in the configurable AP IP address (default 192.168.4.1). The Config Portal AP channel (default 10) is also configurable to avoid conflict with other APs.
+- The Config Portal is auto-adjusted to fix the 2 static parameters (WiFi SSID/PWD) as well as 6 more dynamic custom parameters.
+- After the custom data entered, and `Save` button pressed, the configuration data will be saved in host's non-volatile memory, then the board reboots.
+- If there is valid stored Credentials, it'll go directly to connect to WiFi without starting / using the Config Portal.
 - `ESP8266 AT shield` will try to connect. If successful, the dynamic DHCP or configured static IP address will be displayed in the configuration portal. 
 - The `ESP8266 AT shield` WiFi Config Portal network and Web Server will shutdown to return control to the sketch code.
 
@@ -62,6 +76,38 @@ ESP_AT_WiFiManager_Lite* ESP_AT_WiFiManager;
 
 // Your Mega <-> ESP8266 baud rate:
 #define ESP8266_BAUD 115200
+```
+
+- To add custom parameters, just add
+
+```
+#define MAX_BLYNK_SERVER_LEN      34
+#define MAX_BLYNK_TOKEN_LEN       34
+
+char Blynk_Server1 [MAX_BLYNK_SERVER_LEN]  = "";
+char Blynk_Token1  [MAX_BLYNK_TOKEN_LEN]   = "";
+
+char Blynk_Server2 [MAX_BLYNK_SERVER_LEN]  = "";
+char Blynk_Token2  [MAX_BLYNK_TOKEN_LEN]   = "";
+
+#define MAX_BLYNK_PORT_LEN        6
+char Blynk_Port   [MAX_BLYNK_PORT_LEN]  = "";
+
+#define MAX_MQTT_SERVER_LEN      34
+char MQTT_Server  [MAX_MQTT_SERVER_LEN]   = "";
+
+MenuItem myMenuItems [] =
+{
+  { "sv1", "Blynk Server1", Blynk_Server1,  MAX_BLYNK_SERVER_LEN },
+  { "tk1", "Token1",        Blynk_Token1,   MAX_BLYNK_TOKEN_LEN },
+  { "sv2", "Blynk Server2", Blynk_Server2,  MAX_BLYNK_SERVER_LEN },
+  { "tk2", "Token2",        Blynk_Token2,   MAX_BLYNK_TOKEN_LEN },
+  { "pt", "Port",           Blynk_Port,     MAX_BLYNK_PORT_LEN },
+  { "mq", "MQTT Server",    MQTT_Server,    MAX_MQTT_SERVER_LEN },
+};
+
+uint16_t NUM_MENU_ITEMS = sizeof(myMenuItems) / sizeof(MenuItem);  //MenuItemSize;
+
 ```
 
 - When you want to open a config portal, just add
@@ -172,9 +218,36 @@ Sample Code
 
 // Start location in EEPROM to store config data. Default 0
 // Config data Size currently is 128 bytes)
-#define EEPROM_START     256
+#define EEPROM_START     0
 
 #include <Esp8266_AT_WM_Lite_Teensy.h>
+
+#define MAX_BLYNK_SERVER_LEN      34
+#define MAX_BLYNK_TOKEN_LEN       34
+
+char Blynk_Server1 [MAX_BLYNK_SERVER_LEN]  = "";
+char Blynk_Token1  [MAX_BLYNK_TOKEN_LEN]   = "";
+
+char Blynk_Server2 [MAX_BLYNK_SERVER_LEN]  = "";
+char Blynk_Token2  [MAX_BLYNK_TOKEN_LEN]   = "";
+
+#define MAX_BLYNK_PORT_LEN        6
+char Blynk_Port   [MAX_BLYNK_PORT_LEN]  = "";
+
+#define MAX_MQTT_SERVER_LEN      34
+char MQTT_Server  [MAX_MQTT_SERVER_LEN]   = "";
+
+MenuItem myMenuItems [] =
+{
+  { "sv1", "Blynk Server1", Blynk_Server1,  MAX_BLYNK_SERVER_LEN },
+  { "tk1", "Token1",        Blynk_Token1,   MAX_BLYNK_TOKEN_LEN },
+  { "sv2", "Blynk Server2", Blynk_Server2,  MAX_BLYNK_SERVER_LEN },
+  { "tk2", "Token2",        Blynk_Token2,   MAX_BLYNK_TOKEN_LEN },
+  { "pt", "Port",           Blynk_Port,     MAX_BLYNK_PORT_LEN },
+  { "mq", "MQTT Server",    MQTT_Server,    MAX_MQTT_SERVER_LEN },
+};
+
+uint16_t NUM_MENU_ITEMS = sizeof(myMenuItems) / sizeof(MenuItem);  //MenuItemSize;
 
 // Your Teensy <-> ESP8266 baud rate:
 #define ESP8266_BAUD 115200
@@ -204,8 +277,8 @@ void check_status()
   static unsigned long checkstatus_timeout = 0;
 
   //KH
-#define HEARTBEAT_INTERVAL    10000L
-  // Print hearbeat every HEARTBEAT_INTERVAL (10) seconds.
+#define HEARTBEAT_INTERVAL    600000L
+  // Print hearbeat every HEARTBEAT_INTERVAL (600) seconds.
   if ((millis() > checkstatus_timeout) || (checkstatus_timeout == 0))
   {
     heartBeatPrint();
@@ -219,7 +292,7 @@ void setup()
 {
   // Debug console
   Serial.begin(115200);
-  delay(1000);
+  while (!Serial);
 
   Serial.println("\nStart Teensy_ESP8266Shield on " + String(BOARD_TYPE));
 
@@ -235,9 +308,39 @@ void setup()
   ESP_AT_WiFiManager->begin();
 }
 
+void displayCredentials(void)
+{
+  Serial.println("Your stored Credentials :");
+
+  for (int i = 0; i < NUM_MENU_ITEMS; i++)
+  {
+    Serial.println(String(myMenuItems[i].displayName) + " = " + myMenuItems[i].pdata);
+  }
+}
+
 void loop()
 {
   ESP_AT_WiFiManager->run();
+
+  static bool displayedCredentials = false;
+
+  if (!displayedCredentials)
+  {
+    for (int i = 0; i < NUM_MENU_ITEMS; i++)
+    {
+      if (!strlen(myMenuItems[i].pdata))
+      {
+        break;
+      }
+
+      if ( i == (NUM_MENU_ITEMS - 1) )
+      {
+        displayedCredentials = true;
+        displayCredentials();
+      }
+    }
+  }
+
   check_status();
 }
 ```
@@ -248,28 +351,59 @@ This is the terminal output when running [Teensy40_ESP8266Shield](examples/Teens
 
 ```
 Start Teensy_ESP8266Shield on TEENSY 4.0
-*AT: CCsum=5543,RCsum=1127042391
-*AT: Init EEPROM sz=1080
-*AT: Open Portal
-*AT: SSID=ESP_AT_CCE61, PW=MyESP_AT_CCE61
-*AT: IP=192.168.4.1, CH=10
+*AT: CrCCsum=6217,CrRCsum=825255525
+*AT: CCSum=1983,RCSum=1752461166
+*AT: InitEEPROM,sz=1080,Datasz=264
+*AT: pdata=blank,len=34
+*AT: pdata=blank,len=34
+*AT: pdata=blank,len=34
+*AT: pdata=blank,len=34
+*AT: pdata=blank,len=6
+*AT: pdata=blank,len=34
+*AT: CrCCSum=3120
+*AT: b:OpenPortal
+*AT: SSID=ESP_AT_E50AB22C,PW=MyESP_AT_E50AB22C
+*AT: IP=192.168.4.1,CH=1
+Your stored Credentials :
+Blynk Server1 = blank
+Token1 = blank
+Blynk Server2 = blank
+Token2 = blank
+Port = blank
+MQTT Server = blank
 FFF
 ```
 
 2. Got valid Credential from Config Portal, then connected to WiFi
 
 ```
+
 Start Teensy_ESP8266Shield on TEENSY 4.0
-*AT: CCsum=2271,RCsum=2271
-*AT: Hdr=SHD_ESP8266, SSID=HueNet1, PW=****
+*AT: CrCCsum=10595,CrRCsum=10595
+*AT: CCSum=2271,RCSum=2271
+*AT: Hdr=SHD_ESP8266,SSID=HueNet1,PW=****
+*AT: i=0,id=sv1,data=blynk1.duckdns.org
+*AT: i=1,id=tk1,data=****
+*AT: i=2,id=sv2,data=blynk2.duckdns.org
+*AT: i=3,id=tk2,data=****
+*AT: i=4,id=pt,data=8080
+*AT: i=5,id=mq,data=mqtt.duckdns.org
 *AT: con2WF:start
-*AT: con2WF:spent millis=0
-*AT: Con2 HueNet1
-*AT: IP=192.168.2.82
-*AT: WiFi OK
+*AT: con2WF:spentMsec=0
+*AT: Con2:HueNet1
+*AT: IP=192.168.2.135
+*AT: WOK
 *AT: con2WF:OK
-*AT: IP=192.168.2.82
-*AT: WiFi OK
+*AT: IP=192.168.2.135
+*AT: b:WOK
+Your stored Credentials :
+Blynk Server1 = blynk1.duckdns.org
+Token1 = ****
+Blynk Server2 = blynk2.duckdns.org
+Token2 = ****
+Port = 8080
+MQTT Server = mqtt.duckdns.org
+
 HHHHHHHHHH HHHHHHHHHH HHHHHHHHHH HHHHHHHHHH HHHHHHHHHH HHHHHHHHHH HHHHHHHHHH HHHHHHHHHH
 HHHHHHHHHH HHHHHHHHHH HHHHHHHHHH HHHHHHHHHH HHHHHHHHHH HHHHHHHHHH HHHHHHHHHH HHHHHHHHHH
 
@@ -296,10 +430,15 @@ Sometimes, the library will only work if you update the `ESP8266 AT shield` core
 2. Find better and easier way to add more parameters.
 3. Add more examples 
 
+#### New in v1.0.1
+
+1. New ***powerful-yet-simple-to-use feature to enable adding dynamic custom parameters*** from sketch and input using the same Config Portal. Config Portal will be auto-adjusted to match the number of dynamic parameters.
+2. Dynamic custom parameters to be saved ***automatically in EEPROM, SAMD EEPROM-emulated FlashStorage or SAM DUE DueFlashStorage***.
+
 #### New in v1.0.0
 
-- This is a Light-Weight Credentials / WiFi Connection Manager with fallback web configuration portal. Completely new to support ***Teensy, SAM DUE, SAMD, STM32, etc. boards running ESP8266 AT-command shields.*** with small memory (64+K bytes)
-- Config Portal AP SSID and Password will use 4 bytes of hardware unique macAddress, only for Teensy.
+1. This is a Light-Weight Credentials / WiFi Connection Manager with fallback web configuration portal. Completely new to support ***Teensy, SAM DUE, SAMD, STM32, etc. boards running ESP8266 AT-command shields.*** with small memory (64+K bytes)
+2. Config Portal AP SSID and Password will use 4 bytes of hardware unique macAddress, only for Teensy.
 
 ### Contributing
 
