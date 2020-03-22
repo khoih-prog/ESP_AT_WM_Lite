@@ -39,7 +39,7 @@ The web configuration portal, served from the `ESP8266 AT-command shields` is op
 - The concept of [Teensy40_ESP8266Shield](examples/Teensy40_ESP8266Shield) is that a new `ESP8266 AT shield` will start a WiFi configuration portal when powered up, but has no valid stored Credentials. 
 - There are 6 more custom parameters added in the sketch which you can use in your program later. In the example, they are: 2 sets of Blynk Servers and Tokens, Blynk Port and MQTT Server.
 - Using any WiFi enabled device with a browser (computer, phone, tablet) connect to the newly created AP and type in the configurable AP IP address (default 192.168.4.1). The Config Portal AP channel (default 10) is also configurable to avoid conflict with other APs.
-- The Config Portal is auto-adjusted to fix the 2 static parameters (WiFi SSID/PWD) as well as 6 more dynamic custom parameters.
+- The Config Portal is auto-adjusted to fit the 2 static parameters (WiFi SSID/PWD) as well as 6 more dynamic custom parameters.
 - After the custom data entered, and `Save` button pressed, the configuration data will be saved in host's non-volatile memory, then the board reboots.
 - If there is valid stored Credentials, it'll go directly to connect to WiFi without starting / using the Config Portal.
 - `ESP8266 AT shield` will try to connect. If successful, the dynamic DHCP or configured static IP address will be displayed in the configuration portal. 
