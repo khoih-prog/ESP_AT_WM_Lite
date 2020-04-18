@@ -2,18 +2,20 @@
    Esp8266_AT_WM_Lite_DUE.h
    For SAM DUE boards using ESP8266 AT WiFi Shields, using much less code to support boards with smaller memory
 
-   Esp8266_AT_WM_Lite is a library for the Mega, Teensy, SAM DUE, SAMD and STM32 boards (https://github.com/khoih-prog/ESP_AT_WM_Lite)
+   ESP_AT_WM_Lite is a library for the Mega, Teensy, SAM DUE, SAMD and STM32 boards (https://github.com/khoih-prog/ESP_AT_WM_Lite)
    to enable store Credentials in EEPROM to easy configuration/reconfiguration and autoconnect/autoreconnect of WiFi and other services
    without Hardcoding.
 
    Built by Khoi Hoang https://github.com/khoih-prog/ESP_AT_WM_Lite
    Licensed under MIT license
-   Version: 1.0.1
+   Version: 1.0.2
 
    Version Modified By   Date        Comments
    ------- -----------  ----------   -----------
-    1.0.0   K Hoang      09/03/2020  Initial coding
-    1.0.1   K Hoang      20/03/2020  Add feature to enable adding dynamically more Credentials parameters in sketch
+   1.0.0   K Hoang      09/03/2020  Initial coding
+   1.0.1   K Hoang      20/03/2020  Add feature to enable adding dynamically more Credentials parameters in sketch
+   1.0.2   K Hoang      17/04/2020  Fix bug. Add support to SAMD51 and SAMD DUE. WPA2 SSID PW to 63 chars.
+                                    Permit to input special chars such as !,@,#,$,%,^,&,* into data fields.
  *****************************************************************************************************************************/
 
 #ifndef Esp8266_AT_WM_Lite_DUE_h
@@ -63,11 +65,11 @@ typedef struct Configuration
 {
   char header         [16];
   char wifi_ssid      [32];
-  char wifi_pw        [32];
+  char wifi_pw        [64];
   int  checkSum;
 } ESP8266_AT_Configuration;
 
-// Currently CONFIG_DATA_SIZE  =   84
+// Currently CONFIG_DATA_SIZE  =   116
 uint16_t CONFIG_DATA_SIZE = sizeof(ESP8266_AT_Configuration);
 
 // -- HTML page fragments
@@ -78,7 +80,7 @@ const char ESP_AT_FLDSET_END[]    /*PROGMEM*/ = "</fieldset>";
 const char ESP_AT_HTML_PARAM[]    /*PROGMEM*/ = "<div><label>{b}</label><input value='[[{v}]]'id='{i}'><div></div></div>";
 const char ESP_AT_HTML_BUTTON[]   /*PROGMEM*/ = "<button onclick=\"sv()\">Save</button></div>";
 const char ESP_AT_HTML_SCRIPT[]   /*PROGMEM*/ = "<script id=\"jsbin-javascript\">\
-function udVal(key,val){var request=new XMLHttpRequest();var url='/?key='+key+'&value='+val;\
+function udVal(key,val){var request=new XMLHttpRequest();var url='/?key='+key+'&value='+encodeURIComponent(val);\
 request.open('GET',url,false);request.send(null);}\
 function sv(){udVal('id',document.getElementById('id').value);udVal('pw',document.getElementById('pw').value);";
 
@@ -319,7 +321,8 @@ class ESP_AT_WiFiManager_Lite
       
       for (int i = 0; i < NUM_MENU_ITEMS; i++)
       {
-        memset(myMenuItems[i].pdata, 0, myMenuItems[i].maxlen);
+        // Actual size of pdata is [maxlen + 1]
+        memset(myMenuItems[i].pdata, 0, myMenuItems[i].maxlen + 1);
       }
 
       dueFlashStorage_put();
@@ -407,6 +410,9 @@ class ESP_AT_WiFiManager_Lite
       {       
         char* _pointer = myMenuItems[i].pdata;
         totalDataSize += myMenuItems[i].maxlen;
+        
+        // Actual size of pdata is [maxlen + 1]
+        memset(myMenuItems[i].pdata, 0, myMenuItems[i].maxlen + 1);
                
         for (uint16_t j = 0; j < myMenuItems[i].maxlen; j++,_pointer++,offset++)
         {
@@ -418,7 +424,7 @@ class ESP_AT_WiFiManager_Lite
       
       readCheckSum = * (int*) dueFlashStorage.readAddress(offset);
       
-      DEBUG_WM4(F("CrCCsum="), checkSum, F(",CrRCsum="), readCheckSum);
+      DEBUG_WM4(F("CrCCSum=0x"), String(checkSum, HEX), F(",CrRCSum=0x"), String(readCheckSum, HEX));
       
       if ( checkSum != readCheckSum)
       {
@@ -454,7 +460,7 @@ class ESP_AT_WiFiManager_Lite
       
       dueFlashStorage.write(offset, (byte *) &checkSum, sizeof(checkSum));
       
-      DEBUG_WM2(F("CrCCSum="), checkSum);
+      DEBUG_WM2(F("CrCCSum=0x"), String(checkSum, HEX));
     }    
  
     bool getConfigData()
@@ -467,7 +473,7 @@ class ESP_AT_WiFiManager_Lite
 
       int calChecksum = calcChecksum();
 
-      DEBUG_WM4(F("CCSum="), calChecksum, F(",RCSum="), ESP8266_AT_config.checkSum);
+      DEBUG_WM4(F("CCSum=0x"), String(calChecksum, HEX), F(",RCSum=0x"), String(ESP8266_AT_config.checkSum, HEX));
 
       if ( (strncmp(ESP8266_AT_config.header, ESP_AT_BOARD_TYPE, strlen(ESP_AT_BOARD_TYPE)) != 0) ||
            (calChecksum != ESP8266_AT_config.checkSum) || !credDataValid )
@@ -476,7 +482,8 @@ class ESP_AT_WiFiManager_Lite
                
         for (int i = 0; i < NUM_MENU_ITEMS; i++)
         {
-          memset(myMenuItems[i].pdata, 0, myMenuItems[i].maxlen);        
+          // Actual size of pdata is [maxlen + 1]
+          memset(myMenuItems[i].pdata, 0, myMenuItems[i].maxlen + 1);      
         }
 
         // Including Credentials CSum
@@ -489,7 +496,7 @@ class ESP_AT_WiFiManager_Lite
         
         for (int i = 0; i < NUM_MENU_ITEMS; i++)
         {
-          strncpy(myMenuItems[i].pdata, NO_CONFIG, myMenuItems[i].maxlen - 1);
+          strncpy(myMenuItems[i].pdata, NO_CONFIG, myMenuItems[i].maxlen);
         }
 
         // Don't need
@@ -520,7 +527,7 @@ class ESP_AT_WiFiManager_Lite
       int calChecksum = calcChecksum();
       ESP8266_AT_config.checkSum = calChecksum;
       
-      DEBUG_WM4(F("SaveData,sz="), totalDataSize, F(",chkSum="), calChecksum);
+      DEBUG_WM4(F("SaveData,sz="), totalDataSize, F(",chkSum=0x"), String(calChecksum, HEX));
 
       dueFlashStorage_put();
     }
@@ -567,9 +574,7 @@ class ESP_AT_WiFiManager_Lite
     }
 
     // NEW
-    String root_html_template;
-       
-    String createHTML(void)
+    void createHTML(String& root_html_template)
     {
       String pitem;
       
@@ -599,7 +604,7 @@ class ESP_AT_WiFiManager_Lite
       
       root_html_template += String(ESP_AT_HTML_SCRIPT_END) + ESP_AT_HTML_END;
       
-      return root_html_template;     
+      return;     
     }
     
     void handleRequest()
@@ -613,7 +618,8 @@ class ESP_AT_WiFiManager_Lite
 
         if (key == "" && value == "")
         {
-          String result = createHTML();
+          String result;
+          createHTML(result);
 
           // Reset configTimeout to stay here until finished.
           configTimeout = 0;
@@ -664,10 +670,13 @@ class ESP_AT_WiFiManager_Lite
             DEBUG_WM4(F("h:"), myMenuItems[i].id, F("="), value.c_str() );
             number_items_Updated++;
 
-            if ((int) strlen(value.c_str()) < myMenuItems[i].maxlen - 1)
+            // Actual size of pdata is [maxlen + 1]
+            memset(myMenuItems[i].pdata, 0, myMenuItems[i].maxlen + 1);
+
+            if ((int) strlen(value.c_str()) < myMenuItems[i].maxlen)
               strcpy(myMenuItems[i].pdata, value.c_str());
             else
-              strncpy(myMenuItems[i].pdata, value.c_str(), myMenuItems[i].maxlen - 1);
+              strncpy(myMenuItems[i].pdata, value.c_str(), myMenuItems[i].maxlen);
           }
         }
 

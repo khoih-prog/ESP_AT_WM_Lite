@@ -2,18 +2,20 @@
    Esp8266_AT_WM_Lite_Debug.h
    For AVR or Generic boards using ESP8266 AT WiFi Shields, using much less code to support boards with smaller memory
 
-   Esp8266_AT_WM_Lite is a library for the Mega, Teensy, SAM DUE, SAMD and STM32 boards (https://github.com/khoih-prog/ESP_AT_WM_Lite)
+   ESP_AT_WM_Lite is a library for the Mega, Teensy, SAM DUE, SAMD and STM32 boards (https://github.com/khoih-prog/ESP_AT_WM_Lite)
    to enable store Credentials in EEPROM to easy configuration/reconfiguration and autoconnect/autoreconnect of WiFi and other services
    without Hardcoding.
 
    Built by Khoi Hoang https://github.com/khoih-prog/ESP_AT_WM_Lite
    Licensed under MIT license
-   Version: 1.0.1
+   Version: 1.0.2
 
    Version Modified By   Date        Comments
    ------- -----------  ----------   -----------
-    1.0.0   K Hoang      09/03/2020  Initial coding
-    1.0.1   K Hoang      20/03/2020  Add feature to enable adding dynamically more Credentials parameters in sketch
+   1.0.0   K Hoang      09/03/2020  Initial coding
+   1.0.1   K Hoang      20/03/2020  Add feature to enable adding dynamically more Credentials parameters in sketch
+   1.0.2   K Hoang      17/04/2020  Fix bug. Add support to SAMD51 and SAMD DUE. WPA2 SSID PW to 63 chars.
+                                    Permit to input special chars such as !,@,#,$,%,^,&,* into data fields.
  *****************************************************************************************************************************/
 
 #ifndef Esp8266_AT_WM_Lite_Debug_h

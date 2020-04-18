@@ -1,6 +1,17 @@
 ## ESP_AT_WM_Lite (Light Weight Credentials / WiFi Manager for ESP8266 AT shields)
 
 [![arduino-library-badge](https://www.ardu-badge.com/badge/ESP_AT_WM_Lite.svg?)](https://www.ardu-badge.com/ESP_AT_WM_Lite)
+[![GitHub release](https://img.shields.io/github/release/khoih-prog/ESP_AT_WM_Lite.svg)](#releases)
+[![GitHub](https://img.shields.io/github/license/mashape/apistatus.svg)](https://github.com/khoih-prog/ESP_AT_WM_Lite/blob/master/LICENSE)
+[![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](#Contributing)
+[![GitHub issues](https://img.shields.io/github/issues/khoih-prog/ESP_AT_WM_Lite.svg)](http://github.com/khoih-prog/ESP_AT_WM_Lite/issues)
+
+### New Version v1.0.2
+
+1. Add support to ***SAM51 (Itsy-Bitsy M4, Metro M4, Grand Central M4, Feather M4 Express, etc.) and SAM DUE***.
+2. WiFi Password max length is 63, according to WPA2 standard.
+3. Permit to input special chars such as ***~,!,@,#,$,%,^,*,&*** into data fields.
+4. Fix bug
 
 #### New in v1.0.1
 
@@ -28,17 +39,20 @@ The web configuration portal, served from the `ESP8266 AT-command shields` is op
 1. [`Arduino IDE 1.8.12 or later` for Arduino](https://www.arduino.cc/en/Main/Software)
 2. [`Arduino Core for STM32 v1.8.0 or later`](https://github.com/khoih-prog/Arduino_Core_STM32) for STM32 boards
 3. [`Teensy core 1.51 or later`](https://www.pjrc.com/teensy/td_download.html) for Teensy (4.0, 3.6, 3.5, 3,2, 3.1, 3.0, LC) boards
-4. [`ESP8266_AT_WebServer library`](https://github.com/khoih-prog/ESP8266_AT_WebServer)
-5. [`FlashStorage library`](https://github.com/khoih-prog/FlashStorage) for SAMD boards (ZERO, MKR, NANO_33_IOT, M0, M0 Pro, AdaFruit CIRCUITPLAYGROUND_EXPRESS, etc.)
-6. [`DueFlashStorage library`](https://github.com/sebnil/DueFlashStorage) for SAM DUE
+4. [`Arduino SAM DUE core 1.6.12 or later`](https://www.arduino.cc/en/Guide/ArduinoDue) for SAM DUE ARM Cortex-M3 boards
+5. [`Arduino SAMD core 1.8.5 or later`](https://www.arduino.cc/en/Guide/ArduinoM0) for SAMD ARM Cortex-M0+ boards
+6. [`Adafruit SAMD core 1.5.11 or later`](https://www.adafruit.com/) for SAMD ARM Cortex-M0+ and M4 boards (Nano 33 IoT, etc.)
+7. [`ESP8266_AT_WebServer library`](https://github.com/khoih-prog/ESP8266_AT_WebServer)
+8. [`FlashStorage library`](https://github.com/khoih-prog/FlashStorage_SAMD) for SAMD21 boards (ZERO, MKR, NANO_33_IOT, M0, M0 Pro, AdaFruit CIRCUITPLAYGROUND_EXPRESS, etc.) and SAMD51 boards (Itsy-Bitsy M4, Metro M4, Grand Central M4, Feather M4 Express, etc.)
+9. [`DueFlashStorage library`](https://github.com/sebnil/DueFlashStorage) for SAM DUE
 
 
 ## How It Works
 
 - The [Teensy40_ESP8266Shield](examples/Teensy40_ESP8266Shield) example shows how it works and should be used as the basis for a sketch that uses this library.
 - The concept of [Teensy40_ESP8266Shield](examples/Teensy40_ESP8266Shield) is that a new `ESP8266 AT shield` will start a WiFi configuration portal when powered up, but has no valid stored Credentials. 
-- There are 6 more custom parameters added in the sketch which you can use in your program later. In the example, they are: 2 sets of Blynk Servers and Tokens, Blynk Port and MQTT Server.
-- Using any WiFi enabled device with a browser (computer, phone, tablet) connect to the newly created AP and type in the configurable AP IP address (default 192.168.4.1). The Config Portal AP channel (default 10) is also configurable to avoid conflict with other APs.
+- There are ***6 more custom parameters*** added in the sketch which you can use in your program later. In the example, they are: 2 sets of Blynk Servers and Tokens, Blynk Port and MQTT Server.
+- Using any WiFi enabled device with a browser (computer, phone, tablet) connect to the newly created AP and type in the configurable AP IP address (default 192.168.4.1). The Config Portal AP channel (default 10) is also configurable to ***avoid conflict*** with other APs.
 - The Config Portal is auto-adjusted to fix the 2 static parameters (WiFi SSID/PWD) as well as 6 more dynamic custom parameters.
 - After the custom data entered, and `Save` button pressed, the configuration data will be saved in host's non-volatile memory, then the board reboots.
 - If there is valid stored Credentials, it'll go directly to connect to WiFi without starting / using the Config Portal.
@@ -68,8 +82,7 @@ Another way to install is to:
 
 // Must be before #include <Esp8266_AT_WM_Lite.h>
 // Start location in EEPROM to store config data. Default 0
-// Config data Size currently is 84 bytes)
-#define EEPROM_START      (64)
+#define EEPROM_START      (0)
 
 #include <Esp8266_AT_WM_Lite.h>
 
@@ -82,20 +95,40 @@ ESP_AT_WiFiManager_Lite* ESP_AT_WiFiManager;
 - To add custom parameters, just add
 
 ```
+#define USE_DYNAMIC_PARAMETERS      true
+
+/////////////// Start dynamic Credentials ///////////////
+
+//Defined in <Esp8266_AT_WM_Lite_Teensy.h>
+/**************************************
+  #define MAX_ID_LEN                5
+  #define MAX_DISPLAY_NAME_LEN      16
+
+  typedef struct
+  {
+  char id             [MAX_ID_LEN + 1];
+  char displayName    [MAX_DISPLAY_NAME_LEN + 1];
+  char *pdata;
+  uint8_t maxlen;
+  } MenuItem;
+**************************************/
+
+#if USE_DYNAMIC_PARAMETERS
+
 #define MAX_BLYNK_SERVER_LEN      34
 #define MAX_BLYNK_TOKEN_LEN       34
 
-char Blynk_Server1 [MAX_BLYNK_SERVER_LEN]  = "";
-char Blynk_Token1  [MAX_BLYNK_TOKEN_LEN]   = "";
+char Blynk_Server1 [MAX_BLYNK_SERVER_LEN + 1]  = "";
+char Blynk_Token1  [MAX_BLYNK_TOKEN_LEN + 1]   = "";
 
-char Blynk_Server2 [MAX_BLYNK_SERVER_LEN]  = "";
-char Blynk_Token2  [MAX_BLYNK_TOKEN_LEN]   = "";
+char Blynk_Server2 [MAX_BLYNK_SERVER_LEN + 1]  = "";
+char Blynk_Token2  [MAX_BLYNK_TOKEN_LEN + 1]   = "";
 
 #define MAX_BLYNK_PORT_LEN        6
-char Blynk_Port   [MAX_BLYNK_PORT_LEN]  = "";
+char Blynk_Port   [MAX_BLYNK_PORT_LEN + 1]  = "";
 
 #define MAX_MQTT_SERVER_LEN      34
-char MQTT_Server  [MAX_MQTT_SERVER_LEN]   = "";
+char MQTT_Server  [MAX_MQTT_SERVER_LEN + 1]   = "";
 
 MenuItem myMenuItems [] =
 {
@@ -109,19 +142,21 @@ MenuItem myMenuItems [] =
 
 uint16_t NUM_MENU_ITEMS = sizeof(myMenuItems) / sizeof(MenuItem);  //MenuItemSize;
 
+#else
+
+MenuItem myMenuItems [] = {};
+
+uint16_t NUM_MENU_ITEMS = 0;
+#endif
+
+/////// // End dynamic Credentials ///////////
+
 ```
 
 - If you don't need to add dynamic parameters, use the following in sketch
 
 ```
-/////////////// Start dynamic Credentials ///////////////
-
-MenuItem myMenuItems [] =
-{
-};
-
-uint16_t NUM_MENU_ITEMS = sizeof(myMenuItems) / sizeof(MenuItem);  //MenuItemSize;
-/////// // End dynamic Credentials ///////////
+#define USE_DYNAMIC_PARAMETERS      false
 
 ```
 
@@ -145,7 +180,7 @@ ESP_AT_WiFiManager->setConfigPortalIP(IPAddress(xxx,xxx,xxx,xxx));
 While in AP mode, connect to it using its `SSID` (ESP_AT_XXXXXX) / `Password` ("MyESP_AT_XXXXXX"), then open a browser to the Portal AP IP, default `192.168.4.1`, configure wifi then save. The Credentials / WiFi connection information will be saved in non-volatile memory. It will then autoconnect.
 
 
-OnceCredentials / WiFi network information is saved in the host non-volatile memory, it will try to autoconnect to WiFi every time it is started, without requiring any function calls in the sketch.
+Once Credentials / WiFi network information is saved in the host non-volatile memory, it will try to autoconnect to WiFi every time it is started, without requiring any function calls in the sketch.
 
 
 Also see examples: 
@@ -217,15 +252,16 @@ Sample Code
 #elif defined(__MK20DX128__)
 #define BOARD_TYPE "Teensy 3.0"
 #elif defined(__AVR_AT90USB1286__)
-#error Teensy 2.0++ not supported yet
+#error Teensy 2.0++ not supported
 #elif defined(__AVR_ATmega32U4__)
-#error Teensy 2.0 not supported yet
+#error Teensy 2.0 not supported
 #else
 // For Other Boards
 #define EspSerial Serial3
 #define BOARD_TYPE      "Unknown Teensy Board"
-#endif
-#endif
+#endif    //defined(__IMXRT1062__)
+
+#endif    //CORE_TEENSY
 
 #if !defined(EspSerial)
 #define EspSerial Serial1
@@ -237,20 +273,40 @@ Sample Code
 
 #include <Esp8266_AT_WM_Lite_Teensy.h>
 
+#define USE_DYNAMIC_PARAMETERS      true
+
+/////////////// Start dynamic Credentials ///////////////
+
+//Defined in <Esp8266_AT_WM_Lite_Teensy.h>
+/**************************************
+  #define MAX_ID_LEN                5
+  #define MAX_DISPLAY_NAME_LEN      16
+
+  typedef struct
+  {
+  char id             [MAX_ID_LEN + 1];
+  char displayName    [MAX_DISPLAY_NAME_LEN + 1];
+  char *pdata;
+  uint8_t maxlen;
+  } MenuItem;
+**************************************/
+
+#if USE_DYNAMIC_PARAMETERS
+
 #define MAX_BLYNK_SERVER_LEN      34
 #define MAX_BLYNK_TOKEN_LEN       34
 
-char Blynk_Server1 [MAX_BLYNK_SERVER_LEN]  = "";
-char Blynk_Token1  [MAX_BLYNK_TOKEN_LEN]   = "";
+char Blynk_Server1 [MAX_BLYNK_SERVER_LEN + 1]  = "";
+char Blynk_Token1  [MAX_BLYNK_TOKEN_LEN + 1]   = "";
 
-char Blynk_Server2 [MAX_BLYNK_SERVER_LEN]  = "";
-char Blynk_Token2  [MAX_BLYNK_TOKEN_LEN]   = "";
+char Blynk_Server2 [MAX_BLYNK_SERVER_LEN + 1]  = "";
+char Blynk_Token2  [MAX_BLYNK_TOKEN_LEN + 1]   = "";
 
 #define MAX_BLYNK_PORT_LEN        6
-char Blynk_Port   [MAX_BLYNK_PORT_LEN]  = "";
+char Blynk_Port   [MAX_BLYNK_PORT_LEN + 1]  = "";
 
 #define MAX_MQTT_SERVER_LEN      34
-char MQTT_Server  [MAX_MQTT_SERVER_LEN]   = "";
+char MQTT_Server  [MAX_MQTT_SERVER_LEN + 1]   = "";
 
 MenuItem myMenuItems [] =
 {
@@ -263,6 +319,15 @@ MenuItem myMenuItems [] =
 };
 
 uint16_t NUM_MENU_ITEMS = sizeof(myMenuItems) / sizeof(MenuItem);  //MenuItemSize;
+
+#else
+
+MenuItem myMenuItems [] = {};
+
+uint16_t NUM_MENU_ITEMS = 0;
+#endif
+
+/////// // End dynamic Credentials ///////////
 
 // Your Teensy <-> ESP8266 baud rate:
 #define ESP8266_BAUD 115200
@@ -318,11 +383,12 @@ void setup()
 
   // Optional to change default AP IP(192.168.4.1) and channel(10)
   //ESP_AT_WiFiManager->setConfigPortalIP(IPAddress(192, 168, 120, 1));
-  //ESP_AT_WiFiManager->setConfigPortalChannel(1);
+  ESP_AT_WiFiManager->setConfigPortalChannel(1);
 
   ESP_AT_WiFiManager->begin();
 }
 
+#if USE_DYNAMIC_PARAMETERS
 void displayCredentials(void)
 {
   Serial.println("Your stored Credentials :");
@@ -332,11 +398,14 @@ void displayCredentials(void)
     Serial.println(String(myMenuItems[i].displayName) + " = " + myMenuItems[i].pdata);
   }
 }
+#endif
 
 void loop()
 {
   ESP_AT_WiFiManager->run();
+  check_status();
 
+#if USE_DYNAMIC_PARAMETERS
   static bool displayedCredentials = false;
 
   if (!displayedCredentials)
@@ -355,8 +424,7 @@ void loop()
       }
     }
   }
-
-  check_status();
+#endif
 }
 ```
 
@@ -366,8 +434,8 @@ This is the terminal output when running [Teensy40_ESP8266Shield](examples/Teens
 
 ```
 Start Teensy_ESP8266Shield on TEENSY 4.0
-*AT: CrCCsum=6217,CrRCsum=825255525
-*AT: CCSum=1983,RCSum=1752461166
+*AT: CrCCSum=0x2aae,CrRCSum=0xffffffff
+*AT: CCSum=0x8df,RCSum=0ffffffff
 *AT: InitEEPROM,sz=1080,Datasz=264
 *AT: pdata=blank,len=34
 *AT: pdata=blank,len=34
@@ -375,7 +443,7 @@ Start Teensy_ESP8266Shield on TEENSY 4.0
 *AT: pdata=blank,len=34
 *AT: pdata=blank,len=6
 *AT: pdata=blank,len=34
-*AT: CrCCSum=3120
+*AT: CrCCSum=0x3120
 *AT: b:OpenPortal
 *AT: SSID=ESP_AT_E50AB22C,PW=MyESP_AT_E50AB22C
 *AT: IP=192.168.4.1,CH=1
@@ -394,8 +462,8 @@ FFF
 ```
 
 Start Teensy_ESP8266Shield on TEENSY 4.0
-*AT: CrCCsum=10595,CrRCsum=10595
-*AT: CCSum=2271,RCSum=2271
+*AT: CrCCSum=0x2aae,CrRCSum=0x2aae
+*AT: CCSum=0x8df,RCSum=0x8df
 *AT: Hdr=SHD_ESP8266,SSID=HueNet1,PW=****
 *AT: i=0,id=sv1,data=blynk1.duckdns.org
 *AT: i=1,id=tk1,data=****
@@ -444,6 +512,13 @@ Sometimes, the library will only work if you update the `ESP8266 AT shield` core
 1. Too many things to list, EEPROM, SPIFFS/FS/FAT FS (if available)
 2. Find better and easier way to add more parameters.
 3. Add more examples 
+
+### New Version v1.0.2
+
+1. Add support to ***SAM51 (Itsy-Bitsy M4, Metro M4, Grand Central M4, Feather M4 Express, etc.) and SAM DUE***.
+2. WiFi Password max length is 63, according to WPA2 standard.
+3. Permit to input special chars such as ***~,!,@,#,$,%,^,*,&*** into data fields.
+4. Fix bug
 
 #### New in v1.0.1
 

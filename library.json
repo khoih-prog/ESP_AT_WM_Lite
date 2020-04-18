@@ -1,13 +1,28 @@
 {
   "name": "ESP_AT_WM_Lite",
-  "keywords": "wifi, wi-fi, ESP8266, AT, shield, Teensy, SAM DUE, SAMD, STM32, Credentials, Manager",
-  "description": "Light-Weight WiFi/Credentials Manager for Teensy, SAM DUE, SAMD, STM32, etc. boards running ESP8266 AT-command shields with fallback web configuration portal",
+  "version": "1.0.2",
+  "keywords": "wifi, wi-fi, ESP8266, AT, shield, AVR Mega, Teensy, SAM DUE, SAMD21, SAMD51, STM32, Credentials, Manager, dynamic, custom, parameter, light-weight, EEPROM, FlashStorage, DueFlashStorage",
+  "description": "Light-Weight WiFi/Credentials Manager for AVR Mega, Teensy, SAM DUE, SAMD21, SAMD51, STM32, etc. boards running ESP8266 AT-command shields with web configuration portal. Powerful-yet-simple-to-use feature to enable adding dynamic custom parameters. You can also specify static AP and STA IP. Use much less memory compared to full-fledge WiFiManager. Config Portal will be auto-adjusted to match the number of dynamic custom parameters. Credentials and dynamic custom parameters are saved in EEPROM, FlashStorage or DueFlashStorage.",
+  "authors":
+  {
+    "name":  "Khoi Hoang",
+    "url":   "https://github.com/khoih-prog",
+    "maintainer": true
+  },
   "repository":
   {
     "type": "git",
     "url": "https://github.com/khoih-prog/ESP_AT_WM_Lite"
   },
-  "frameworks": "arduino",
-  "platforms": "espressif",
-  "version": "1.0.1"
+  "homepage": "https://github.com/khoih-prog/ESP_AT_WM_Lite",
+  "export": {
+    "exclude": [
+      "linux",
+      "extras",
+      "tests"
+    ]
+  },  
+  "frameworks": "*",
+  "platforms": "*",
+  "examples": "examples/*/*/*.ino"
 }
