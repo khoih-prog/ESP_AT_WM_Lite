@@ -1,6 +1,6 @@
 /****************************************************************************************************************************
-   SAMD_ESP8266Shield.ino
-   For SAMD boards using ESP8266 AT WiFi Shields, using much less code to support boards with smaller memory
+   nRF52_ESP8266Shield.ino
+   For nRF52 boards using ESP8266 AT WiFi Shields, using much less code to support boards with smaller memory
 
    ESP_AT_WM_Lite is a library for the Mega, Teensy, SAM DUE, SAMD and STM32 boards (https://github.com/khoih-prog/ESP_AT_WM_Lite)
    to enable store Credentials in EEPROM to easy configuration/reconfiguration and autoconnect/autoreconnect of WiFi and other services
@@ -17,7 +17,7 @@
    1.0.2   K Hoang      17/04/2020  Fix bug. Add support to SAMD51 and SAMD DUE. WPA2 SSID PW to 63 chars.
                                     Permit to input special chars such as !,@,#,$,%,^,&,* into data fields.
    1.0.3   K Hoang      11/06/2020  Add support to nRF52 boards, such as AdaFruit Feather nRF52832, NINA_B30_ublox, etc.
-                                    Add DRD support. Add MultiWiFi support
+                                    Add DRD support. Add MultiWiFi support 
  *****************************************************************************************************************************/
 
 #include "defines.h"
@@ -67,15 +67,16 @@ void setup()
   while (!Serial);
   //delay(1000);
 
-  Serial.println("\nStart SAMD_ESP8266Shield on " + String(BOARD_TYPE));
+  Serial.println("\nStart nRF52_ESP8266Shield on " + String(BOARD_TYPE));
 
   // initialize serial for ESP module
   EspSerial.begin(115200);
 
   ESP_AT_WiFiManager = new ESP_AT_WiFiManager_Lite(&EspSerial, ESP8266_BAUD);
-
-  // Optional to change default AP IP(192.168.4.1) and channel(10)
+ 
+  // Optional to change default AP IP(192.168.4.1)
   //ESP_AT_WiFiManager->setConfigPortalIP(IPAddress(192, 168, 120, 1));
+  // Use channel(0) for random AP WiFi channel
   ESP_AT_WiFiManager->setConfigPortalChannel(0);
 
   // Personalized portal_ssid and password

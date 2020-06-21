@@ -20,6 +20,8 @@ setConfigPortalIP KEYWORD2
 setConfigPortalChannel KEYWORD2
 setConfigPortal KEYWORD2
 setSTAStaticIPConfig	KEYWORD2
+getWiFiSSID KEYWORD2
+getWiFiPW KEYWORD2
 getFullConfigData KEYWORD2
 localIP KEYWORD2
 clearConfigData KEYWORD2

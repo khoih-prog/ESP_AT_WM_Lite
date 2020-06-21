@@ -8,7 +8,7 @@
 
    Built by Khoi Hoang https://github.com/khoih-prog/ESP_AT_WM_Lite
    Licensed under MIT license
-   Version: 1.0.2
+   Version: 1.0.3
 
    Version Modified By   Date        Comments
    ------- -----------  ----------   -----------
@@ -16,85 +16,13 @@
    1.0.1   K Hoang      20/03/2020  Add feature to enable adding dynamically more Credentials parameters in sketch
    1.0.2   K Hoang      17/04/2020  Fix bug. Add support to SAMD51 and SAMD DUE. WPA2 SSID PW to 63 chars.
                                     Permit to input special chars such as !,@,#,$,%,^,&,* into data fields.
+   1.0.3   K Hoang      11/06/2020  Add support to nRF52 boards, such as AdaFruit Feather nRF52832, NINA_B30_ublox, etc.
+                                    Add DRD support. Add MultiWiFi support 
  *****************************************************************************************************************************/
 
-/* Comment this out to disable prints and save space */
-#define ESP_AT_DEBUG_OUTPUT Serial
-
-#define ESP_AT_DEBUG    true
-
-#if !( defined(ARDUINO_AVR_MEGA) || defined(ARDUINO_AVR_MEGA2560) )
-#error This code is intended to run only on the Arduino Mega 1280/2560 boards ! Please check your Tools->Board setting.
-#endif
-
-// For Mega, use Serial1 or Serial3
-#define EspSerial Serial3
-
-#if defined(ARDUINO_AVR_MEGA2560)
-#define BOARD_TYPE      "AVR Mega2560"
-#else
-#define BOARD_TYPE      "AVR Mega"
-#endif
-
-// Start location in EEPROM to store config data. Default 0
-// Config data Size currently is 116 bytes)
-#define EEPROM_START      512
-
-#include <Esp8266_AT_WM_Lite.h>
-
-#define USE_DYNAMIC_PARAMETERS      true
-
-/////////////// Start dynamic Credentials ///////////////
-
-//Defined in <Esp8266_AT_WM_Lite.h>
-/**************************************
-  #define MAX_ID_LEN                5
-  #define MAX_DISPLAY_NAME_LEN      16
-
-  typedef struct
-  {
-  char id             [MAX_ID_LEN + 1];
-  char displayName    [MAX_DISPLAY_NAME_LEN + 1];
-  char *pdata;
-  uint8_t maxlen;
-  } MenuItem;
-**************************************/
-
-#if USE_DYNAMIC_PARAMETERS
-
-#define MAX_BLYNK_SERVER_LEN      34
-char Blynk_Server [MAX_BLYNK_SERVER_LEN + 1]  = "";
-
-#define MAX_BLYNK_TOKEN_LEN       34
-char Blynk_Token  [MAX_BLYNK_TOKEN_LEN + 1]   = "";
-
-#define MAX_BLYNK_PORT_LEN        6
-char Blynk_Port   [MAX_BLYNK_PORT_LEN + 1]  = "";
-
-#define MAX_MQTT_SERVER_LEN      34
-char MQTT_Server  [MAX_MQTT_SERVER_LEN + 1]   = "";
-
-MenuItem myMenuItems [] = 
-{
-  { "sv", "Blynk Server", Blynk_Server, MAX_BLYNK_SERVER_LEN },
-  { "tk", "Token",        Blynk_Token,  MAX_BLYNK_TOKEN_LEN },
-  { "pt", "Port",         Blynk_Port,   MAX_BLYNK_PORT_LEN },
-  { "mq", "MQTT Server",  MQTT_Server,  MAX_MQTT_SERVER_LEN },
-};
-
-uint16_t NUM_MENU_ITEMS = sizeof(myMenuItems) / sizeof(MenuItem);  //MenuItemSize;
-
-#else
-
-MenuItem myMenuItems [] = {};
-
-uint16_t NUM_MENU_ITEMS = 0;
-#endif
-
-/////// // End dynamic Credentials ///////////
-
-// Your Mega <-> ESP8266 baud rate:
-#define ESP8266_BAUD 115200
+#include "defines.h"
+#include "Credentials.h"
+#include "dynamicParams.h"
 
 void heartBeatPrint(void)
 {
@@ -120,8 +48,8 @@ void check_status()
 {
   static unsigned long checkstatus_timeout = 0;
 
-#define HEARTBEAT_INTERVAL    600000L
-  // Print hearbeat every HEARTBEAT_INTERVAL (600) seconds.
+#define HEARTBEAT_INTERVAL    60000L
+  // Print hearbeat every HEARTBEAT_INTERVAL (60) seconds.
   if ((millis() > checkstatus_timeout) || (checkstatus_timeout == 0))
   {
     heartBeatPrint();
@@ -147,9 +75,13 @@ void setup()
  
   ESP_AT_WiFiManager = new ESP_AT_WiFiManager_Lite(&EspSerial, ESP8266_BAUD);
 
-  // Optional to change default AP IP(192.168.4.1) and channel(10)
+  // Optional to change default AP IP(192.168.4.1)
   //ESP_AT_WiFiManager->setConfigPortalIP(IPAddress(192, 168, 120, 1));
-  ESP_AT_WiFiManager->setConfigPortalChannel(1);
+  // Use channel(0) for random AP WiFi channel
+  ESP_AT_WiFiManager->setConfigPortalChannel(0);
+
+  // Personalized portal_ssid and password
+  //ESP_AT_WiFiManager->setConfigPortal(portal_ssid, portal_password);
 
   ESP_AT_WiFiManager->begin();
 }
@@ -157,7 +89,7 @@ void setup()
 #if USE_DYNAMIC_PARAMETERS
 void displayCredentials(void)
 {
-  Serial.println("Your stored Credentials :");
+  Serial.println("\nYour stored Credentials :");
 
   for (int i = 0; i < NUM_MENU_ITEMS; i++)
   {
