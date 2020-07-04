@@ -17,8 +17,8 @@ New recent features:
 
 ### New Version v1.0.4
 
-1. Add support to ESP32-AT WiFi shields. 
-2. Add support to WIS600-01S/W600-AT WiFi shields. 
+1. Add support to ***ESP32-AT WiFi shields.***
+2. Add support to ***WIS600-01S/W600-AT WiFi shields. ***
 3. Modify LOAD_DEFAULT_CONFIG_DATA logic.
 4. Enhance MultiWiFi connection logic. 
 5. Fix WiFi Status bug.
@@ -148,7 +148,7 @@ The web configuration portal, served from the `ESP8266 AT-command shields` is op
 
 - The [nRF52_ESP8266Shield](examples/nRF52_ESP8266Shield) example shows how it works and should be used as the basis for a sketch that uses this library.
 - The concept of [nRF52_ESP8266Shield](examples/nRF52_ESP8266Shield) is that a new `ESP8266 AT shield` will start a WiFi configuration portal when powered up, but has no valid stored Credentials. 
-- There are ***3 more custom parameters*** added in the sketch which you can use in your program later. In the example, they are: Blynk Server, Token and Blynk Port.
+- There are ***maximum 3 more custom parameters*** added in the sketch which you can use in your program later. In the example, they are: Blynk Server, Token and Blynk Port.
 - Using any WiFi enabled device with a browser (computer, phone, tablet) connect to the newly created AP and type in the configurable AP IP address (default 192.168.4.1). The Config Portal AP channel (default 10) is also configurable to ***avoid conflict*** with other APs.
 - The Config Portal is auto-adjusted to fix the 2 static parameters (WiFi SSID/PWD) as well as 6 more dynamic custom parameters.
 - After the custom data entered, and `Save` button pressed, the configuration data will be saved in host's non-volatile memory, then the board reboots.
@@ -249,7 +249,7 @@ uint16_t NUM_MENU_ITEMS = 0;
 
 ```
 
-- If you don't need to add dynamic parameters, use the following in sketch
+- If you don't need to add dynamic parameters, use in sketch
 
 ```
 #define USE_DYNAMIC_PARAMETERS      false
@@ -286,7 +286,7 @@ ESP_AT_WiFiManager->setConfigPortalChannel(newChannel);
 ESP_AT_WiFiManager->setConfigPortalIP(IPAddress(xxx,xxx,xxx,xxx));
 ```
 
-While in AP mode, connect to it using its `SSID` (Personalized SSID or "ESP_AT_XXXXXX") / `Password` (Personalized PW or "MyESP_AT_XXXXXX"), then open a browser to the Portal AP IP, default `192.168.4.1`, configure wifi then save. The Credentials / WiFi connection information will be saved in non-volatile memory. It will then autoconnect.
+While in AP mode, connect to it using its `SSID` (Personalized SSID or "ESP_AT_XXXXXX") / `Password` (Personalized PW or "MyESP_AT_XXXXXX"), then connect a Web-Browser to the Portal AP IP, default `192.168.4.1`, configure wifi and dynamic Credentials, then click `Save`. The Credentials / WiFi connection information will be saved in non-volatile memory. It will then autoconnect to one of the configured WiFi APs.
 
 
 Once Credentials / WiFi network information is saved in the host non-volatile memory, it will try to autoconnect to WiFi every time it is started, without requiring any function calls in the sketch.
@@ -300,7 +300,7 @@ Also see examples:
 5. [nRF52_ESP8266Shield](examples/nRF52_ESP8266Shield)
 
 ## So, how it works?
-In `Configuration Portal Mode`, it starts an AP called `ESP_AT_XXXXXX`. Connect to it using the `configurable password` you can define in the code. For example, `MyESP_AT_XXXXXX` (see examples):
+In `Configuration Portal Mode`, it starts an AP named `ESP_AT_XXXXXX`. Connect to it using the `configurable password` you can define in the code. For example, `MyESP_AT_XXXXXX` (see examples):
 
 ```cpp
 // SSID and PW for Config Portal
@@ -337,11 +337,15 @@ See this example and modify as necessary
 
 1. To load [Default Credentials](examples/nRF52_ESP8266Shield/Credentials.h)
 ```
+// Used mostly for development and debugging. FORCES default values to be loaded each run.
+// Config Portal data input will be ignored and overridden by DEFAULT_CONFIG_DATA
 bool LOAD_DEFAULT_CONFIG_DATA = true;
 ```
 
 2. To use system default to load "blank" when there is no valid Credentials
 ```
+// Used mostly once debugged. Assumes good data already saved in device.
+// Config Portal data input will be override DEFAULT_CONFIG_DATA
 bool LOAD_DEFAULT_CONFIG_DATA = false;
 ```
 
@@ -800,9 +804,7 @@ F
 Stored Dynamic Params:
 MQTT Server = mqtt-server
 Port = 1883
-F
-
-FFF
+FFFF
 ```
 
 2. Got valid Credential from Config Portal, then connected to WiFi
@@ -960,8 +962,8 @@ Sometimes, the library will only work if you update the `ESP8266 AT shield` core
 
 ### New Version v1.0.4
 
-1. Add support to ESP32-AT WiFi shields. 
-2. Add support to WIS600-01S/W600-AT WiFi shields. 
+1. Add support to ***ESP32-AT WiFi shields.***
+2. Add support to ***WIS600-01S/W600-AT WiFi shields. ***
 3. Modify LOAD_DEFAULT_CONFIG_DATA logic.
 4. Enhance MultiWiFi connection logic. 
 5. Fix WiFi Status bug.
