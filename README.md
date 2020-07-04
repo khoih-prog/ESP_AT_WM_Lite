@@ -139,7 +139,7 @@ The web configuration portal, served from the `ESP8266 AT-command shields` is op
 ```
 
 3. Test before using different AT-Firmware Version at your own risks. Just use any simple example to verify if the AT-firmware is OK.
-4. Compatible AT-Firmare version will be updated. Check for and download Firmwares from [AT_Firmwares](https://github.com/khoih-prog/ESP8266_AT_WebServer/tree/master/AT_Firmwares) all supported AT Firmwares.
+4. Compatible AT-Firmare version will be updated. Check for all supported AT Firmwares and download them from [AT_Firmwares](https://github.com/khoih-prog/ESP8266_AT_WebServer/tree/master/AT_Firmwares).
 
 
 ---
