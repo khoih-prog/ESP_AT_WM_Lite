@@ -18,7 +18,7 @@ New recent features:
 ### New Version v1.0.4
 
 1. Add support to ***ESP32-AT WiFi shields.***
-2. Add support to ***WIS600-01S/W600-AT WiFi shields. ***
+2. Add support to ***WIS600-01S/W600-AT WiFi shields.***
 3. Modify LOAD_DEFAULT_CONFIG_DATA logic.
 4. Enhance MultiWiFi connection logic. 
 5. Fix WiFi Status bug.
