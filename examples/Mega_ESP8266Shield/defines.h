@@ -8,7 +8,7 @@
 
    Built by Khoi Hoang https://github.com/khoih-prog/ESP_AT_WM_Lite
    Licensed under MIT license
-   Version: 1.0.3
+   VVersion: 1.0.4
 
    Version Modified By   Date        Comments
    ------- -----------  ----------   -----------
@@ -17,19 +17,28 @@
    1.0.2   K Hoang      17/04/2020  Fix bug. Add support to SAMD51 and SAMD DUE. WPA2 SSID PW to 63 chars.
                                     Permit to input special chars such as !,@,#,$,%,^,&,* into data fields.
    1.0.3   K Hoang      11/06/2020  Add support to nRF52 boards, such as AdaFruit Feather nRF52832, NINA_B30_ublox, etc.
-                                    Add DRD support. Add MultiWiFi support      
+                                    Add DRD support. Add MultiWiFi support 
+   1.0.4   K Hoang      03/07/2020  Add support to ESP32-AT shields. Modify LOAD_DEFAULT_CONFIG_DATA logic.
+                                    Enhance MultiWiFi connection logic. Fix WiFi Status bug.     
  *****************************************************************************************************************************/
 
 #ifndef defines_h
 #define defines_h
 
 /* Comment this out to disable prints and save space */
-#define DRD_GENERIC_DEBUG         true
+#define DRD_GENERIC_DEBUG             true
+
+#define USE_NEW_WEBSERVER_VERSION     true  //false
+#define _ESP_AT_LOGLEVEL_             1
 
 /* Comment this out to disable prints and save space */
-#define ESP_AT_DEBUG_OUTPUT Serial
+#define ESP_AT_DEBUG_OUTPUT           Serial
 
-#define ESP_AT_DEBUG    true
+#define ESP_AT_DEBUG                  true
+
+// Uncomment to use ESP32-AT commands
+//#define USE_ESP32_AT                  true
+
 
 #if !( defined(ARDUINO_AVR_MEGA) || defined(ARDUINO_AVR_MEGA2560) )
   #error This code is intended to run only on the Arduino Mega 1280/2560 boards ! Please check your Tools->Board setting.
@@ -53,8 +62,8 @@
 #define HOST_NAME   "Mega-ESP_AT"
 
 // SSID and PW for Config Portal
-String portal_ssid      = "Mega-CfgPrtl-SSID";
-String portal_password  = "Mega-CfgPrtl-PW";
+String portal_ssid      = "CfgPrtl-SSID";
+String portal_password  = "CfgPrtl-PW";
 
 // Your Mega <-> ESP8266 baud rate:
 #define ESP8266_BAUD 115200

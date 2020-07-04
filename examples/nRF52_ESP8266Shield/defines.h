@@ -8,7 +8,7 @@
 
    Built by Khoi Hoang https://github.com/khoih-prog/ESP_AT_WM_Lite
    Licensed under MIT license
-   Version: 1.0.3
+   Version: 1.0.4
 
    Version Modified By   Date        Comments
    ------- -----------  ----------   -----------
@@ -17,19 +17,27 @@
    1.0.2   K Hoang      17/04/2020  Fix bug. Add support to SAMD51 and SAMD DUE. WPA2 SSID PW to 63 chars.
                                     Permit to input special chars such as !,@,#,$,%,^,&,* into data fields.
    1.0.3   K Hoang      11/06/2020  Add support to nRF52 boards, such as AdaFruit Feather nRF52832, NINA_B30_ublox, etc.
-                                    Add DRD support. Add MultiWiFi support      
+                                    Add DRD support. Add MultiWiFi support 
+   1.0.4   K Hoang      03/07/2020  Add support to ESP32-AT shields. Modify LOAD_DEFAULT_CONFIG_DATA logic.
+                                    Enhance MultiWiFi connection logic. Fix WiFi Status bug.     
  *****************************************************************************************************************************/
 
 #ifndef defines_h
 #define defines_h
 
 /* Comment this out to disable prints and save space */
-#define DRD_GENERIC_DEBUG         true
+#define DRD_GENERIC_DEBUG             true
+
+#define USE_NEW_WEBSERVER_VERSION     true  //false
+#define _ESP_AT_LOGLEVEL_             1
 
 /* Comment this out to disable prints and save space */
-#define ESP_AT_DEBUG_OUTPUT Serial
+#define ESP_AT_DEBUG_OUTPUT           Serial
 
-#define ESP_AT_DEBUG    true
+#define ESP_AT_DEBUG                  true
+
+// Uncomment to use ESP32-AT commands
+//#define USE_ESP32_AT                  true
 
 #if ( defined(NRF52840_FEATHER) || defined(NRF52832_FEATHER) || defined(NRF52_SERIES) || defined(ARDUINO_NRF52_ADAFRUIT) || \
       defined(NRF52840_FEATHER_SENSE) || defined(NRF52840_ITSYBITSY) || defined(NRF52840_CIRCUITPLAY) || defined(NRF52840_CLUE) || \
@@ -45,27 +53,29 @@
 #if (ESP8266_AT_USE_NRF528XX)
 
 #if defined(NRF52840_FEATHER)
-#define BOARD_TYPE      "NRF52840_FEATHER"
+#define BOARD_TYPE      "NRF52840_FEATHER_EXPRESS"
 #elif defined(NRF52832_FEATHER)
 #define BOARD_TYPE      "NRF52832_FEATHER"
 #elif defined(NRF52840_FEATHER_SENSE)
 #define BOARD_TYPE      "NRF52840_FEATHER_SENSE"
 #elif defined(NRF52840_ITSYBITSY)
-#define BOARD_TYPE      "NRF52840_ITSYBITSY"
+#define BOARD_TYPE      "NRF52840_ITSYBITSY_EXPRESS"
 #elif defined(NRF52840_CIRCUITPLAY)
-#define BOARD_TYPE      "NRF52840_CIRCUITPLAY"
+#define BOARD_TYPE      "NRF52840_CIRCUIT_PLAYGROUND"
 #elif defined(NRF52840_CLUE)
 #define BOARD_TYPE      "NRF52840_CLUE"
 #elif defined(NRF52840_METRO)
-#define BOARD_TYPE      "NRF52840_METRO"
+#define BOARD_TYPE      "NRF52840_METRO_EXPRESS"
 #elif defined(NRF52840_PCA10056)
-#define BOARD_TYPE      "NRF52840_PCA10056"
+#define BOARD_TYPE      "NORDIC_NRF52840DK"
 #elif defined(NINA_B302_ublox)
 #define BOARD_TYPE      "NINA_B302_ublox"
 #elif defined(NINA_B112_ublox)
 #define BOARD_TYPE      "NINA_B112_ublox"
 #elif defined(PARTICLE_XENON)
 #define BOARD_TYPE      "PARTICLE_XENON"
+#elif defined(MDBT50Q_RX)
+#define BOARD_TYPE      "RAYTAC_MDBT50Q_RX"
 #elif defined(ARDUINO_NRF52_ADAFRUIT)
 #define BOARD_TYPE      "ARDUINO_NRF52_ADAFRUIT"
 #else
@@ -81,8 +91,8 @@
 #define HOST_NAME   "nRF52-ESP_AT"
 
 // SSID and PW for Config Portal
-String portal_ssid      = "nRF52-CfgPrtl-SSID";
-String portal_password  = "nRF52-CfgPrtl-PW";
+String portal_ssid      = "CfgPrtl-SSID";
+String portal_password  = "CfgPrtl-PW";
 
 // Your nRF52 <-> ESP8266 baud rate:
 #define ESP8266_BAUD 115200

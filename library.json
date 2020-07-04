@@ -1,6 +1,6 @@
 {
   "name": "ESP_AT_WM_Lite",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "keywords": "wifi, MultiWiFi, ESP8266, ESP32, AT, shield, AVR Mega, SAM DUE, SAMD21, SAMD51, nRF52, STM32, Credentials, Manager, dynamic, custom, parameter, light-weight, EEPROM, FlashStorage, DueFlashStorage, LittleFS",
   "description": "Light-Weight WiFi/Credentials Manager for AVR Mega, SAM DUE, SAMD21, SAMD51, nRF52, STM32, etc. boards running ESP8266/ESP32-AT-command shields with web configuration portal. Powerful-yet-simple-to-use feature to enable adding dynamic custom parameters. You can also specify static AP and STA IP. Use much less memory compared to full-fledge WiFiManager. Config Portal will be auto-adjusted to match the number of dynamic custom parameters. Credentials and dynamic custom parameters are saved in EEPROM, SAMD FlashStorage, DueFlashStorage of nRF52 LittleFS.",
   "authors":
