@@ -43,6 +43,8 @@ New recent features:
 1. New ***powerful-yet-simple-to-use feature to enable adding dynamic custom parameters*** from sketch and input using the same Config Portal. Config Portal will be auto-adjusted to match the number of dynamic parameters.
 2. Dynamic custom parameters to be saved ***automatically in EEPROM, SAMD EEPROM-emulated FlashStorage or SAM DUE DueFlashStorage***.
 
+---
+
 ## Features
 
 This library is a Light Weight Credentials / WiFi Manager for ESP8266 AT shields, specially designed to support ***AVR Mega, SAM DUE, SAMD21, SAMD51, nRF52, STM32, etc. boards running ESP8266/ESP32-AT-command shields.*** with smaller memory (64+K bytes)
@@ -77,6 +79,8 @@ The web configuration portal, served from the `ESP8266 AT-command shields` is op
 12. [`Ai-Thinker AT Firmware v1.5.4`](https://github.com/khoih-prog/ESP8266_AT_WebServer/blob/master/AT_Firmwares/At_firmware_bin1.54.zip) or [`AT Firmware v1.7.4.0`](https://github.com/khoih-prog/ESP8266_AT_WebServer/blob/master/AT_Firmwares/AT_Firmware_bin_1.7.4.0.zip) for ESP8266-AT WiFi shields.
 13. [`AT version_2.1.0.0_dev`](https://github.com/khoih-prog/ESP8266_AT_WebServer/blob/master/AT_Firmwares/AT_version_2.1.0.0_dev.zip) for ESP32-AT WiFi shields.
 14. `AT version_1.1.4` for WIS600-01S and W600-AT WiFi shields.
+
+---
 
 ### Important Notes about AT Firmwares
 
@@ -212,16 +216,27 @@ This file must be copied into the directory:
 
 - `~/.arduino15/packages/arduino/hardware/sam/x.yy.zz/platform.txt`
 
- 4. ***To be able to automatically detect and display BOARD_NAME on Arduino SAMD (Nano-33-IoT, etc) boards***, you have to copy the file [Arduino SAMD platform.txt](Packages_Patches/arduino/hardware/samd/1.8.6) into Arduino samd directory (~/.arduino15/packages/arduino/hardware/samd/1.8.6). 
+ 4. ***To be able to compile without error and automatically detect and display BOARD_NAME on Arduino SAMD (Nano-33-IoT, etc) boards***, you have to copy the whole [Arduino SAMD cores 1.8.7](Packages_Patches/arduino/hardware/samd/1.8.7) directory into Arduino SAMD directory (~/.arduino15/packages/arduino/hardware/samd/1.8.7).
+ 
+Supposing the Arduino SAMD version is 1.8.7. These files must be copied into the directory:
+- `~/.arduino15/packages/arduino/hardware/samd/1.8.7/platform.txt`
+- ***`~/.arduino15/packages/arduino/hardware/samd/1.8.7/cores/arduino/Arduino.h`***
 
-Supposing the Arduino SAMD core version is 1.8.6. This file must be copied into the directory:
+Whenever a new version is installed, remember to copy these files into the new version directory. For example, new version is x.yy.z
 
-- `~/.arduino15/packages/arduino/hardware/samd/1.8.6/platform.txt`
+These files must be copied into the directory:
 
-Whenever a new version is installed, remember to copy this file into the new version directory. For example, new version is x.yy.zz
-This file must be copied into the directory:
+- `~/.arduino15/packages/arduino/hardware/samd/x.yy.z/platform.txt`
+- ***`~/.arduino15/packages/arduino/hardware/samd/x.yy.z/cores/arduino/Arduino.h`***
+ 
+ This is mandatory to fix the ***notorious Arduino SAMD compiler error***. See [Improve Arduino compatibility with the STL (min and max macro)](https://github.com/arduino/ArduinoCore-samd/pull/399)
+ 
+```
+ ...\arm-none-eabi\include\c++\7.2.1\bits\stl_algobase.h:243:56: error: macro "min" passed 3 arguments, but takes just 2
+     min(const _Tp& __a, const _Tp& __b, _Compare __comp)
+```
 
-- `~/.arduino15/packages/arduino/hardware/samd/x.yy.zz/platform.txt`
+Whenever the above-mentioned compiler error issue is fixed with the new Arduino SAMD release, you don't need to copy the `Arduino.h` file anymore.
 
  5. ***To be able to automatically detect and display BOARD_NAME on Adafruit SAMD (Itsy-Bitsy M4, etc) boards***, you have to copy the file [Adafruit SAMD platform.txt](Packages_Patches/adafruit/hardware/samd/1.6.0) into Adafruit samd directory (~/.arduino15/packages/adafruit/hardware/samd/1.6.0). 
 
@@ -530,11 +545,10 @@ ESP8266_AT_Configuration defaultConfig;
 ```
 ---
 
-## Example [nRF52_ESP8266Shield](examples/nRF52_ESP8266Shield)
+### Example [nRF52_ESP8266Shield](examples/nRF52_ESP8266Shield)
 
-Please take a look at other examples, as well.
 
-1. File [nRF52_ESP8266Shield.ino](examples/nRF52_ESP8266Shield/nRF52_ESP8266Shield.ino)
+#### 1. File [nRF52_ESP8266Shield.ino](examples/nRF52_ESP8266Shield/nRF52_ESP8266Shield.ino)
 
 ```
 #include "defines.h"
@@ -641,7 +655,7 @@ void loop()
 }
 ```
 
-2. File [defines.h](examples/nRF52_ESP8266Shield/defines.h)
+#### 2. File [defines.h](examples/nRF52_ESP8266Shield/defines.h)
 
 ```cpp
 #ifndef defines_h
@@ -722,7 +736,7 @@ String portal_password  = "CfgPrtl-PW";
 #endif      //defines_h
 ```
 
-3. File [Credentials.h](examples/nRF52_ESP8266Shield/Credentials.h)
+#### 3. File [Credentials.h](examples/nRF52_ESP8266Shield/Credentials.h)
 
 ```cpp
 #ifndef Credentials_h
@@ -804,7 +818,7 @@ ESP8266_AT_Configuration defaultConfig;
 #endif    //Credentials_h
 ```
 
-4. File [dynamicParams.h](examples/nRF52_ESP8266Shield/dynamicParams.h)
+#### 4. File [dynamicParams.h](examples/nRF52_ESP8266Shield/dynamicParams.h)
 
 ```cpp
 #ifndef dynamicParams_h
@@ -1109,6 +1123,8 @@ If you want to contribute to this project:
 - Ask for enhancements
 - Create issues and pull requests
 - Tell other people about this library
+
+---
 
 ### Copyright
 
