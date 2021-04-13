@@ -8,18 +8,6 @@
 
    Built by Khoi Hoang https://github.com/khoih-prog/ESP_AT_WM_Lite
    Licensed under MIT license
-   Version: 1.0.4
-
-   Version Modified By   Date        Comments
-   ------- -----------  ----------   -----------
-   1.0.0   K Hoang      09/03/2020  Initial coding
-   1.0.1   K Hoang      20/03/2020  Add feature to enable adding dynamically more Credentials parameters in sketch
-   1.0.2   K Hoang      17/04/2020  Fix bug. Add support to SAMD51 and SAMD DUE. WPA2 SSID PW to 63 chars.
-                                    Permit to input special chars such as !,@,#,$,%,^,&,* into data fields.
-   1.0.3   K Hoang      11/06/2020  Add support to nRF52 boards, such as AdaFruit Feather nRF52832, NINA_B30_ublox, etc.
-                                    Add DRD support. Add MultiWiFi support 
-   1.0.4   K Hoang      03/07/2020  Add support to ESP32-AT shields. Modify LOAD_DEFAULT_CONFIG_DATA logic.
-                                    Enhance MultiWiFi connection logic. Fix WiFi Status bug.    
  *****************************************************************************************************************************/
 
 #ifndef defines_h
@@ -40,33 +28,40 @@
 //#define USE_ESP32_AT                  true
 
 #if ( defined(ARDUINO_SAM_DUE) || defined(__SAM3X8E__) )
-#if defined(ESP8266_AT_USE_SAM_DUE)
-#undef ESP8266_AT_USE_SAM_DUE
-#endif
-#define ESP8266_AT_USE_SAM_DUE      true
-#warning Use SAM_DUE architecture
-#endif
-
-#if ( defined(ESP8266) || defined(ESP32) || defined(ARDUINO_AVR_MEGA2560) || defined(ARDUINO_AVR_MEGA) || \
-      defined(CORE_TEENSY) || defined(CORE_TEENSY) || !(ESP8266_AT_USE_SAM_DUE) )
-#error This code is intended to run on the SAM DUE platform! Please check your Tools->Board setting.
-#endif
-
-#if defined(ESP8266_AT_USE_SAM_DUE)
-// For SAM DUE
-#define EspSerial Serial1
-
-#if defined(ARDUINO_SAM_DUE)
-#define BOARD_TYPE      "SAM DUE"
-#elif defined(__SAM3X8E__)
-#define BOARD_TYPE      "SAM SAM3X8E"
+  #if defined(ESP8266_AT_USE_SAM_DUE)
+    #undef ESP8266_AT_USE_SAM_DUE
+  #endif
+  #define ESP8266_AT_USE_SAM_DUE      true
+  #warning Use SAM_DUE architecture
 #else
-#define BOARD_TYPE      "SAM Unknown"
+  #error This code is intended to run on the SAM DUE platform! Please check your Tools->Board setting.  
 #endif
+
+#if defined(ESP8266_AT_USE_SAM_DUE)
+  // For SAM DUE
+  #define EspSerial Serial1
+  
+  #if defined(ARDUINO_SAM_DUE)
+    #define BOARD_TYPE      "SAM DUE"
+  #elif defined(__SAM3X8E__)
+    #define BOARD_TYPE      "SAM SAM3X8E"
+  #else
+    #define BOARD_TYPE      "SAM Unknown"
+  #endif
 #endif
 
 // Start location in EEPROM to store config data. Default 0
 #define EEPROM_START      0
+
+/////////////////////////////////////////////
+
+// Permit input only one set of WiFi SSID/PWD. The other can be "NULL or "blank"
+// Default is false (if not defined) => must input 2 sets of SSID/PWD
+#define REQUIRE_ONE_SET_SSID_PW       false
+
+#define USE_DYNAMIC_PARAMETERS        true
+
+/////////////////////////////////////////////
 
 #include <Esp8266_AT_WM_Lite_DUE.h>
 

@@ -1,4 +1,4 @@
-/****************************************************************************************************************************
+/***************************************************************************************************************************************
    Esp8266_AT_WM_Lite_Debug.h
    For AVR or Generic boards using ESP8266 AT WiFi Shields, using much less code to support boards with smaller memory
 
@@ -8,7 +8,7 @@
 
    Built by Khoi Hoang https://github.com/khoih-prog/ESP_AT_WM_Lite
    Licensed under MIT license
-   Version: 1.0.4
+   Version: 1.1.0
 
    Version Modified By   Date        Comments
    ------- -----------  ----------   -----------
@@ -20,7 +20,8 @@
                                     Add DRD support. Add MultiWiFi support 
    1.0.4   K Hoang      03/07/2020  Add support to ESP32-AT shields. Modify LOAD_DEFAULT_CONFIG_DATA logic.
                                     Enhance MultiWiFi connection logic. Fix WiFi Status bug.
- *****************************************************************************************************************************/
+   1.1.0   K Hoang      13/04/2021  Fix invalid "blank" Config Data treated as Valid. Optional one set of WiFi Credentials                       
+ ***************************************************************************************************************************************/
 
 #ifndef Esp8266_AT_WM_Lite_Debug_h
 #define Esp8266_AT_WM_Lite_Debug_h

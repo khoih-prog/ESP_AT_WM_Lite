@@ -8,7 +8,7 @@
 
    Built by Khoi Hoang https://github.com/khoih-prog/ESP_AT_WM_Lite
    Licensed under MIT license
-   Version: 1.0.4
+   Version: 1.1.0
 
    Version Modified By   Date        Comments
    ------- -----------  ----------   -----------
@@ -19,7 +19,8 @@
    1.0.3   K Hoang      11/06/2020  Add support to nRF52 boards, such as AdaFruit Feather nRF52832, NINA_B30_ublox, etc.
                                     Add DRD support. Add MultiWiFi support 
    1.0.4   K Hoang      03/07/2020  Add support to ESP32-AT shields. Modify LOAD_DEFAULT_CONFIG_DATA logic.
-                                    Enhance MultiWiFi connection logic. Fix WiFi Status bug. 
+                                    Enhance MultiWiFi connection logic. Fix WiFi Status bug.
+   1.1.0   K Hoang      13/04/2021  Fix invalid "blank" Config Data treated as Valid. Optional one set of WiFi Credentials
  *****************************************************************************************************************************/
 
 #include "defines.h"
@@ -28,7 +29,7 @@
 
 ESP_AT_WiFiManager_Lite* ESP_AT_WiFiManager;
 
-void heartBeatPrint(void)
+void heartBeatPrint()
 {
   static int num = 1;
 
@@ -72,6 +73,7 @@ void setup()
 
   Serial.print(F("\nStart Mega_ESP8266Shield on "));
   Serial.println(BOARD_TYPE);
+  Serial.println(ESP_AT_WM_LITE_VERSION);
 
   // initialize serial for ESP module
   EspSerial.begin(115200);
@@ -90,28 +92,25 @@ void setup()
 }
 
 #if USE_DYNAMIC_PARAMETERS
-void displayCredentials(void)
+void displayCredentials()
 {
-  Serial.println("\nYour stored Credentials :");
+  Serial.println("\nStored Dynamic Params:");
 
-  for (int i = 0; i < NUM_MENU_ITEMS; i++)
+  for (uint8_t i = 0; i < NUM_MENU_ITEMS; i++)
   {
-    Serial.println(String(myMenuItems[i].displayName) + "=" + myMenuItems[i].pdata);
+    Serial.print(myMenuItems[i].displayName);
+    Serial.print(" = ");
+    Serial.println(myMenuItems[i].pdata);
   }
 }
-#endif
 
-void loop()
+void displayCredentialsOnce()
 {
-  ESP_AT_WiFiManager->run();
-  check_status();
-
-#if USE_DYNAMIC_PARAMETERS
   static bool displayedCredentials = false;
 
   if (!displayedCredentials)
   {
-    for (int i = 0; i < NUM_MENU_ITEMS; i++)
+    for (uint16_t i = 0; i < NUM_MENU_ITEMS; i++)
     {
       if (!strlen(myMenuItems[i].pdata))
       {
@@ -125,5 +124,15 @@ void loop()
       }
     }
   }
+}
+#endif
+
+void loop()
+{
+  ESP_AT_WiFiManager->run();
+  check_status();
+
+#if (USE_DYNAMIC_PARAMETERS)
+  displayCredentialsOnce();
 #endif
 }

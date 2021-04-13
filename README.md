@@ -9,36 +9,164 @@
 ---
 ---
 
+## Table of Contents
+
+* [Why do we need this ESP_AT_WM_Lite library](#why-do-we-need-this-esp_at_wm_lite-library)
+  * [Features](#features)
+  * [Currently supported Boards](#currently-supported-boards)
+* [Changelog](#changelog)
+  * [Major Release v1.1.0](#major-release-v110)
+  * [Release v1.0.4](#release-v104)
+  * [Release v1.0.3](#release-v103)
+  * [Release v1.0.2](#release-v102)
+  * [Release v1.0.1](#release-v101)
+* [Prerequisites](#prerequisites)
+* [Important Notes about AT Firmwares](#important-notes-about-at-firmwares)
+  * [1. Firmwares tested OK with ESP8266 AT shields](#1-firmwares-tested-ok-with-esp8266-at-shields)
+  * [2. Firmwares tested OK with ESP32 AT shields](#2-firmwares-tested-ok-with-esp32-at-shields)
+* [Installation](#installation)
+  * [Use Arduino Library Manager](#use-arduino-library-manager)
+  * [Manual Install](#manual-install)
+  * [VS Code & PlatformIO](#vs-code--platformio)
+* [Packages' Patches](#packages-patches)
+  * [1. For Adafruit nRF52840 and nRF52832 boards](#1-for-adafruit-nRF52840-and-nRF52832-boards)
+  * [2. For Teensy boards](#2-for-teensy-boards)
+  * [3. For Arduino SAM DUE boards](#3-for-arduino-sam-due-boards)
+  * [4. For Arduino SAMD boards](#4-for-arduino-samd-boards)
+      * [For core version v1.8.10+](#for-core-version-v1810)
+      * [For core version v1.8.9-](#for-core-version-v189-)
+  * [5. For Adafruit SAMD boards](#5-for-adafruit-samd-boards)
+  * [6. For Seeeduino SAMD boards](#6-for-seeeduino-samd-boards)
+  * [7. For STM32 boards](#7-for-stm32-boards) 
+* [How It Works](#how-it-works)
+* [How to use](#how-to-use)
+  * [1. Basic usage](#1-basic-usage)
+  * [2. Add custom parameters](#2-add-custom-parameters)
+  * [3. Not using custom parameters](#3-not-using-custom-parameters)
+  * [4. To open Config Portal](#4-to-open-config-portal)
+  * [5. To use different AP WiFi Channel](#5-to-use-different-ap-wifi-channel)
+  * [6. To use different static AP IP from default](#6-to-use-different-static-ap-ip-from-default)
+  * [7. To use and input only one set of WiFi SSID and PWD](#7-to-use-and-input-only-one-set-of-wifi-ssid-and-pwd)
+* [Important Notes for using Dynamic Parameters' ids](#important-notes-for-using-dynamic-parameters-ids)
+* [Examples](#examples)
+  * [ 1. Mega_ESP8266Shield](examples/Mega_ESP8266Shield)
+  * [ 2. SAMD_ESP8266Shield](examples/SAMD_ESP8266Shield)
+  * [ 3. SAM_DUE_ESP8266Shield](examples/SAM_DUE_ESP8266Shield)
+  * [ 4. STM32_ESP8266Shield](examples/STM32_ESP8266Shield)
+  * [ 5. nRF52_ESP8266Shield](examples/nRF52_ESP8266Shield)
+* [So, how it works?](#so-how-it-works)
+* [How to use default Credentials and have them pre-loaded onto Config Portal](#how-to-use-default-credentials-and-have-them-pre-loaded-onto-config-portal)
+  * [1. To always load Default Credentials and override Config Portal data](#1-to-always-load-default-credentials-and-override-config-portal-data)
+  * [2. To load Default Credentials when there is no valid Credentials](#2-to-load-default-credentials-when-there-is-no-valid-credentials)
+  * [3. Example of Default Credentials](#3-example-of-default-credentials)
+* [How to add dynamic parameters from sketch](#how-to-add-dynamic-parameters-from-sketch)
+* [Example nRF52_ESP8266Shield](#example-nrf52_esp8266shield)
+  * [1. File nRF52_ESP8266Shield.ino](#1-file-nrf52_esp8266shieldino)
+  * [2. File defines.h](#2-file-definesh)
+  * [3. File Credentials.h](#3-file-credentialsh)
+  * [4. File dynamicParams.h](#4-file-dynamicparamsh)
+* [Debug Terminal Output Samples](#debug-terminal-output-samples)
+  * [1. Open Config Portal](#1-open-config-portal)
+  * [2. Got valid Credential from Config Portal, then connected to WiFi](#2-got-valid-credential-from-config-portal-then-connected-to-wifi)
+  * [3. Lost a WiFi and autoconnect to another WiFi AP](#3-lost-a-wifi-and-autoconnect-to-another-wifi-ap)
+* [Debug](#debug)
+* [Troubleshooting](#troubleshooting)
+* [Releases](#releases)
+* [Issues](#issues)
+* [TO DO](#to-do)
+* [DONE](#done)
+* [Contributions and Thanks](#contributions-and-thanks)
+* [Contributing](#contributing)
+* [License](#license)
+* [Copyright](#copyright)
+
+---
+---
+
 ### Why do we need this [ESP_AT_WM_Lite library](https://github.com/khoih-prog/ESP_AT_WM_Lite)
 
-This library is a Light Weight Credentials / WiFi Manager for ESP8266 AT shields, specially designed to support **AVR Mega, SAM DUE, SAMD21, SAMD51, nRF52, STM32F/L/H/G/WB/MP1, etc. boards running ESP8266/ESP32-AT-command shields.** with smaller memory (64+K bytes)
+#### Features
+
+This library is a Light Weight Credentials / WiFi Manager for ESP8266/ESP32-AT shields, specially designed to support **AVR Mega, SAM DUE, SAMD21, SAMD51, nRF52, STM32F/L/H/G/WB/MP1, etc. boards running ESP8266/ESP32-AT-command shields.** with smaller memory (64+K bytes)
 
 The AVR-family boards (UNO, Nano, etc.) are **not supported** as they don't have enough memory to run Config Portal WebServer.
 
 This [ESP_AT_WM_Lite library](https://github.com/khoih-prog/ESP_AT_WM_Lite) is a Credentials / WiFi Connection Manager, permitting the addition of custom parameters to be configured in Config Portal. The parameters then will be saved automatically, **without the complicated callback functions** to handle data saving / retrieving.
 
-If you have used the full-fledge WiFiManager such as :
+If you have used one of the full-fledge WiFiManagers such as :
 
 1. [`Tzapu WiFiManager`](https://github.com/tzapu/WiFiManager)
 2. [`Ken Taylor WiFiManager`](https://github.com/kentaylor/WiFiManager)
-3. [`Khoi Hoang's ESP_WiFiManager`](https://github.com/khoih-prog/ESP_WiFiManager)
+3. [`Khoi Hoang ESP_WiFiManager`](https://github.com/khoih-prog/ESP_WiFiManager)
 
-and have to write **complicated callback ArduinoJSon-related functions** to save / retrieve custom parameters in SPIFFS/LittleFS/EEPROM, etc., you'd appreciate the simplicity of this Light-Weight Credentials / WiFiManager
+and have to write **complicated callback functions** to save custom parameters in SPIFFS/LittleFS/EEPROM, you'd appreciate the simplicity of this Light-Weight Credentials / WiFiManager.
 
-The web configuration portal, served from the `ESP8266 AT-command shields` is operating as an access point (AP) with configurable static IP address or use default IP Address of `192.168.4.1`
+You can also specify static AP and STA IP. Use much less memory compared to full-fledge WiFiManager. Config Portal will be auto-adjusted to match the number of dynamic custom parameters. Credentials are saved in EEPROM, [`FlashStorage_SAMD`](https://github.com/khoih-prog/FlashStorage_SAMD), [`FlashStorage_STM32`](https://github.com/khoih-prog/FlashStorage_STM32), [`DueFlashStorage`](https://github.com/sebnil/DueFlashStorage) or nRF52 LittleFS.
 
----
+The web configuration portal, served from the `ESP32/ESP8266-AT WiFi` is operating as an access point (AP) with configurable static IP address or use default IP Address of 192.168.4.1
 
-## New recent features:
+New recent features:
 
-- **MultiWiFi** feature for configuring/auto(re)connecting **ESP8266/ESP32-AT** shields to the available MultiWiFi APs at runtime.
+- **MultiWiFi** feature for configuring/auto(re)connecting **ESP32/ESP8266-AT WiFi** to the available MultiWiFi APs at runtime.
 - **DoubleDetectDetector** feature to force Config Portal when double reset is detected within predetermined time, default 10s.
+- **Powerful-yet-simple-to-use feature to enable adding dynamic custom parameters** from sketch and input using the same Config Portal. Config Portal will be auto-adjusted to match the number of dynamic parameters.
+- Optional default **Credentials as well as Dynamic parameters to be optionally autoloaded into Config Portal** to use or change instead of manually input.
+- Dynamic custom parameters to be saved **automatically in non-volatile memory, such as EEPROM, FlashStorage_SAMD, FlashStorage_STM32, DueFlashStorage or nRF52 LittleFS.**.
 - Configurable **Config Portal Title** to be either BoardName or default undistinguishable names.
-- Examples are redesigned to separate Credentials / Defines / Dynamic Params / Code so that you can change Credentials / Dynamic Params quickly for each device.
+- Examples are designed to separate Credentials / Defines / Dynamic Params / Code, so that you can change Credentials / Dynamic Params quickly for each device.
+- To permit autoreset after configurable timeout if DRD/MRD or non-persistent forced-CP
 
+
+#### Currently Supported Boards
+
+This [**ESP_AT_WM_Lite** library](https://github.com/khoih-prog/ESP_AT_WM_Lite) currently supports these following boards:
+
+ 1. **nRF52 boards**, such as **AdaFruit Feather nRF52832, nRF52840 Express, BlueFruit Sense, Itsy-Bitsy nRF52840 Express, Metro nRF52840 Express, NINA_B302_ublox, NINA_B112_ublox, etc.**
+ 
+ 2. **SAM DUE**
+ 
+ 3. **SAMD21**
+  - Arduino SAMD21: ZERO, MKRs, NANO_33_IOT, etc.
+  - Adafruit SAMD21 (M0): ItsyBitsy M0, Feather M0, Feather M0 Express, Metro M0 Express, Circuit Playground Express, Trinket M0, PIRkey, Hallowing M0, Crickit M0, etc.
+  - Seeeduino: LoRaWAN, Zero, Femto M0, XIAO M0, Wio GPS Board, etc.
+  
+ 4. **SAMD51**
+  - Adafruit SAMD51 (M4): Metro M4, Grand Central M4, ItsyBitsy M4, Feather M4 Express, Trellis M4, Metro M4 AirLift Lite, MONSTER M4SK Express, Hallowing M4, etc.
+  - Seeeduino: Wio Terminal, Grove UI Wireless
+  
+ 5. **Teensy (4.1, 4.0, 3.6, 3.5, 3,2, 3.1, 3.0, LC)**
+ 
+ 6. **STM32F/L/H/G/WB/MP1 boards (with 64+K Flash)**
+
+- Nucleo-144
+- Nucleo-64
+- Discovery
+- Generic STM32F0, STM32F1, STM32F2, STM32F3, STM32F4, STM32F7 (with 64+K Flash): x8 and up
+- STM32L0, STM32L1, STM32L4
+- STM32G0, STM32G4
+- STM32H7
+- STM32WB
+- STM32MP1
+- LoRa boards
+- 3-D printer boards
+- Generic Flight Controllers
+- Midatronics boards
+ 
+---
 ---
 
-### New Version v1.0.4
+## Changelog
+
+### Major Release v1.1.0
+
+1. Fix invalid "blank" Config Data treated as Valid. 
+2. Permit optionally inputting one set of WiFi SSID/PWD by using `REQUIRE_ONE_SET_SSID_PW == true`
+3. Enforce WiFi PWD minimum length of 8 chars
+4. Optimize code
+5. Use better FlashStorage_STM32. 
+6. Add Table-of-Contents
+
+### Release v1.0.4
 
 1. Add support to **ESP32-AT WiFi shields.**
 2. Add support to **WIS600-01S/W600-AT WiFi shields.**
@@ -46,7 +174,7 @@ The web configuration portal, served from the `ESP8266 AT-command shields` is op
 4. Enhance MultiWiFi connection logic. 
 5. Fix WiFi Status bug.
 
-#### New Version v1.0.3
+#### Release v1.0.3
 
 1. Add support to **nRF52 (AdaFruit Feather nRF52832, nRF52840 Express, BlueFruit Sense, Itsy-Bitsy nRF52840 Express, Metro nRF52840 Express, NINA_B302_ublox, NINA_B112_ublox, etc.)**. Dynamic custom parameters to be saved **automatically in LittleFS**.
 2. Add MultiWiFi features for WiFi
@@ -54,14 +182,14 @@ The web configuration portal, served from the `ESP8266 AT-command shields` is op
 4. Restructure examples separate Credentials / Defines / Dynamic Params / Code.
 5. Drop support to Teensy boards.
 
-#### New Version v1.0.2
+#### Release v1.0.2
 
 1. Add support to **SAM51 (Itsy-Bitsy M4, Metro M4, Grand Central M4, Feather M4 Express, etc.) and SAM DUE**.
 2. WiFi Password max length is 63, according to WPA2 standard.
 3. Permit to input special chars such as **~,!,@,#,$,%,^,*,&** into data fields.
 4. Fix bug
 
-#### New in v1.0.1
+#### Release v1.0.1
 
 1. New **powerful-yet-simple-to-use feature to enable adding dynamic custom parameters** from sketch and input using the same Config Portal. Config Portal will be auto-adjusted to match the number of dynamic parameters.
 2. Dynamic custom parameters to be saved **automatically in EEPROM, SAMD EEPROM-emulated FlashStorage or SAM DUE DueFlashStorage**.
@@ -75,23 +203,25 @@ The web configuration portal, served from the `ESP8266 AT-command shields` is op
  2. [`Arduino Core for STM32 v1.9.0+`](https://github.com/stm32duino/Arduino_Core_STM32) for STM32F/L/H/G/WB/MP1 boards (Nucleo-144 NUCLEO_F767ZI, Nucleo-64 NUCLEO_L053R8, etc.). [![GitHub release](https://img.shields.io/github/release/stm32duino/Arduino_Core_STM32.svg)](https://github.com/stm32duino/Arduino_Core_STM32/releases/latest)
  3. [`Arduino SAM DUE core v1.6.12+`](https://github.com/arduino/ArduinoCore-sam) for SAM DUE ARM Cortex-M3 boards.
  4. [`Arduino SAMD core 1.8.11+`](https://github.com/arduino/ArduinoCore-samd) for SAMD ARM Cortex-M0+ boards. [![GitHub release](https://img.shields.io/github/release/arduino/ArduinoCore-samd.svg)](https://github.com/arduino/ArduinoCore-samd/releases/latest)
- 5. [`Adafruit SAMD core 1.6.5+`](https://github.com/adafruit/ArduinoCore-samd) for SAMD ARM Cortex-M0+ and M4 boards (Nano 33 IoT, etc.). [![GitHub release](https://img.shields.io/github/release/adafruit/ArduinoCore-samd.svg)](https://github.com/adafruit/ArduinoCore-samd/releases/latest)
+ 5. [`Adafruit SAMD core 1.6.7+`](https://github.com/adafruit/ArduinoCore-samd) for SAMD ARM Cortex-M0+ and M4 boards (Nano 33 IoT, etc.). [![GitHub release](https://img.shields.io/github/release/adafruit/ArduinoCore-samd.svg)](https://github.com/adafruit/ArduinoCore-samd/releases/latest)
  6. [`Seeeduino SAMD core 1.8.1+`](https://github.com/Seeed-Studio/ArduinoCore-samd) for SAMD21/SAMD51 boards (XIAO M0, Wio Terminal, etc.). [![Latest release](https://img.shields.io/github/release/Seeed-Studio/ArduinoCore-samd.svg)](https://github.com/Seeed-Studio/ArduinoCore-samd/releases/latest/)
  7. [`Adafruit nRF52 v0.21.0+`](https://github.com/adafruit/Adafruit_nRF52_Arduino) for nRF52 boards such as Adafruit NRF52840_FEATHER, NRF52832_FEATHER, NRF52840_FEATHER_SENSE, NRF52840_ITSYBITSY, NRF52840_CIRCUITPLAY, NRF52840_CLUE, NRF52840_METRO, NRF52840_PCA10056, PARTICLE_XENON, **NINA_B302_ublox**, etc. [![GitHub release](https://img.shields.io/github/release/adafruit/Adafruit_nRF52_Arduino.svg)](https://github.com/adafruit/Adafruit_nRF52_Arduino/releases/latest)
  8. [`ESP8266_AT_WebServer library v1.1.2+`](https://github.com/khoih-prog/ESP8266_AT_WebServer). To install, check [![arduino-library-badge](https://www.ardu-badge.com/badge/ESP8266_AT_WebServer.svg?)](https://www.ardu-badge.com/ESP8266_AT_WebServer)
  9. [`FlashStorage_SAMD library v1.1.0+`](https://github.com/khoih-prog/FlashStorage_SAMD) for SAMD21 and SAMD51 boards (ZERO, MKR, NANO_33_IOT, M0, M0 Pro, AdaFruit Itsy-Bitsy M4, etc.). [![GitHub release](https://img.shields.io/github/release/khoih-prog/FlashStorage_SAMD.svg)](https://github.com/khoih-prog/FlashStorage_SAMD/releases/latest). Or [`Platform.io FlashStorage_SAMD library v1.0.0+`](https://platformio.org/lib/show/11242/FlashStorage_SAMD) for SAMD21 and SAMD51 boards (ZERO, MKR, NANO_33_IOT, M0, M0 Pro, AdaFruit Itsy-Bitsy M4, etc.)
-10. [`DueFlashStorage library v1.0.0+`](https://github.com/sebnil/DueFlashStorage) for SAM DUE. To install, check [![arduino-library-badge](https://www.ardu-badge.com/badge/DueFlashStorage.svg?)](https://www.ardu-badge.com/DueFlashStorage)
-11. [`Adafruit's LittleFS/InternalFS`](www.adafruit.com) for nRF52
-12. [`DoubleResetDetector_Generic v1.0.3+`](https://github.com/khoih-prog/DoubleResetDetector_Generic). To install. check [![arduino-library-badge](https://www.ardu-badge.com/badge/DoubleResetDetector_Generic.svg?)](https://www.ardu-badge.com/DoubleResetDetector_Generic)
-13. [`Ai-Thinker AT Firmware v1.5.4`](https://github.com/khoih-prog/ESP8266_AT_WebServer/blob/master/AT_Firmwares/At_firmware_bin1.54.zip) or [`AT Firmware v1.7.4.0`](https://github.com/khoih-prog/ESP8266_AT_WebServer/blob/master/AT_Firmwares/AT_Firmware_bin_1.7.4.0.zip) for ESP8266-AT WiFi shields.
-14. [`AT version_2.1.0.0_dev`](https://github.com/khoih-prog/ESP8266_AT_WebServer/blob/master/AT_Firmwares/AT_version_2.1.0.0_dev.zip) for ESP32-AT WiFi shields.
-15. `AT version_1.1.4` for WIS600-01S and W600-AT WiFi shields.
+10. [`FlashStorage_STM32 library v1.0.1+`](https://github.com/khoih-prog/FlashStorage_STM32) for STM32F/L/H/G/WB/MP1 boards. To install. check [![arduino-library-badge](https://www.ardu-badge.com/badge/FlashStorage_STM32.svg?)](https://www.ardu-badge.com/FlashStorage_STM32) 
+11. [`DueFlashStorage library v1.0.0+`](https://github.com/sebnil/DueFlashStorage) for SAM DUE. To install, check [![arduino-library-badge](https://www.ardu-badge.com/badge/DueFlashStorage.svg?)](https://www.ardu-badge.com/DueFlashStorage)
+12. [`Adafruit's LittleFS/InternalFS`](www.adafruit.com) for nRF52
+13. [`DoubleResetDetector_Generic v1.0.3+`](https://github.com/khoih-prog/DoubleResetDetector_Generic). To install. check [![arduino-library-badge](https://www.ardu-badge.com/badge/DoubleResetDetector_Generic.svg?)](https://www.ardu-badge.com/DoubleResetDetector_Generic)
+14. [`Ai-Thinker AT Firmware v1.5.4`](https://github.com/khoih-prog/ESP8266_AT_WebServer/blob/master/AT_Firmwares/At_firmware_bin1.54.zip) or [`AT Firmware v1.7.4.0`](https://github.com/khoih-prog/ESP8266_AT_WebServer/blob/master/AT_Firmwares/AT_Firmware_bin_1.7.4.0.zip) for ESP8266-AT WiFi shields.
+15. [`AT version_2.1.0.0_dev`](https://github.com/khoih-prog/ESP8266_AT_WebServer/blob/master/AT_Firmwares/AT_version_2.1.0.0_dev.zip) for ESP32-AT WiFi shields.
+16. `AT version_1.1.4` for WIS600-01S and W600-AT WiFi shields.
 
 ---
 
 ### Important Notes about AT Firmwares
 
-1. Tested OK with for ESP8266-AT shields:
+### 1. Firmwares tested OK with ESP8266 AT shields
+
   - [`Ai-Thinker AT Firmware v1.5.4`](https://github.com/khoih-prog/ESP8266_AT_WebServer/blob/master/AT_Firmwares/At_firmware_bin1.54.zip)
   
     ```
@@ -118,7 +248,8 @@ The web configuration portal, served from the `ESP8266 AT-command shields` is op
     ```
   
   
-2. Tested OK with for ESP32-AT shields:
+### 2. Firmwares tested OK with ESP32 AT shields
+
   - [`AT version_2.1.0.0_dev`](https://github.com/khoih-prog/ESP8266_AT_WebServer/blob/master/AT_Firmwares/AT_version_2.1.0.0_dev.zip)
     
     ```
@@ -158,6 +289,7 @@ The web configuration portal, served from the `ESP8266 AT-command shields` is op
 ## Installation
 
 ### Use Arduino Library Manager
+
 The best and easiest way is to use `Arduino Library Manager`. Search for `ESP_AT_WM_Lite`, then select / install the latest version.
 You can also use this link [![arduino-library-badge](https://www.ardu-badge.com/badge/ESP_AT_WM_Lite.svg?)](https://www.ardu-badge.com/ESP_AT_WM_Lite) for more detailed instructions.
 
@@ -176,6 +308,7 @@ You can also use this link [![arduino-library-badge](https://www.ardu-badge.com/
 3. Install [**ESP_AT_WM_Lite** library](https://platformio.org/lib/show/7131/ESP_AT_WM_Lite) by using [Library Manager](https://platformio.org/lib/show/7131/ESP_AT_WM_Lite/installation). Search for **ESP_AT_WM_Lite** in [Platform.io Author's Libraries](https://platformio.org/lib/search?query=author:%22Khoi%20Hoang%22)
 4. Use included [platformio.ini](platformio/platformio.ini) file from examples to ensure that all dependent libraries will installed automatically. Please visit documentation for the other options and examples at [Project Configuration File](https://docs.platformio.org/page/projectconf.html)
 
+---
 ---
 
 ### Packages' Patches
@@ -240,7 +373,7 @@ This file must be copied into the directory:
  
  ***To be able to compile without error and automatically detect and display BOARD_NAME on Arduino SAMD (Nano-33-IoT, etc) boards***, you have to copy the whole [Arduino SAMD cores 1.8.10](Packages_Patches/arduino/hardware/samd/1.8.10) directory into Arduino SAMD directory (~/.arduino15/packages/arduino/hardware/samd/1.8.10).
  
-#### For core version v1.8.11+
+#### For core version v1.8.10+
 
 Supposing the Arduino SAMD version is 1.8.11. Now only one file must be copied into the directory:
 
@@ -277,11 +410,11 @@ Whenever the above-mentioned compiler error issue is fixed with the new Arduino 
 
 #### 5. For Adafruit SAMD boards
  
- ***To be able to automatically detect and display BOARD_NAME on Adafruit SAMD (Itsy-Bitsy M4, etc) boards***, you have to copy the file [Adafruit SAMD platform.txt](Packages_Patches/adafruit/hardware/samd/1.6.4) into Adafruit samd directory (~/.arduino15/packages/adafruit/hardware/samd/1.6.4). 
+ ***To be able to automatically detect and display BOARD_NAME on Adafruit SAMD (Itsy-Bitsy M4, etc) boards***, you have to copy the file [Adafruit SAMD platform.txt](Packages_Patches/adafruit/hardware/samd/1.6.7) into Adafruit samd directory (~/.arduino15/packages/adafruit/hardware/samd/1.6.7). 
 
-Supposing the Adafruit SAMD core version is 1.6.4. This file must be copied into the directory:
+Supposing the Adafruit SAMD core version is 1.6.7. This file must be copied into the directory:
 
-- `~/.arduino15/packages/adafruit/hardware/samd/1.6.4/platform.txt`
+- `~/.arduino15/packages/adafruit/hardware/samd/1.6.7/platform.txt`
 
 Whenever a new version is installed, remember to copy this file into the new version directory. For example, new version is x.yy.zz
 This file must be copied into the directory:
@@ -318,6 +451,7 @@ theses files must be copied into the corresponding directory:
 
 
 ---
+---
 
 ## How It Works
 
@@ -332,10 +466,14 @@ theses files must be copied into the corresponding directory:
 - The `ESP8266 AT shield` WiFi Config Portal network and Web Server will shutdown to return control to the sketch code.
 
 ---
+---
 
 ### How to use
 
+#### 1. Basic usage
+
 - Include in your sketch
+
 ```cpp
 
 // Select depending on board
@@ -355,7 +493,7 @@ ESP_AT_WiFiManager_Lite* ESP_AT_WiFiManager;
 #define ESP8266_BAUD 115200
 ```
 
-### How to add dynamic parameters from sketch
+#### 2. Add custom parameters
 
 - To add custom parameters, just modify from the example below
 
@@ -410,6 +548,8 @@ uint16_t NUM_MENU_ITEMS = 0;
 
 ```
 
+#### 3. Not using custom parameters
+
 - If you don't need to add dynamic parameters, use in sketch
 
 ```
@@ -417,7 +557,7 @@ uint16_t NUM_MENU_ITEMS = 0;
 
 ```
 
-### How to open Config Portal
+#### 4. To open Config Portal
 
 - When you want to open a config portal, just add
 
@@ -436,11 +576,21 @@ ESP_AT_WiFiManager->setConfigPortal(portal_ssid, portal_password);
 ESP_AT_WiFiManager->begin();
 ```
 
+#### 5. To use different AP WiFi Channel
+
 - To not use default AP WiFi Channel 10 to avoid conflict with other WiFi APs, call 
 
 ```cpp
 ESP_AT_WiFiManager->setConfigPortalChannel(newChannel);
 ```
+
+- To use random AP WiFi Channel to avoid conflict with other WiFi APs : 
+
+```cpp
+ESP_AT_WiFiManager->setConfigPortalChannel(0);
+```
+
+#### 6. To use different static AP IP from default
 
 - To use different static AP IP (not use default `192.168.4.1`), call 
 ```cpp
@@ -452,6 +602,43 @@ While in AP mode, connect to it using its `SSID` (Personalized SSID or "ESP_AT_X
 
 Once Credentials / WiFi network information is saved in the host non-volatile memory, it will try to autoconnect to WiFi every time it is started, without requiring any function calls in the sketch.
 
+#### 7. To use and input only one set of WiFi SSID and PWD
+
+#### 7.1 If you need to use and input only one set of WiFi SSID/PWD.
+
+```
+// Permit input only one set of WiFi SSID/PWD. The other can be "NULL or "blank"
+// Default is false (if not defined) => must input 2 sets of SSID/PWD
+#define REQUIRE_ONE_SET_SSID_PW       true
+```
+But it's always advisable to use and input both sets for reliability.
+ 
+#### 7.2 If you need to use both sets of WiFi SSID/PWD
+
+```
+// Permit input only one set of WiFi SSID/PWD. The other can be "NULL or "blank"
+// Default is false (if not defined) => must input 2 sets of SSID/PWD
+#define REQUIRE_ONE_SET_SSID_PW       false
+```
+
+---
+---
+
+### Important Notes for using Dynamic Parameters' ids
+
+1. These ids (such as "mqtt" in example) must be **unique**.
+
+Please be noted that the following **reserved names are already used in library**:
+
+```
+"id"    for WiFi SSID
+"pw"    for WiFi PW
+"id1"   for WiFi1 SSID
+"pw1"   for WiFi1 PW
+"nm"    for Board Name
+```
+
+---
 ---
 
 ### Examples:
@@ -465,6 +652,7 @@ Once Credentials / WiFi network information is saved in the host non-volatile me
 ---
 
 ## So, how it works?
+
 In `Configuration Portal Mode`, it starts an AP named `ESP_AT_XXXXXX`. Connect to it using the `configurable password` you can define in the code. For example, `MyESP_AT_XXXXXX` (see examples):
 
 ```cpp
@@ -495,26 +683,29 @@ The WiFi Credentials will be saved and the board connect to the selected WiFi AP
 If you're already connected to a listed WiFi AP and don't want to change anything, just select `Exit` from the `Main` page to reboot the board and connect to the previously-stored AP. The WiFi Credentials are still intact.
 
 ---
+---
 
 ### How to use default Credentials and have them pre-loaded onto Config Portal
 
 See this example and modify as necessary
 
-1. To load [Default Credentials](examples/nRF52_ESP8266Shield/Credentials.h)
+#### 1. To always load [Default Credentials](examples/SAMD_ESP8266Shield/Credentials.h) and override Config Portal data
+
 ```
 // Used mostly for development and debugging. FORCES default values to be loaded each run.
 // Config Portal data input will be ignored and overridden by DEFAULT_CONFIG_DATA
 bool LOAD_DEFAULT_CONFIG_DATA = true;
 ```
 
-2. To use system default to load "blank" when there is no valid Credentials
+#### 2. To load [Default Credentials](examples/SAMD_ESP8266Shield/Credentials.h) when there is no valid Credentials.
+
 ```
 // Used mostly once debugged. Assumes good data already saved in device.
 // Config Portal data input will be override DEFAULT_CONFIG_DATA
 bool LOAD_DEFAULT_CONFIG_DATA = false;
 ```
 
-3. Example of [Default Credentials](examples/nRF52_ESP8266Shield/Credentials.h)
+#### 3. Example of [Default Credentials](examples/SAMD_ESP8266Shield/Credentials.h)
 
 ```cpp
 /// Start Default Config Data //////////////////
@@ -557,9 +748,8 @@ typedef struct Configuration
 //bool LOAD_DEFAULT_CONFIG_DATA = true;
 
 // Used mostly once debugged. Assumes good data already saved in device.
-// Config Portal data input will be override DEFAULT_CONFIG_DATA
+// Config Portal data input will override DEFAULT_CONFIG_DATA
 bool LOAD_DEFAULT_CONFIG_DATA = false;
-
 
 ESP8266_AT_Configuration defaultConfig =
 {
@@ -570,7 +760,7 @@ ESP8266_AT_Configuration defaultConfig =
   "SSID1",  "password1",
   "SSID2",  "password2",
   //char board_name     [24];
-  "nRF52-ESP_AT",
+  "SAMD-ESP_AT",
   // terminate the list
   //int  checkSum, dummy, not used
   0
@@ -590,6 +780,91 @@ ESP8266_AT_Configuration defaultConfig;
 
 ---
 
+### How to add dynamic parameters from sketch
+
+Example of [Default dynamicParams](examples/SAMD_ESP8266Shield/dynamicParams.h)
+
+- To add custom parameters, just modify the example below
+
+```
+#ifndef dynamicParams_h
+#define dynamicParams_h
+
+#include "defines.h"
+
+// USE_DYNAMIC_PARAMETERS defined in defined.h
+//#define USE_DYNAMIC_PARAMETERS      true
+
+/////////////// Start dynamic Credentials ///////////////
+
+//Defined in <Esp8266_AT_WM_Lite_SAMD.h>
+/**************************************
+  #define MAX_ID_LEN                5
+  #define MAX_DISPLAY_NAME_LEN      16
+
+  typedef struct
+  {
+  char id             [MAX_ID_LEN + 1];
+  char displayName    [MAX_DISPLAY_NAME_LEN + 1];
+  char *pdata;
+  uint8_t maxlen;
+  } MenuItem;
+**************************************/
+
+#if USE_DYNAMIC_PARAMETERS
+
+#define MAX_MQTT_SERVER_LEN      34
+char MQTT_Server  [MAX_MQTT_SERVER_LEN + 1]   = "mqtt-server";
+
+#define MAX_MQTT_PORT_LEN        6
+char MQTT_Port   [MAX_MQTT_PORT_LEN + 1]  = "1883";
+
+
+MenuItem myMenuItems [] =
+{
+  { "mqtt", "MQTT Server",      MQTT_Server,      MAX_MQTT_SERVER_LEN },
+  { "mqpt", "Port",             MQTT_Port,        MAX_MQTT_PORT_LEN   },
+};
+
+// Due to notorious 2K buffer limitation of ESO8266-AT shield, the NUM_MENU_ITEMS is limited to max 3
+// to avoid WebServer not working due to HTML data larger than 2K can't be sent successfully
+// The items with index larger than 3 will be ignored
+
+uint16_t NUM_MENU_ITEMS = min( 3, sizeof(myMenuItems) / sizeof(MenuItem));  //MenuItemSize;
+
+#else
+
+MenuItem myMenuItems [] = {};
+
+uint16_t NUM_MENU_ITEMS = 0;
+#endif
+
+/////// // End dynamic Credentials ///////////
+
+
+#endif      //dynamicParams_h
+
+```
+- If you don't need to add dynamic parameters, use the following in sketch
+
+```
+#define USE_DYNAMIC_PARAMETERS     false
+```
+
+or
+
+```
+/////////////// Start dynamic Credentials ///////////////
+
+MenuItem myMenuItems [] = {};
+
+uint16_t NUM_MENU_ITEMS = 0;
+/////// // End dynamic Credentials ///////////
+
+```
+---
+---
+
 ### Example [nRF52_ESP8266Shield](examples/nRF52_ESP8266Shield)
 
 
@@ -602,7 +877,7 @@ ESP8266_AT_Configuration defaultConfig;
 
 ESP_AT_WiFiManager_Lite* ESP_AT_WiFiManager;
 
-void heartBeatPrint(void)
+void heartBeatPrint()
 {
   static int num = 1;
 
@@ -642,8 +917,10 @@ void setup()
   Serial.begin(115200);
   while (!Serial);
 
-  Serial.println("\nStart nRF52_ESP8266Shield on " + String(BOARD_TYPE));
-
+  Serial.print("\nStart nRF52_ESP8266Shield on ");
+  Serial.println(BOARD_TYPE);
+  Serial.println(ESP_AT_WM_LITE_VERSION);
+    
   // initialize serial for ESP module
   EspSerial.begin(115200);
 
@@ -661,28 +938,25 @@ void setup()
 }
 
 #if USE_DYNAMIC_PARAMETERS
-void displayCredentials(void)
+void displayCredentials()
 {
   Serial.println("\nStored Dynamic Params:");
 
-  for (int i = 0; i < NUM_MENU_ITEMS; i++)
+  for (uint8_t i = 0; i < NUM_MENU_ITEMS; i++)
   {
-    Serial.println(String(myMenuItems[i].displayName) + " = " + myMenuItems[i].pdata);
+    Serial.print(myMenuItems[i].displayName);
+    Serial.print(" = ");
+    Serial.println(myMenuItems[i].pdata);
   }
 }
-#endif
 
-void loop()
+void displayCredentialsOnce()
 {
-  ESP_AT_WiFiManager->run();
-  check_status();
-
-#if USE_DYNAMIC_PARAMETERS
   static bool displayedCredentials = false;
 
   if (!displayedCredentials)
   {
-    for (int i = 0; i < NUM_MENU_ITEMS; i++)
+    for (uint16_t i = 0; i < NUM_MENU_ITEMS; i++)
     {
       if (!strlen(myMenuItems[i].pdata))
       {
@@ -696,6 +970,16 @@ void loop()
       }
     }
   }
+}
+#endif
+
+void loop()
+{
+  ESP_AT_WiFiManager->run();
+  check_status();
+
+#if (USE_DYNAMIC_PARAMETERS)
+  displayCredentialsOnce();
 #endif
 }
 ```
@@ -723,49 +1007,59 @@ void loop()
 #if ( defined(NRF52840_FEATHER) || defined(NRF52832_FEATHER) || defined(NRF52_SERIES) || defined(ARDUINO_NRF52_ADAFRUIT) || \
       defined(NRF52840_FEATHER_SENSE) || defined(NRF52840_ITSYBITSY) || defined(NRF52840_CIRCUITPLAY) || defined(NRF52840_CLUE) || \
       defined(NRF52840_METRO) || defined(NRF52840_PCA10056) || defined(PARTICLE_XENON) || defined(NINA_B302_ublox) || defined(NINA_B112_ublox) )
-#if defined(ESP8266_AT_USE_NRF528XX)
-#undef ESP8266_AT_USE_NRF528XX
-#endif
-#define ESP8266_AT_USE_NRF528XX      true
+  #if defined(ESP8266_AT_USE_NRF528XX)
+    #undef ESP8266_AT_USE_NRF528XX
+  #endif
+  #define ESP8266_AT_USE_NRF528XX      true
 #else
-#error This code is intended to run only on the nRF52 boards ! Please check your Tools->Board setting.
+  #error This code is intended to run only on the nRF52 boards ! Please check your Tools->Board setting.
 #endif
 
 #if (ESP8266_AT_USE_NRF528XX)
 
 #if defined(NRF52840_FEATHER)
-#define BOARD_TYPE      "NRF52840_FEATHER_EXPRESS"
+  #define BOARD_TYPE      "NRF52840_FEATHER_EXPRESS"
 #elif defined(NRF52832_FEATHER)
-#define BOARD_TYPE      "NRF52832_FEATHER"
+  #define BOARD_TYPE      "NRF52832_FEATHER"
 #elif defined(NRF52840_FEATHER_SENSE)
-#define BOARD_TYPE      "NRF52840_FEATHER_SENSE"
+  #define BOARD_TYPE      "NRF52840_FEATHER_SENSE"
 #elif defined(NRF52840_ITSYBITSY)
-#define BOARD_TYPE      "NRF52840_ITSYBITSY_EXPRESS"
+  #define BOARD_TYPE      "NRF52840_ITSYBITSY_EXPRESS"
 #elif defined(NRF52840_CIRCUITPLAY)
-#define BOARD_TYPE      "NRF52840_CIRCUIT_PLAYGROUND"
+  #define BOARD_TYPE      "NRF52840_CIRCUIT_PLAYGROUND"
 #elif defined(NRF52840_CLUE)
-#define BOARD_TYPE      "NRF52840_CLUE"
+  #define BOARD_TYPE      "NRF52840_CLUE"
 #elif defined(NRF52840_METRO)
-#define BOARD_TYPE      "NRF52840_METRO_EXPRESS"
+  #define BOARD_TYPE      "NRF52840_METRO_EXPRESS"
 #elif defined(NRF52840_PCA10056)
-#define BOARD_TYPE      "NORDIC_NRF52840DK"
+  #define BOARD_TYPE      "NORDIC_NRF52840DK"
 #elif defined(NINA_B302_ublox)
-#define BOARD_TYPE      "NINA_B302_ublox"
+  #define BOARD_TYPE      "NINA_B302_ublox"
 #elif defined(NINA_B112_ublox)
-#define BOARD_TYPE      "NINA_B112_ublox"
+  #define BOARD_TYPE      "NINA_B112_ublox"
 #elif defined(PARTICLE_XENON)
-#define BOARD_TYPE      "PARTICLE_XENON"
+  #define BOARD_TYPE      "PARTICLE_XENON"
 #elif defined(MDBT50Q_RX)
-#define BOARD_TYPE      "RAYTAC_MDBT50Q_RX"
+  #define BOARD_TYPE      "RAYTAC_MDBT50Q_RX"
 #elif defined(ARDUINO_NRF52_ADAFRUIT)
-#define BOARD_TYPE      "ARDUINO_NRF52_ADAFRUIT"
+  #define BOARD_TYPE      "ARDUINO_NRF52_ADAFRUIT"
 #else
-#define BOARD_TYPE      "nRF52 Unknown"
+  #define BOARD_TYPE      "nRF52 Unknown"
 #endif
 
 #define EspSerial Serial1
 
 #endif    //ESP8266_AT_USE_NRF528XX
+
+/////////////////////////////////////////////
+
+// Permit input only one set of WiFi SSID/PWD. The other can be "NULL or "blank"
+// Default is false (if not defined) => must input 2 sets of SSID/PWD
+#define REQUIRE_ONE_SET_SSID_PW       false
+
+#define USE_DYNAMIC_PARAMETERS        true
+
+/////////////////////////////////////////////
 
 #include <Esp8266_AT_WM_Lite_nRF52.h>
 
@@ -871,7 +1165,8 @@ ESP8266_AT_Configuration defaultConfig;
 
 #include "defines.h"
 
-#define USE_DYNAMIC_PARAMETERS      true
+// USE_DYNAMIC_PARAMETERS defined in defined.h
+//#define USE_DYNAMIC_PARAMETERS      true
 
 /////////////// Start dynamic Credentials ///////////////
 
@@ -922,14 +1217,20 @@ uint16_t NUM_MENU_ITEMS = 0;
 
 #endif      //dynamicParams_h
 ```
+
 ---
+---
+
+
+### Debug Terminal output Samples
 
 This is the terminal output when running [nRF52_ESP8266Shield](examples/nRF52_ESP8266Shield) example on **Adafruit ItsyBitsy NRF52840 Express** and DRD is detected:
 
-1. Open Config Portal
+#### 1. Open Config Portal
 
 ```
 Start nRF52_ESP8266Shield on NRF52840_ITSYBITSY_EXPRESS
+ESP_AT_WM_Lite v1.1.0
 [ESP_AT] Use ES8266-AT Command
 LittleFS Flag read = 0xd0d01234
 Flag read = 0xd0d01234
@@ -973,10 +1274,11 @@ Port = 1883
 FFFF
 ```
 
-2. Got valid Credential from Config Portal, then connected to WiFi
+#### 2. Got valid Credential from Config Portal, then connected to WiFi
 
 ```
 Start nRF52_ESP8266Shield on NRF52840_ITSYBITSY_EXPRESS
+ESP_AT_WM_Lite v1.1.0
 [ESP_AT] Use ES8266-AT Command
 LittleFS Flag read = 0xd0d04321
 Flag read = 0xd0d04321
@@ -1026,14 +1328,13 @@ MQTT Server = mqtt-server
 Port = 1883
 HHHHHHHHH HHHHHHHHHH HHHHHHHHHH HHHHHHHHHH HHHHHHHHHH HHHHHHHHHH HHHHHHHHHH HHHHHHHHHH
 HHHHHHHHHH HHHHHHHHHH HHHHHHHHHH HHHHHHHHHH HHHHHHHHHH HHHHHHHHHH HHHHHHHHHH HHHHHHHHHH
-
 ```
 
-3. Normal operation. Losing Primary WiFi AP and auto(re)connect to Secondary WiFi AP
+#### 3. Lost a WiFi and autoconnect to another WiFi AP
 
 ```
-
 Start nRF52_ESP8266Shield on NRF52840_ITSYBITSY_EXPRESS
+ESP_AT_WM_Lite v1.1.0
 [ESP_AT] Use ES8266-AT Command
 LittleFS Flag read = 0xd0d04321
 Flag read = 0xd0d04321
@@ -1096,6 +1397,7 @@ HHHHH
 ```
 
 ---
+---
 
 #### Debug
 
@@ -1111,6 +1413,7 @@ Debug is enabled by default on Serial. To disable, add at the beginning of sketc
 
 #define ESP_AT_DEBUG    true
 ```
+
 ---
 
 ## Troubleshooting
@@ -1120,11 +1423,60 @@ If you get compilation errors, more often than not, you may need to install a ne
 Sometimes, the library will only work if you update the `ESP8266 AT shield` core to the newer or older version because some function compatibility.
 
 ---
+---
+
+## Releases
+
+### Major Release v1.1.0
+
+1. Fix invalid "blank" Config Data treated as Valid. 
+2. Permit optionally inputting one set of WiFi SSID/PWD by using `REQUIRE_ONE_SET_SSID_PW == true`
+3. Enforce WiFi PWD minimum length of 8 chars
+4. Optimize code
+5. Use better FlashStorage_STM32. 
+6. Add Table-of-Contents
+
+### Release v1.0.4
+
+1. Add support to **ESP32-AT WiFi shields.**
+2. Add support to **WIS600-01S/W600-AT WiFi shields.**
+3. Modify LOAD_DEFAULT_CONFIG_DATA logic.
+4. Enhance MultiWiFi connection logic. 
+5. Fix WiFi Status bug.
+
+#### Release v1.0.3
+
+1. Add support to **nRF52 (AdaFruit Feather nRF52832, nRF52840 Express, BlueFruit Sense, Itsy-Bitsy nRF52840 Express, Metro nRF52840 Express, NINA_B302_ublox, NINA_B112_ublox, etc.)**. Dynamic custom parameters to be saved **automatically in LittleFS**.
+2. Add MultiWiFi features for WiFi
+3. Add **DoubleResetDetector (DRD)** feature.
+4. Restructure examples separate Credentials / Defines / Dynamic Params / Code.
+5. Drop support to Teensy boards.
+
+#### Release v1.0.2
+
+1. Add support to **SAM51 (Itsy-Bitsy M4, Metro M4, Grand Central M4, Feather M4 Express, etc.) and SAM DUE**.
+2. WiFi Password max length is 63, according to WPA2 standard.
+3. Permit to input special chars such as **~,!,@,#,$,%,^,*,&** into data fields.
+4. Fix bug
+
+#### Release v1.0.1
+
+1. New **powerful-yet-simple-to-use feature to enable adding dynamic custom parameters** from sketch and input using the same Config Portal. Config Portal will be auto-adjusted to match the number of dynamic parameters.
+2. Dynamic custom parameters to be saved **automatically in EEPROM, SAMD EEPROM-emulated FlashStorage or SAM DUE DueFlashStorage**.
+
+#### Release v1.0.0
+
+1. This is a Light-Weight Credentials / WiFi Connection Manager with fallback web configuration portal. Completely new to support **Teensy, SAM DUE, SAMD, STM32, etc. boards running ESP8266 AT-command shields.** with small memory (64+K bytes)
+2. Config Portal AP SSID and Password will use 4 bytes of hardware unique macAddress, only for Teensy.
+
+---
+---
 
 ### Issues ###
 
 Submit issues to: [ESP_AT_WM_Lite issues](https://github.com/khoih-prog/ESP_AT_WM_Lite/issues)
 
+---
 ---
 
 ### TO DO
@@ -1134,42 +1486,30 @@ Submit issues to: [ESP_AT_WM_Lite issues](https://github.com/khoih-prog/ESP_AT_W
 3. Add more examples. Done.
 4. Add more boards. Done.
 
----
+### DONE
 
-### New Version v1.0.4
+ 1. Adding dynamic custom parameters
+ 2. Add MultiWiFi and Auto(Re)Connect feature
+ 3. Add support to AVR, SAM DUE, SAMD21, SAMD51, nRF52, STM32F/L/H/G/WB/MP1, etc.
+ 4. Many more to list ( WPA2 password length, special chars, etc.)
+ 5. Add DRD
+ 6. Add default Credentials
+ 7. Add Dynamic parameters
+ 8. Add Configurable Config Portal Title
+ 9. Split each example into several manageable files.
+10. Use more efficient [FlashStorage_SAMD](https://github.com/khoih-prog/FlashStorage_SAMD) and [FlashStorage_STM32](https://github.com/khoih-prog/FlashStorage_STM32)
+11. Add Table-of-Contents
+12. Permit optionally inputting one set of WiFi SSID/PWD by using `REQUIRE_ONE_SET_SSID_PW == true`
+13. Enforce WiFi PWD minimum length of 8 chars
 
-1. Add support to **ESP32-AT WiFi shields.**
-2. Add support to **WIS600-01S/W600-AT WiFi shields.**
-3. Modify LOAD_DEFAULT_CONFIG_DATA logic.
-4. Enhance MultiWiFi connection logic. 
-5. Fix WiFi Status bug.
-
-#### New Version v1.0.3
-
-1. Add support to **nRF52 (AdaFruit Feather nRF52832, nRF52840 Express, BlueFruit Sense, Itsy-Bitsy nRF52840 Express, Metro nRF52840 Express, NINA_B302_ublox, NINA_B112_ublox, etc.)**. Dynamic custom parameters to be saved **automatically in LittleFS**.
-2. Add MultiWiFi features for WiFi
-3. Add **DoubleResetDetector (DRD)** feature.
-4. Restructure examples separate Credentials / Defines / Dynamic Params / Code.
-5. Drop support to Teensy boards.
-
-#### New Version v1.0.2
-
-1. Add support to **SAM51 (Itsy-Bitsy M4, Metro M4, Grand Central M4, Feather M4 Express, etc.) and SAM DUE**.
-2. WiFi Password max length is 63, according to WPA2 standard.
-3. Permit to input special chars such as **~,!,@,#,$,%,^,*,&** into data fields.
-4. Fix bug
-
-#### New in v1.0.1
-
-1. New **powerful-yet-simple-to-use feature to enable adding dynamic custom parameters** from sketch and input using the same Config Portal. Config Portal will be auto-adjusted to match the number of dynamic parameters.
-2. Dynamic custom parameters to be saved **automatically in EEPROM, SAMD EEPROM-emulated FlashStorage or SAM DUE DueFlashStorage**.
-
-#### New in v1.0.0
-
-1. This is a Light-Weight Credentials / WiFi Connection Manager with fallback web configuration portal. Completely new to support **Teensy, SAM DUE, SAMD, STM32, etc. boards running ESP8266 AT-command shields.** with small memory (64+K bytes)
-2. Config Portal AP SSID and Password will use 4 bytes of hardware unique macAddress, only for Teensy.
 
 ---
+---
+
+### Contributions and thanks
+
+Please help contribute to this project and add your name here.
+
 
 ### Contributing
 
@@ -1181,7 +1521,7 @@ If you want to contribute to this project:
 
 ---
 
-### License and credits ###
+### License
 
 - The library is licensed under [MIT](https://github.com/khoih-prog/ESP_AT_WM_Lite/blob/master/LICENSE)
 
