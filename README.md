@@ -52,7 +52,7 @@
   * [7. To use and input only one set of WiFi SSID and PWD](#7-to-use-and-input-only-one-set-of-wifi-ssid-and-pwd)
     * [7.1 If you need to use and input only one set of WiFi SSID/PWD](#71-if-you-need-to-use-and-input-only-one-set-of-wifi-ssidpwd)
     * [7.2 If you need to use both sets of WiFi SSID/PWD](#72-if-you-need-to-use-both-sets-of-wifi-ssidpwd)
-  * [8. To enable auto-scan of WiFi networks for selection in Configuration Portal](8-to-enable-auto-scan-of-wifi-networks-for-selection-in-configuration-portal)
+  * [8. To enable auto-scan of WiFi networks for selection in Configuration Portal](#8-to-enable-auto-scan-of-wifi-networks-for-selection-in-configuration-portal)
     * [8.1 Enable auto-scan of WiFi networks for selection in Configuration Portal](#81-enable-auto-scan-of-wifi-networks-for-selection-in-configuration-portal)
     * [8.2 Disable manually input SSIDs](#82-disable-manually-input-ssids)
     * [8.3 Select maximum number of SSIDs in the list](#83-select-maximum-number-of-ssids-in-the-list)
