@@ -171,13 +171,6 @@ extern ESP8266_AT_Configuration defaultConfig;
 //////////////////////////////////////////////
 
 // -- HTML page fragments
-const char ESP_AT_HTML_HEAD[]     /*PROGMEM*/ = "<!DOCTYPE html><html><head><title>STM32_AT_WM_Lite</title><style>div,input{padding:5px;font-size:1em;}input{width:95%;}body{text-align: center;}button{background-color:#16A1E7;color:#fff;line-height:2.4rem;font-size:1.2rem;width:100%;}fieldset{border-radius:0.3rem;margin:0px;}</style></head><div style='text-align:left;display:inline-block;min-width:260px;'>\
-<fieldset><div><label>*WiFi SSID</label><input value='[[id]]'id='id'><div></div></div>\
-<div><label>*PWD (8+ chars)</label><input value='[[pw]]'id='pw'><div></div></div>\
-<div><label>*WiFi SSID1</label><input value='[[id1]]'id='id1'><div></div></div>\
-<div><label>*PWD1 (8+ chars)</label><input value='[[pw1]]'id='pw1'><div></div></div></fieldset>\
-<fieldset><div><label>Board Name</label><input value='[[nm]]'id='nm'><div></div></div></fieldset>";
-
 const char ESP_AT_HTML_HEAD_START[] /*PROGMEM*/ = "<!DOCTYPE html><html><head><title>STM32_AT_WM_Lite</title>";
 
 const char ESP_AT_HTML_HEAD_STYLE[] /*PROGMEM*/ = "<style>div,input{padding:5px;font-size:1em;}input{width:95%;}body{text-align: center;}button{background-color:#16A1E7;color:#fff;line-height:2.4rem;font-size:1.2rem;width:100%;}fieldset{border-radius:0.3rem;margin:0px;}</style>";
