@@ -23,6 +23,7 @@
 #define ESP_AT_DEBUG_OUTPUT           Serial
 
 #define ESP_AT_DEBUG                  true
+#define _ESP_AT_WM_LOGLEVEL_          3
 
 // Uncomment to use ESP32-AT commands
 //#define USE_ESP32_AT                  true
@@ -74,6 +75,10 @@
 
 #endif    //ESP8266_AT_USE_NRF528XX
 
+#ifndef BOARD_NAME
+  #define BOARD_NAME    BOARD_TYPE
+#endif
+
 /////////////////////////////////////////////
 
 // Permit input only one set of WiFi SSID/PWD. The other can be "NULL or "blank"
@@ -81,6 +86,16 @@
 #define REQUIRE_ONE_SET_SSID_PW       false
 
 #define USE_DYNAMIC_PARAMETERS        true
+
+/////////////////////////////////////////////
+
+#define SCAN_WIFI_NETWORKS                  true
+
+// To be able to manually input SSID, not from a scanned SSID lists
+#define MANUAL_SSID_INPUT_ALLOWED           true
+
+// From 2-15
+#define MAX_SSID_IN_LIST                    6
 
 /////////////////////////////////////////////
 

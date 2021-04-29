@@ -8,7 +8,7 @@
 
    Built by Khoi Hoang https://github.com/khoih-prog/ESP_AT_WM_Lite
    Licensed under MIT license
-   Version: 1.1.0
+   Version: 1.2.0
 
    Version Modified By   Date        Comments
    ------- -----------  ----------   -----------
@@ -20,47 +20,74 @@
                                     Add DRD support. Add MultiWiFi support 
    1.0.4   K Hoang      03/07/2020  Add support to ESP32-AT shields. Modify LOAD_DEFAULT_CONFIG_DATA logic.
                                     Enhance MultiWiFi connection logic. Fix WiFi Status bug.
-   1.1.0   K Hoang      13/04/2021  Fix invalid "blank" Config Data treated as Valid. Optional one set of WiFi Credentials                       
+   1.1.0   K Hoang      13/04/2021  Fix invalid "blank" Config Data treated as Valid. Optional one set of WiFi Credentials
+   1.2.0   Michael H    28/04/2021  Enable scan of WiFi networks for selection in Configuration Portal                      
  ***************************************************************************************************************************************/
 
 #ifndef Esp8266_AT_WM_Lite_Debug_h
 #define Esp8266_AT_WM_Lite_Debug_h
 
-#if !defined(ESP_AT_DEBUG)
-  #define ESP_AT_DEBUG      false
+#ifdef ESP_AT_DEBUG_OUTPUT
+  #define DBG_PORT_ESP_AT       ESP_AT_DEBUG_OUTPUT
+#else
+  #define DBG_PORT_ESP_AT       Serial
 #endif
 
-  #define AT_PREFIX         F("*AT: "))
-  
-  // Use these to always display
-  #define INFO_WM1(p1)                 { ESP_AT_DEBUG_OUTPUT.print(AT_PREFIX; ESP_AT_DEBUG_OUTPUT.println(p1); }
-  #define INFO_WM2(p1,p2)              { ESP_AT_DEBUG_OUTPUT.print(AT_PREFIX; ESP_AT_DEBUG_OUTPUT.print(p1); \
-                                          ESP_AT_DEBUG_OUTPUT.println(p2); }
-  #define INFO_WM3(p1,p2,p3)           { ESP_AT_DEBUG_OUTPUT.print(AT_PREFIX; ESP_AT_DEBUG_OUTPUT.print(p1); \
-                                          ESP_AT_DEBUG_OUTPUT.print(p2); ESP_AT_DEBUG_OUTPUT.println(p3); }
-  #define INFO_WM4(p1,p2,p3,p4)        { ESP_AT_DEBUG_OUTPUT.print(AT_PREFIX; ESP_AT_DEBUG_OUTPUT.print(p1); \
-                                          ESP_AT_DEBUG_OUTPUT.print(p2); ESP_AT_DEBUG_OUTPUT.print(p3); ESP_AT_DEBUG_OUTPUT.println(p4); }
-  #define INFO_WM6(p1,p2,p3,p4,p5,p6)  { ESP_AT_DEBUG_OUTPUT.print(AT_PREFIX; ESP_AT_DEBUG_OUTPUT.print(p1); \
-                                          ESP_AT_DEBUG_OUTPUT.print(p2); ESP_AT_DEBUG_OUTPUT.print(p3); ESP_AT_DEBUG_OUTPUT.print(p4); \
-                                          ESP_AT_DEBUG_OUTPUT.print(p5); ESP_AT_DEBUG_OUTPUT.println(p6); }
-                                          
-#if ESP_AT_DEBUG
-  #define DEBUG_WM1(p1)                 { ESP_AT_DEBUG_OUTPUT.print(AT_PREFIX; ESP_AT_DEBUG_OUTPUT.println(p1); }
-  #define DEBUG_WM2(p1,p2)              { ESP_AT_DEBUG_OUTPUT.print(AT_PREFIX; ESP_AT_DEBUG_OUTPUT.print(p1); \
-                                          ESP_AT_DEBUG_OUTPUT.println(p2); }
-  #define DEBUG_WM3(p1,p2,p3)           { ESP_AT_DEBUG_OUTPUT.print(AT_PREFIX; ESP_AT_DEBUG_OUTPUT.print(p1); \
-                                          ESP_AT_DEBUG_OUTPUT.print(p2); ESP_AT_DEBUG_OUTPUT.println(p3); }
-  #define DEBUG_WM4(p1,p2,p3,p4)        { ESP_AT_DEBUG_OUTPUT.print(AT_PREFIX; ESP_AT_DEBUG_OUTPUT.print(p1); \
-                                          ESP_AT_DEBUG_OUTPUT.print(p2); ESP_AT_DEBUG_OUTPUT.print(p3); ESP_AT_DEBUG_OUTPUT.println(p4); }
-  #define DEBUG_WM6(p1,p2,p3,p4,p5,p6)  { ESP_AT_DEBUG_OUTPUT.print(AT_PREFIX; ESP_AT_DEBUG_OUTPUT.print(p1); \
-                                          ESP_AT_DEBUG_OUTPUT.print(p2); ESP_AT_DEBUG_OUTPUT.print(p3); ESP_AT_DEBUG_OUTPUT.print(p4); \
-                                          ESP_AT_DEBUG_OUTPUT.print(p5); ESP_AT_DEBUG_OUTPUT.println(p6); }
-#else
-  #define DEBUG_WM1(p1)
-  #define DEBUG_WM2(p1,p2)
-  #define DEBUG_WM3(p1,p2,p3)
-  #define DEBUG_WM4(p1,p2,p3,p4)
-  #define DEBUG_WM6(p1,p2,p3,p4,p5,p6)
+// Change _ESP_AT_WM_LOGLEVEL_ to set tracing and logging verbosity
+// 0: DISABLED: no logging
+// 1: ERROR: errors
+// 2: WARN: errors and warnings
+// 3: INFO: errors, warnings and informational (default)
+// 4: DEBUG: errors, warnings, informational and debug
+
+#ifndef _ESP_AT_WM_LOGLEVEL_
+  #define _ESP_AT_WM_LOGLEVEL_       0
 #endif
+
+const char ESP_AT_MARK[] = "[ESP_AT] ";
+
+#define ESP_AT_PRINT_MARK   DBG_PORT_ESP_AT.print(ESP_AT_MARK)
+
+#define ESP_AT_PRINT        DBG_PORT_ESP_AT.print
+#define ESP_AT_PRINTLN      DBG_PORT_ESP_AT.println
+
+//////////////////////////////////////////////
+
+#define ESP_AT_LOGERROR0(x)       if(_ESP_AT_WM_LOGLEVEL_>0) { ESP_AT_PRINT(x); }
+#define ESP_AT_LOGERROR(x)        if(_ESP_AT_WM_LOGLEVEL_>0) { ESP_AT_PRINT_MARK; ESP_AT_PRINTLN(x); }
+#define ESP_AT_LOGERROR1(x,y)     if(_ESP_AT_WM_LOGLEVEL_>0) { ESP_AT_PRINT_MARK; ESP_AT_PRINT(x); ESP_AT_PRINTLN(y); }
+#define ESP_AT_LOGERROR2(x,y,z)   if(_ESP_AT_WM_LOGLEVEL_>0) { ESP_AT_PRINT_MARK; ESP_AT_PRINT(x); ESP_AT_PRINT(y); ESP_AT_PRINTLN(z); }
+#define ESP_AT_LOGERROR3(x,y,z,w) if(_ESP_AT_WM_LOGLEVEL_>0) { ESP_AT_PRINT_MARK; ESP_AT_PRINT(x); ESP_AT_PRINT(y); ESP_AT_PRINT(z); ESP_AT_PRINTLN(w); }
+#define ESP_AT_LOGERROR5(x,y,z,w,xx,yy) if(_ESP_AT_WM_LOGLEVEL_>0) { ESP_AT_PRINT_MARK; ESP_AT_PRINT(x); ESP_AT_PRINT(y); ESP_AT_PRINT(z); ESP_AT_PRINT(w); ESP_AT_PRINT(xx); ESP_AT_PRINTLN(yy); }
+
+//////////////////////////////////////////////
+
+#define ESP_AT_LOGWARN0(x)       if(_ESP_AT_WM_LOGLEVEL_>1) { ESP_AT_PRINT(x); }
+#define ESP_AT_LOGWARN(x)        if(_ESP_AT_WM_LOGLEVEL_>1) { ESP_AT_PRINT_MARK; ESP_AT_PRINTLN(x); }
+#define ESP_AT_LOGWARN1(x,y)     if(_ESP_AT_WM_LOGLEVEL_>1) { ESP_AT_PRINT_MARK; ESP_AT_PRINT(x); ESP_AT_PRINTLN(y); }
+#define ESP_AT_LOGWARN2(x,y,z)   if(_ESP_AT_WM_LOGLEVEL_>1) { ESP_AT_PRINT_MARK; ESP_AT_PRINT(x); ESP_AT_PRINT(y); ESP_AT_PRINTLN(z); }
+#define ESP_AT_LOGWARN3(x,y,z,w) if(_ESP_AT_WM_LOGLEVEL_>1) { ESP_AT_PRINT_MARK; ESP_AT_PRINT(x); ESP_AT_PRINT(y); ESP_AT_PRINT(z); ESP_AT_PRINTLN(w); }
+#define ESP_AT_LOGWARN5(x,y,z,w,xx,yy) if(_ESP_AT_WM_LOGLEVEL_>1) { ESP_AT_PRINT_MARK; ESP_AT_PRINT(x); ESP_AT_PRINT(y); ESP_AT_PRINT(z); ESP_AT_PRINT(w); ESP_AT_PRINT(xx); ESP_AT_PRINTLN(yy); }
+
+//////////////////////////////////////////////
+
+#define ESP_AT_LOGINFO0(x)       if(_ESP_AT_WM_LOGLEVEL_>2) { ESP_AT_PRINT(x); }
+#define ESP_AT_LOGINFO(x)        if(_ESP_AT_WM_LOGLEVEL_>2) { ESP_AT_PRINT_MARK; ESP_AT_PRINTLN(x); }
+#define ESP_AT_LOGINFO1(x,y)     if(_ESP_AT_WM_LOGLEVEL_>2) { ESP_AT_PRINT_MARK; ESP_AT_PRINT(x); ESP_AT_PRINTLN(y); }
+#define ESP_AT_LOGINFO2(x,y,z)   if(_ESP_AT_WM_LOGLEVEL_>3) { ESP_AT_PRINT_MARK; ESP_AT_PRINT(x); ESP_AT_PRINT(y); ESP_AT_PRINTLN(z); }
+#define ESP_AT_LOGINFO3(x,y,z,w) if(_ESP_AT_WM_LOGLEVEL_>3) { ESP_AT_PRINT_MARK; ESP_AT_PRINT(x); ESP_AT_PRINT(y); ESP_AT_PRINT(z); ESP_AT_PRINTLN(w); }
+#define ESP_AT_LOGINFO5(x,y,z,w,xx,yy) if(_ESP_AT_WM_LOGLEVEL_>2) { ESP_AT_PRINT_MARK; ESP_AT_PRINT(x); ESP_AT_PRINT(y); ESP_AT_PRINT(z); ESP_AT_PRINT(w); ESP_AT_PRINT(xx); ESP_AT_PRINTLN(yy); }
+
+//////////////////////////////////////////////
+
+#define ESP_AT_LOGDEBUG0(x)       if(_ESP_AT_WM_LOGLEVEL_>3) { ESP_AT_PRINT(x); }
+#define ESP_AT_LOGDEBUG(x)        if(_ESP_AT_WM_LOGLEVEL_>3) { ESP_AT_PRINT_MARK; ESP_AT_PRINTLN(x); }
+#define ESP_AT_LOGDEBUG1(x,y)     if(_ESP_AT_WM_LOGLEVEL_>3) { ESP_AT_PRINT_MARK; ESP_AT_PRINT(x); ESP_AT_PRINTLN(y); }
+#define ESP_AT_LOGDEBUG2(x,y,z)   if(_ESP_AT_WM_LOGLEVEL_>3) { ESP_AT_PRINT_MARK; ESP_AT_PRINT(x); ESP_AT_PRINT(y); ESP_AT_PRINTLN(z); }
+#define ESP_AT_LOGDEBUG3(x,y,z,w) if(_ESP_AT_WM_LOGLEVEL_>3) { ESP_AT_PRINT_MARK; ESP_AT_PRINT(x); ESP_AT_PRINT(y); ESP_AT_PRINT(z); ESP_AT_PRINTLN(w); }
+#define ESP_AT_LOGDEBUG5(x,y,z,w,xx,yy) if(_ESP_AT_WM_LOGLEVEL_>3) { ESP_AT_PRINT_MARK; ESP_AT_PRINT(x); ESP_AT_PRINT(y); ESP_AT_PRINT(z); ESP_AT_PRINT(w); ESP_AT_PRINT(xx); ESP_AT_PRINTLN(yy); }
+
+//////////////////////////////////////////////
+
 
 #endif    //Esp8266_AT_WM_Lite_Debug_h

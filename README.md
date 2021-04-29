@@ -15,6 +15,7 @@
   * [Features](#features)
   * [Currently supported Boards](#currently-supported-boards)
 * [Changelog](#changelog)
+  * [Major Release v1.2.0](#major-release-v120)
   * [Major Release v1.1.0](#major-release-v110)
   * [Release v1.0.4](#release-v104)
   * [Release v1.0.3](#release-v103)
@@ -49,6 +50,12 @@
   * [5. To use different AP WiFi Channel](#5-to-use-different-ap-wifi-channel)
   * [6. To use different static AP IP from default](#6-to-use-different-static-ap-ip-from-default)
   * [7. To use and input only one set of WiFi SSID and PWD](#7-to-use-and-input-only-one-set-of-wifi-ssid-and-pwd)
+    * [7.1 If you need to use and input only one set of WiFi SSID/PWD](#71-if-you-need-to-use-and-input-only-one-set-of-wifi-ssidpwd)
+    * [7.2 If you need to use both sets of WiFi SSID/PWD](#72-if-you-need-to-use-both-sets-of-wifi-ssidpwd)
+  * [8. To enable auto-scan of WiFi networks for selection in Configuration Portal](#82-to-enable-auto-scan-of-wifi-networks-for-selection-in-configuration-portal)
+    * [8.1 Enable auto-scan of WiFi networks for selection in Configuration Portal](#81-enable-auto-scan-of-wifi-networks-for-selection-in-configuration-portal)
+    * [8.2 Disable manually input SSIDs](#82-disable-manually-input-ssids)
+    * [8.3 Select maximum number of SSIDs in the list](#83-select-maximum-number-of-ssids-in-the-list)
 * [Important Notes for using Dynamic Parameters' ids](#important-notes-for-using-dynamic-parameters-ids)
 * [Examples](#examples)
   * [ 1. Mega_ESP8266Shield](examples/Mega_ESP8266Shield)
@@ -57,20 +64,29 @@
   * [ 4. STM32_ESP8266Shield](examples/STM32_ESP8266Shield)
   * [ 5. nRF52_ESP8266Shield](examples/nRF52_ESP8266Shield)
 * [So, how it works?](#so-how-it-works)
+  * [1. Without SCAN_WIFI_NETWORKS](#1-without-scan_wifi_networks)
+  * [2. With SCAN_WIFI_NETWORKS](#2-with-scan_wifi_networks)
+* [Important Notes](#important-notes)
 * [How to use default Credentials and have them pre-loaded onto Config Portal](#how-to-use-default-credentials-and-have-them-pre-loaded-onto-config-portal)
   * [1. To always load Default Credentials and override Config Portal data](#1-to-always-load-default-credentials-and-override-config-portal-data)
   * [2. To load Default Credentials when there is no valid Credentials](#2-to-load-default-credentials-when-there-is-no-valid-credentials)
   * [3. Example of Default Credentials](#3-example-of-default-credentials)
 * [How to add dynamic parameters from sketch](#how-to-add-dynamic-parameters-from-sketch)
+* [Important Notes for using Dynamic Parameters' ids](#important-notes-for-using-dynamic-parameters-ids)
 * [Example nRF52_ESP8266Shield](#example-nrf52_esp8266shield)
   * [1. File nRF52_ESP8266Shield.ino](#1-file-nrf52_esp8266shieldino)
   * [2. File defines.h](#2-file-definesh)
   * [3. File Credentials.h](#3-file-credentialsh)
   * [4. File dynamicParams.h](#4-file-dynamicparamsh)
 * [Debug Terminal Output Samples](#debug-terminal-output-samples)
-  * [1. Open Config Portal](#1-open-config-portal)
-  * [2. Got valid Credential from Config Portal, then connected to WiFi](#2-got-valid-credential-from-config-portal-then-connected-to-wifi)
-  * [3. Lost a WiFi and autoconnect to another WiFi AP](#3-lost-a-wifi-and-autoconnect-to-another-wifi-ap)
+  * [1. nRF52_ESP8266Shield on Adafruit ItsyBitsy NRF52840 Feather Express](#1-nrf52_esp8266shield-on-adafruit-itsybitsy-nrf52840-feather-express)
+    * [1.1 Open Config Portal](#11-open-config-portal)
+    * [1.2 Got valid Credential from Config Portal, then connected to WiFi](#12-got-valid-credential-from-config-portal-then-connected-to-wifi)
+    * [1.3 Lost a WiFi and autoconnect to another WiFi AP](#13-lost-a-wifi-and-autoconnect-to-another-wifi-ap)
+  * [2. SAMD_ESP8266Shield on Adafruit SAMD51 ITSYBITSY_M4](#2-samd_esp8266shield-on-adafruit-samd51-itsybitsy_m4)
+    * [2.1 Open Config Portal](#21-open-config-portal)
+    * [2.2 Got valid Credential from Config Portal, then connected to WiFi](#22-got-valid-credential-from-config-portal-then-connected-to-wifi)
+    * [2.3 Lost a WiFi and autoconnect to another WiFi AP](#23-lost-a-wifi-and-autoconnect-to-another-wifi-ap)
 * [Debug](#debug)
 * [Troubleshooting](#troubleshooting)
 * [Releases](#releases)
@@ -117,7 +133,8 @@ New recent features:
 - Configurable **Config Portal Title** to be either BoardName or default undistinguishable names.
 - Examples are designed to separate Credentials / Defines / Dynamic Params / Code, so that you can change Credentials / Dynamic Params quickly for each device.
 - To permit autoreset after configurable timeout if DRD/MRD or non-persistent forced-CP
-
+- Use new nRF52 LittleFS, SAMD FlashStorage_SAMD and STM32F/L/H/G/WB/MP1 FlashStorage_STM32 features
+- **Scan WiFi networks** for selection in Configuration Portal
 
 #### Currently Supported Boards
 
@@ -144,7 +161,7 @@ This [**ESP_AT_WM_Lite** library](https://github.com/khoih-prog/ESP_AT_WM_Lite) 
 - Nucleo-64
 - Discovery
 - Generic STM32F0, STM32F1, STM32F2, STM32F3, STM32F4, STM32F7 (with 64+K Flash): x8 and up
-- STM32L0, STM32L1, STM32L4
+- STM32L0, STM32L1, STM32L4, **STM32L5**
 - STM32G0, STM32G4
 - STM32H7
 - STM32WB
@@ -158,6 +175,14 @@ This [**ESP_AT_WM_Lite** library](https://github.com/khoih-prog/ESP_AT_WM_Lite) 
 ---
 
 ## Changelog
+
+### Major Release v1.2.0
+
+1. Enable scan of WiFi networks for selection in Configuration Portal. Check [PR for v1.3.0 - Enable scan of WiFi networks #10](https://github.com/khoih-prog/WiFiManager_NINA_Lite/pull/10). Now you can select optional **SCAN_WIFI_NETWORKS**, **MANUAL_SSID_INPUT_ALLOWED** to be able to manually input SSID, not only from a scanned SSID lists and **MAX_SSID_IN_LIST** (from 2-6 for ESP8266-AT or 2-15 for other)
+2. Minor enhancement to not display garbage when data is invalid
+3. Tested with new [Arduino Core for STM32 v2.0.0](https://github.com/stm32duino/Arduino_Core_STM32) and add support to new STM32L5 boards.
+4. Enhance MultiWiFi connection logic
+5. Enhance debugging feature
 
 ### Major Release v1.1.0
 
@@ -202,7 +227,7 @@ This [**ESP_AT_WM_Lite** library](https://github.com/khoih-prog/ESP_AT_WM_Lite) 
 ## Prerequisites
 
  1. [`Arduino IDE 1.8.13+` for Arduino](https://www.arduino.cc/en/Main/Software)
- 2. [`Arduino Core for STM32 v1.9.0+`](https://github.com/stm32duino/Arduino_Core_STM32) for STM32F/L/H/G/WB/MP1 boards (Nucleo-144 NUCLEO_F767ZI, Nucleo-64 NUCLEO_L053R8, etc.). [![GitHub release](https://img.shields.io/github/release/stm32duino/Arduino_Core_STM32.svg)](https://github.com/stm32duino/Arduino_Core_STM32/releases/latest)
+ 2. [`Arduino Core for STM32 v2.0.0+`](https://github.com/stm32duino/Arduino_Core_STM32) for STM32F/L/H/G/WB/MP1 boards (Nucleo-144 NUCLEO_F767ZI, Nucleo-64 NUCLEO_L053R8, etc.). [![GitHub release](https://img.shields.io/github/release/stm32duino/Arduino_Core_STM32.svg)](https://github.com/stm32duino/Arduino_Core_STM32/releases/latest)
  3. [`Arduino SAM DUE core v1.6.12+`](https://github.com/arduino/ArduinoCore-sam) for SAM DUE ARM Cortex-M3 boards.
  4. [`Arduino SAMD core 1.8.11+`](https://github.com/arduino/ArduinoCore-samd) for SAMD ARM Cortex-M0+ boards. [![GitHub release](https://img.shields.io/github/release/arduino/ArduinoCore-samd.svg)](https://github.com/arduino/ArduinoCore-samd/releases/latest)
  5. [`Adafruit SAMD core 1.6.7+`](https://github.com/adafruit/ArduinoCore-samd) for SAMD ARM Cortex-M0+ and M4 boards (Nano 33 IoT, etc.). [![GitHub release](https://img.shields.io/github/release/adafruit/ArduinoCore-samd.svg)](https://github.com/adafruit/ArduinoCore-samd/releases/latest)
@@ -210,10 +235,10 @@ This [**ESP_AT_WM_Lite** library](https://github.com/khoih-prog/ESP_AT_WM_Lite) 
  7. [`Adafruit nRF52 v0.21.0+`](https://github.com/adafruit/Adafruit_nRF52_Arduino) for nRF52 boards such as Adafruit NRF52840_FEATHER, NRF52832_FEATHER, NRF52840_FEATHER_SENSE, NRF52840_ITSYBITSY, NRF52840_CIRCUITPLAY, NRF52840_CLUE, NRF52840_METRO, NRF52840_PCA10056, PARTICLE_XENON, **NINA_B302_ublox**, etc. [![GitHub release](https://img.shields.io/github/release/adafruit/Adafruit_nRF52_Arduino.svg)](https://github.com/adafruit/Adafruit_nRF52_Arduino/releases/latest)
  8. [`ESP8266_AT_WebServer library v1.1.2+`](https://github.com/khoih-prog/ESP8266_AT_WebServer). To install, check [![arduino-library-badge](https://www.ardu-badge.com/badge/ESP8266_AT_WebServer.svg?)](https://www.ardu-badge.com/ESP8266_AT_WebServer)
  9. [`FlashStorage_SAMD library v1.1.0+`](https://github.com/khoih-prog/FlashStorage_SAMD) for SAMD21 and SAMD51 boards (ZERO, MKR, NANO_33_IOT, M0, M0 Pro, AdaFruit Itsy-Bitsy M4, etc.). [![GitHub release](https://img.shields.io/github/release/khoih-prog/FlashStorage_SAMD.svg)](https://github.com/khoih-prog/FlashStorage_SAMD/releases/latest). Or [`Platform.io FlashStorage_SAMD library v1.0.0+`](https://platformio.org/lib/show/11242/FlashStorage_SAMD) for SAMD21 and SAMD51 boards (ZERO, MKR, NANO_33_IOT, M0, M0 Pro, AdaFruit Itsy-Bitsy M4, etc.)
-10. [`FlashStorage_STM32 library v1.0.1+`](https://github.com/khoih-prog/FlashStorage_STM32) for STM32F/L/H/G/WB/MP1 boards. To install. check [![arduino-library-badge](https://www.ardu-badge.com/badge/FlashStorage_STM32.svg?)](https://www.ardu-badge.com/FlashStorage_STM32) 
+10. [`FlashStorage_STM32 library v1.1.0+`](https://github.com/khoih-prog/FlashStorage_STM32) for STM32F/L/H/G/WB/MP1 boards. To install. check [![arduino-library-badge](https://www.ardu-badge.com/badge/FlashStorage_STM32.svg?)](https://www.ardu-badge.com/FlashStorage_STM32) 
 11. [`DueFlashStorage library v1.0.0+`](https://github.com/sebnil/DueFlashStorage) for SAM DUE. To install, check [![arduino-library-badge](https://www.ardu-badge.com/badge/DueFlashStorage.svg?)](https://www.ardu-badge.com/DueFlashStorage)
 12. [`Adafruit's LittleFS/InternalFS`](www.adafruit.com) for nRF52
-13. [`DoubleResetDetector_Generic v1.0.3+`](https://github.com/khoih-prog/DoubleResetDetector_Generic). To install. check [![arduino-library-badge](https://www.ardu-badge.com/badge/DoubleResetDetector_Generic.svg?)](https://www.ardu-badge.com/DoubleResetDetector_Generic)
+13. [`DoubleResetDetector_Generic v1.1.0+`](https://github.com/khoih-prog/DoubleResetDetector_Generic). To install. check [![arduino-library-badge](https://www.ardu-badge.com/badge/DoubleResetDetector_Generic.svg?)](https://www.ardu-badge.com/DoubleResetDetector_Generic)
 14. [`Ai-Thinker AT Firmware v1.5.4`](https://github.com/khoih-prog/ESP8266_AT_WebServer/blob/master/AT_Firmwares/At_firmware_bin1.54.zip) or [`AT Firmware v1.7.4.0`](https://github.com/khoih-prog/ESP8266_AT_WebServer/blob/master/AT_Firmwares/AT_Firmware_bin_1.7.4.0.zip) for ESP8266-AT WiFi shields.
 15. [`AT version_2.1.0.0_dev`](https://github.com/khoih-prog/ESP8266_AT_WebServer/blob/master/AT_Firmwares/AT_version_2.1.0.0_dev.zip) for ESP32-AT WiFi shields.
 16. `AT version_1.1.4` for WIS600-01S and W600-AT WiFi shields.
@@ -647,6 +672,39 @@ But it's always advisable to use and input both sets for reliability.
 #define REQUIRE_ONE_SET_SSID_PW       false
 ```
 
+#### 8. To enable auto-scan of WiFi networks for selection in Configuration Portal
+
+#### 8.1 Enable auto-scan of WiFi networks for selection in Configuration Portal
+
+
+```
+#define SCAN_WIFI_NETWORKS                  true
+```
+
+The manual input of SSIDs is default enabled, so that users can input arbitrary SSID, not only from the scanned list. This is for the sample use-cases in which users can input the known SSIDs of another place, then send the boards to that place. The boards can connect to WiFi without users entering Config Portal to re-configure.
+
+#### 8.2 Disable manually input SSIDs
+
+```
+// To disable manually input SSID, only from a scanned SSID lists
+#define MANUAL_SSID_INPUT_ALLOWED           false
+```
+
+This is for normal use-cases in which users can only select an SSID from a scanned list of SSIDs to avoid typo mistakes and/or security.
+
+#### 8.3 Select maximum number of SSIDs in the list
+
+The maximum number of SSIDs in the list is selectable from 2 to 6 for ESP8266/ESP32-AT. If invalid number of SSIDs is selected, the default number of 6 will be used.
+
+
+```
+// From 2-15
+#define MAX_SSID_IN_LIST                    8
+```
+
+---
+---
+
 ---
 ---
 
@@ -681,22 +739,40 @@ Please be noted that the following **reserved names are already used in library*
 
 In `Configuration Portal Mode`, it starts an AP named `ESP_AT_XXXXXX`. Connect to it using the `configurable password` you can define in the code. For example, `MyESP_AT_XXXXXX` (see examples):
 
+<p align="center">
+    <img src="https://github.com/khoih-prog/ESP_AT_WM_Lite/blob/master/pics/PortalAuth.jpg">
+</p>
+
+
 ```cpp
 // SSID and PW for Config Portal
 String ssid = "ESP_AT_" + String(0x1ABCDEF, HEX);
 const char* password = "ESP_AT_PW";
 ```
-After you connected, please, go to http://192.168.4.1 or newly configured AP IP, you'll see this `Main` page:
+
+After you connected, please, go to http://192.168.4.1 or newly configured AP IP, The following Config Portal screen will appear:
 
 <p align="center">
     <img src="https://github.com/khoih-prog/ESP_AT_WM_Lite/blob/master/pics/Main.png">
 </p>
 
-Enter your credentials, 
+Enter your WiFi credentials,
+
+### 1. Without SCAN_WIFI_NETWORKS
+
 
 <p align="center">
     <img src="https://github.com/khoih-prog/ESP_AT_WM_Lite/blob/master/pics/Input.png">
 </p>
+
+
+### 2. With SCAN_WIFI_NETWORKS
+
+
+<p align="center">
+    <img src="https://github.com/khoih-prog/ESP_AT_WM_Lite/blob/master/pics/ESP_AT_Input_With_Scan.png">
+</p>
+
 
 then click `Save`. 
 
@@ -707,6 +783,14 @@ then click `Save`.
 The WiFi Credentials will be saved and the board connect to the selected WiFi AP.
 
 If you're already connected to a listed WiFi AP and don't want to change anything, just select `Exit` from the `Main` page to reboot the board and connect to the previously-stored AP. The WiFi Credentials are still intact.
+
+---
+
+### Important Notes
+
+1. Now you can use special chars such as **~, !, @, #, $, %, ^, &, _, -, space,etc.** thanks to [brondolin](https://github.com/brondolin) to provide the amazing fix in [**Blynk_WM**](https://github.com/khoih-prog/Blynk_WM) to permit input special chars such as **%** and **#** into data fields. See [Issue 3](https://github.com/khoih-prog/Blynk_WM/issues/3).
+2. The SSIDs, Passwords must be input (or to make them different from **blank**). Otherwise, the Config Portal will re-open until those fields have been changed. If you don't need any field, just input anything or use duplicated data from similar field.
+3. WiFi password max length now is 63 chars according to WPA2 standard.
 
 ---
 ---
@@ -888,6 +972,24 @@ uint16_t NUM_MENU_ITEMS = 0;
 /////// // End dynamic Credentials ///////////
 
 ```
+
+---
+---
+
+### Important Notes for using Dynamic Parameters' ids
+
+1. These ids (such as "mqtt" in example) must be **unique**.
+
+Please be noted that the following **reserved names are already used in library**:
+
+```
+"id"    for WiFi SSID
+"pw"    for WiFi PW
+"id1"   for WiFi1 SSID
+"pw1"   for WiFi1 PW
+"nm"    for Board Name
+```
+
 ---
 ---
 
@@ -944,8 +1046,10 @@ void setup()
   while (!Serial);
 
   Serial.print("\nStart nRF52_ESP8266Shield on ");
-  Serial.println(BOARD_TYPE);
+  Serial.println(BOARD_NAME);
   Serial.println(ESP_AT_WM_LITE_VERSION);
+  Serial.print("Debug Level = ");
+  Serial.println(_ESP_AT_WM_LOGLEVEL_);
     
   // initialize serial for ESP module
   EspSerial.begin(115200);
@@ -1026,6 +1130,7 @@ void loop()
 #define ESP_AT_DEBUG_OUTPUT           Serial
 
 #define ESP_AT_DEBUG                  true
+#define _ESP_AT_WM_LOGLEVEL_          3
 
 // Uncomment to use ESP32-AT commands
 //#define USE_ESP32_AT                  true
@@ -1077,6 +1182,10 @@ void loop()
 
 #endif    //ESP8266_AT_USE_NRF528XX
 
+#ifndef BOARD_NAME
+  #define BOARD_NAME    BOARD_TYPE
+#endif
+
 /////////////////////////////////////////////
 
 // Permit input only one set of WiFi SSID/PWD. The other can be "NULL or "blank"
@@ -1084,6 +1193,16 @@ void loop()
 #define REQUIRE_ONE_SET_SSID_PW       false
 
 #define USE_DYNAMIC_PARAMETERS        true
+
+/////////////////////////////////////////////
+
+#define SCAN_WIFI_NETWORKS                  true
+
+// To be able to manually input SSID, not from a scanned SSID lists
+#define MANUAL_SSID_INPUT_ALLOWED           true
+
+// From 2-15
+#define MAX_SSID_IN_LIST                    6
 
 /////////////////////////////////////////////
 
@@ -1250,13 +1369,16 @@ uint16_t NUM_MENU_ITEMS = 0;
 
 ### Debug Terminal output Samples
 
+#### 1. nRF52_ESP8266Shield on Adafruit ItsyBitsy NRF52840 Feather Express
+
 This is the terminal output when running [nRF52_ESP8266Shield](examples/nRF52_ESP8266Shield) example on **Adafruit ItsyBitsy NRF52840 Express** and DRD is detected:
 
-#### 1. Open Config Portal
+#### 1.1 Open Config Portal
 
 ```
-Start nRF52_ESP8266Shield on NRF52840_ITSYBITSY_EXPRESS
-ESP_AT_WM_Lite v1.1.0
+Start nRF52_ESP8266Shield on NRF52840_FEATHER
+ESP_AT_WM_Lite v1.2.0
+Debug Level = 3
 [ESP_AT] Use ES8266-AT Command
 LittleFS Flag read = 0xd0d01234
 Flag read = 0xd0d01234
@@ -1265,34 +1387,25 @@ Saving to DRD file : 0xd0d04321
 Saving DRD file OK
 LittleFS Flag read = 0xd0d04321
 ClearFlag write = 0xd0d04321
-*AT: Double Reset Detected
-*AT: ======= Start Default Config Data =======
-*AT: Hdr=SHD_ESP8266,SSID=SSID1,PW=password1
-*AT: SSID1=SSID2,PW1=password2
-*AT: BName=nRF52-ESP_AT
-*AT: LoadCfgFile 
-*AT: OK
-*AT: LoadCredFile 
-*AT: ChkCrR: Buffer allocated, Sz=35
-*AT: ChkCrR:pdata=mqtt-server,len=34
-*AT: ChkCrR:pdata=1883,len=6
-*AT: OK
-*AT: CrCCsum=0x55e,CrRCsum=0x55e
-*AT: Buffer freed
-*AT: CCSum=0x1030,RCSum=0x1030
-*AT: LoadCredFile 
-*AT: CrR:pdata=mqtt-server,len=34
-*AT: CrR:pdata=1883,len=6
-*AT: OK
-*AT: CrCCsum=0x55e,CrRCsum=0x55e
-*AT: Valid Stored Dynamic Data
-*AT: ======= Start Stored Config Data =======
-*AT: Hdr=SHD_ESP8266,SSID=HueNet1,PW=****
-*AT: SSID1=HueNet2,PW1=****
-*AT: BName=nRF52
-*AT: b:StayInCfgPortal:DRD
-*AT: SSID=CfgPrtl-SSID,PW=CfgPrtl-PW
-*AT: IP=192.168.4.1,CH=1
+[ESP_AT] LoadCfgFile 
+[ESP_AT] OK
+[ESP_AT] CCSum=0x1327,RCSum=0x1327
+[ESP_AT] Valid Stored Dynamic Data
+[ESP_AT] ======= Start Stored Config Data =======
+[ESP_AT] b:StayInCfgPortal:DRD
+[ESP_AT] Scanning Network
+[ESP_AT] scanWifiNetworks: Done, Scanned Networks n = 8
+[ESP_AT] WiFi networks found:
+[ESP_AT] 1: dragino-1ed63c, -25dB
+[ESP_AT] 2: HueNet, -27dB
+[ESP_AT] 3: HueNetTek, -90dB
+[ESP_AT] 4: HueNet1, -54dB
+[ESP_AT] 5: HueNet2, -70dB
+[ESP_AT] 6: bacau, -70dB
+[ESP_AT] 7: guest_24, -25dB
+[ESP_AT] 8: FishBowl, -13dB
+[ESP_AT] SSID=CfgPrtl-SSID,PW=CfgPrtl-PW
+[ESP_AT] IP=192.168.4.1,CH=1
 F
 Stored Dynamic Params:
 MQTT Server = mqtt-server
@@ -1300,11 +1413,12 @@ Port = 1883
 FFFF
 ```
 
-#### 2. Got valid Credential from Config Portal, then connected to WiFi
+#### 1.2 Got valid Credential from Config Portal, then connected to WiFi
 
 ```
-Start nRF52_ESP8266Shield on NRF52840_ITSYBITSY_EXPRESS
-ESP_AT_WM_Lite v1.1.0
+Start nRF52_ESP8266Shield on NRF52840_FEATHER
+ESP_AT_WM_Lite v1.2.0
+Debug Level = 3
 [ESP_AT] Use ES8266-AT Command
 LittleFS Flag read = 0xd0d04321
 Flag read = 0xd0d04321
@@ -1312,37 +1426,17 @@ No doubleResetDetected
 Saving DOUBLERESETDETECTOR_FLAG to DRD file : 0xd0d01234
 Saving DRD file OK
 SetFlag write = 0xd0d01234
-*AT: ======= Start Default Config Data =======
-*AT: Hdr=SHD_ESP8266,SSID=SSID1,PW=password1
-*AT: SSID1=SSID2,PW1=password2
-*AT: BName=nRF52-ESP_AT
-*AT: LoadCfgFile 
-*AT: OK
-*AT: LoadCredFile 
-*AT: ChkCrR: Buffer allocated, Sz=35
-*AT: ChkCrR:pdata=mqtt-server,len=34
-*AT: ChkCrR:pdata=1883,len=6
-*AT: OK
-*AT: CrCCsum=0x55e,CrRCsum=0x55e
-*AT: Buffer freed
-*AT: CCSum=0x1030,RCSum=0x1030
-*AT: LoadCredFile 
-*AT: CrR:pdata=mqtt-server,len=34
-*AT: CrR:pdata=1883,len=6
-*AT: OK
-*AT: CrCCsum=0x55e,CrRCsum=0x55e
-*AT: Valid Stored Dynamic Data
-*AT: ======= Start Stored Config Data =======
-*AT: Hdr=SHD_ESP8266,SSID=HueNet1,PW=****
-*AT: SSID1=HueNet2,PW1=****
-*AT: BName=nRF52
-*AT: ConMultiWifi
-*AT: con2WF:SSID=HueNet1,PW=****
-*AT: Remaining retry_time=3
-*AT: WOK, lastConnectedIndex=0
-*AT: con2WF:OK
-*AT: IP=192.168.2.43
-*AT: b:WOK
+[ESP_AT] LoadCfgFile 
+[ESP_AT] OK
+[ESP_AT] CCSum=0x1327,RCSum=0x1327
+[ESP_AT] Valid Stored Dynamic Data
+[ESP_AT] ======= Start Stored Config Data =======
+[ESP_AT] ConMultiWifi
+[ESP_AT] First connection, Using index=0
+[ESP_AT] con2WF:SSID=HueNet1,PW=jenniqqs
+[ESP_AT] Remaining retry_time=3
+[ESP_AT] WOK, lastConnectedIndex=0
+[ESP_AT] con2WF:OK
 Stop doubleResetDetecting
 Saving to DRD file : 0xd0d04321
 Saving DRD file OK
@@ -1352,15 +1446,15 @@ H
 Stored Dynamic Params:
 MQTT Server = mqtt-server
 Port = 1883
-HHHHHHHHH HHHHHHHHHH HHHHHHHHHH HHHHHHHHHH HHHHHHHHHH HHHHHHHHHH HHHHHHHHHH HHHHHHHHHH
-HHHHHHHHHH HHHHHHHHHH HHHHHHHHHH HHHHHHHHHH HHHHHHHHHH HHHHHHHHHH HHHHHHHHHH HHHHHHHHHH
+HHHHHHHHH HHHHHHHHHH HHHHHHHHHH HHHHHHHHHH 
 ```
 
-#### 3. Lost a WiFi and autoconnect to another WiFi AP
+#### 1.3 Lost a WiFi and autoconnect to another WiFi AP
 
 ```
-Start nRF52_ESP8266Shield on NRF52840_ITSYBITSY_EXPRESS
-ESP_AT_WM_Lite v1.1.0
+Start nRF52_ESP8266Shield on NRF52840_FEATHER
+ESP_AT_WM_Lite v1.2.0
+Debug Level = 3
 [ESP_AT] Use ES8266-AT Command
 LittleFS Flag read = 0xd0d04321
 Flag read = 0xd0d04321
@@ -1368,59 +1462,139 @@ No doubleResetDetected
 Saving DOUBLERESETDETECTOR_FLAG to DRD file : 0xd0d01234
 Saving DRD file OK
 SetFlag write = 0xd0d01234
-*AT: ======= Start Default Config Data =======
-*AT: Hdr=SHD_ESP8266,SSID=SSID1,PW=password1
-*AT: SSID1=SSID2,PW1=password2
-*AT: BName=nRF52-ESP_AT
-*AT: LoadCfgFile 
-*AT: OK
-*AT: LoadCredFile 
-*AT: ChkCrR: Buffer allocated, Sz=35
-*AT: ChkCrR:pdata=mqtt-server,len=34
-*AT: ChkCrR:pdata=1883,len=6
-*AT: OK
-*AT: CrCCsum=0x55e,CrRCsum=0x55e
-*AT: Buffer freed
-*AT: CCSum=0x1030,RCSum=0x1030
-*AT: LoadCredFile 
-*AT: CrR:pdata=mqtt-server,len=34
-*AT: CrR:pdata=1883,len=6
-*AT: OK
-*AT: CrCCsum=0x55e,CrRCsum=0x55e
-*AT: Valid Stored Dynamic Data
-*AT: ======= Start Stored Config Data =======
-*AT: Hdr=SHD_ESP8266,SSID=HueNet1,PW=****
-*AT: SSID1=HueNet2,PW1=****
-*AT: BName=nRF52
-*AT: ConMultiWifi
-*AT: con2WF:SSID=HueNet1,PW=****
-*AT: Remaining retry_time=3
-*AT: WOK, lastConnectedIndex=0     <== Connected to Primary WiFi AP
-*AT: con2WF:OK
-*AT: IP=192.168.2.43
-*AT: b:WOK
+[ESP_AT] CCSum=0x12c9,RCSum=0x12c9
+[ESP_AT] Valid Stored Dynamic Data
+[ESP_AT] ======= Start Stored Config Data =======
+[ESP_AT] ConMultiWifi
+[ESP_AT] First connection, Using index=0
+[ESP_AT] con2WF:SSID=HueNet1,PW=password
+[ESP_AT] Remaining retry_time=3
+[ESP_AT] WOK, lastConnectedIndex=0
+[ESP_AT] con2WF:OK
 Stop doubleResetDetecting
-Saving to DRD file : 0xd0d04321
-Saving DRD file OK
-LittleFS Flag read = 0xd0d04321
 ClearFlag write = 0xd0d04321
 H
 Stored Dynamic Params:
 MQTT Server = mqtt-server
 Port = 1883
-HHHHHHHHH HHHHHHHHHH
-*AT: r:Check&WLost
-*AT: r:WLost.ReconW                 <== Lost Primary WiFi AP
-*AT: ConMultiWifi
-*AT: Using index=1, lastConnectedIndex=0
-*AT: con2WF:SSID=HueNet2,PW=****
-*AT: Remaining retry_time=2
-*AT: WOK, lastConnectedIndex=1     <== Reconnect to Secondary WiFi AP
-*AT: con2WF:OK
-*AT: IP=192.168.2.43
-*AT: r:WOK
+HH[ESP_AT] ConMultiWifi                 <== Lost Primary WiFi AP
+[ESP_AT] Using index=1, lastConnectedIndex=0
+[ESP_AT] con2WF:SSID=HueNet2,PW=password
+[ESP_AT] Remaining retry_time=2
+[ESP_AT] WOK, lastConnectedIndex=1     <== Reconnect to Secondary WiFi AP
+[ESP_AT] con2WF:OK
 HHHHH
 ```
+
+---
+
+
+#### 2. SAMD_ESP8266Shield on Adafruit SAMD51 ITSYBITSY_M4
+
+This is the terminal output when running [SAMD_ESP8266Shield](examples/SAMD_ESP8266Shield) example on **Adafruit SAMD51 ItsyBitsy_M4** :
+
+#### 2.1 Open Config Portal
+
+```
+Start SAMD_ESP8266Shield on ITSYBITSY_M4
+ESP_AT_WM_Lite v1.2.0
+Debug Level = 3
+[ESP_AT] Use ES8266-AT Command
+Flag read = 0xffffffff
+No doubleResetDetected
+SetFlag write = 0xd0d01234
+[ESP_AT] CCSum=0x72de,RCSum=0x10200754
+[ESP_AT] Invalid Stored Dynamic Data. Load default from Sketch
+[ESP_AT] SaveEEPROM,sz=1024,Datasz=520,CSum=4156
+[ESP_AT] b:StayInCfgPortal:NoCfgDat
+[ESP_AT] Scanning Network
+[ESP_AT] scanWifiNetworks: Done, Scanned Networks n = 9
+[ESP_AT] WiFi networks found:
+[ESP_AT] 1: HueNet1, -30dB
+[ESP_AT] 2: HueNet, -88dB
+[ESP_AT] 3: HueNetTek, -91dB
+[ESP_AT] 4: dragino-1ed63c, -24dB
+[ESP_AT] 5: HueNet2, -50dB
+[ESP_AT] 6: Rogers 786, -26dB
+[ESP_AT] 7: Access 2.0, -41dB
+[ESP_AT] 8: VIRGIN874, -78dB
+[ESP_AT] 9: Jasmine, -90dB
+[ESP_AT] SSID=SAMD-CfgPrtl-SSID,PW=SAMD-CfgPrtl-PW
+[ESP_AT] IP=192.168.4.1,CH=6
+Stop doubleResetDetecting
+ClearFlag write = 0xd0d04321
+F
+Stored Dynamic Params:
+MQTT Server = mqtt-server
+Port = 1883
+
+FFFF[ESP_AT] h:UpdFlash
+[ESP_AT] SaveEEPROM,sz=1024,Datasz=520,CSum=4809
+[ESP_AT] h:Rst
+```
+
+#### 2.2 Got valid Credential from Config Portal, then connected to WiFi
+
+```
+Start SAMD_ESP8266Shield on ITSYBITSY_M4
+ESP_AT_WM_Lite v1.2.0
+Debug Level = 3
+[ESP_AT] Use ES8266-AT Command
+Flag read = 0xd0d04321
+No doubleResetDetected
+SetFlag write = 0xd0d01234
+[ESP_AT] CCSum=0x12c9,RCSum=0x12c9
+[ESP_AT] Valid Stored Dynamic Data
+[ESP_AT] ======= Start Stored Config Data =======
+[ESP_AT] ConMultiWifi
+[ESP_AT] First connection, Using index=0
+[ESP_AT] con2WF:SSID=HueNet1,PW=password
+[ESP_AT] Remaining retry_time=3
+[ESP_AT] WOK, lastConnectedIndex=0
+[ESP_AT] con2WF:OK
+Stop doubleResetDetecting
+ClearFlag write = 0xd0d04321
+H
+Stored Dynamic Params:
+MQTT Server = mqtt-server
+Port = 1883
+HHHHHHHHH HHHHHHHHHH HHHHHHHHHH HHHHHHHHHH 
+```
+
+#### 2.3 Lost a WiFi and autoconnect to another WiFi AP
+
+```
+Start SAMD_ESP8266Shield on ITSYBITSY_M4
+ESP_AT_WM_Lite v1.2.0
+Debug Level = 3
+[ESP_AT] Use ES8266-AT Command
+Flag read = 0xd0d04321
+No doubleResetDetected
+SetFlag write = 0xd0d01234
+[ESP_AT] CCSum=0x12c9,RCSum=0x12c9
+[ESP_AT] Valid Stored Dynamic Data
+[ESP_AT] ======= Start Stored Config Data =======
+[ESP_AT] ConMultiWifi
+[ESP_AT] First connection, Using index=0
+[ESP_AT] con2WF:SSID=HueNet1,PW=password
+[ESP_AT] Remaining retry_time=3
+[ESP_AT] WOK, lastConnectedIndex=0
+[ESP_AT] con2WF:OK
+Stop doubleResetDetecting
+ClearFlag write = 0xd0d04321
+H
+Stored Dynamic Params:
+MQTT Server = mqtt-server
+Port = 1883
+HH[ESP_AT] ConMultiWifi                 <== Lost Primary WiFi AP
+[ESP_AT] Using index=1, lastConnectedIndex=0
+[ESP_AT] con2WF:SSID=HueNet2,PW=password
+[ESP_AT] Remaining retry_time=2
+[ESP_AT] WOK, lastConnectedIndex=1     <== Reconnect to Secondary WiFi AP
+[ESP_AT] con2WF:OK
+HHHHH
+```
+
 
 ---
 ---
@@ -1433,11 +1607,14 @@ Debug is enabled by default on Serial. To disable, add at the beginning of sketc
 /* Comment this out to disable prints and save space */
 #define DRD_GENERIC_DEBUG             true
 
-/* Comment this out to disable prints and save space */
-#define ESP_AT_DEBUG_OUTPUT           Serial
+#define USE_NEW_WEBSERVER_VERSION     true  //false
 #define _ESP_AT_LOGLEVEL_             1
 
-#define ESP_AT_DEBUG    true
+/* Comment this out to disable prints and save space */
+#define ESP_AT_DEBUG_OUTPUT           Serial
+
+#define ESP_AT_DEBUG                  true
+#define _ESP_AT_WM_LOGLEVEL_          3
 ```
 
 ---
@@ -1452,6 +1629,14 @@ Sometimes, the library will only work if you update the `ESP8266 AT shield` core
 ---
 
 ## Releases
+
+### Major Release v1.2.0
+
+1. Enable scan of WiFi networks for selection in Configuration Portal. Check [PR for v1.3.0 - Enable scan of WiFi networks #10](https://github.com/khoih-prog/WiFiManager_NINA_Lite/pull/10). Now you can select optional **SCAN_WIFI_NETWORKS**, **MANUAL_SSID_INPUT_ALLOWED** to be able to manually input SSID, not only from a scanned SSID lists and **MAX_SSID_IN_LIST** (from 2-6 for ESP8266-AT or 2-15 for other)
+2. Minor enhancement to not display garbage when data is invalid
+3. Tested with new [Arduino Core for STM32 v2.0.0](https://github.com/stm32duino/Arduino_Core_STM32) and add support to new STM32L5 boards.
+4. Enhance MultiWiFi connection logic
+5. Enhance debugging feature
 
 ### Major Release v1.1.0
 
@@ -1527,6 +1712,7 @@ Submit issues to: [ESP_AT_WM_Lite issues](https://github.com/khoih-prog/ESP_AT_W
 11. Add Table-of-Contents
 12. Permit optionally inputting one set of WiFi SSID/PWD by using `REQUIRE_ONE_SET_SSID_PW == true`
 13. Enforce WiFi PWD minimum length of 8 chars
+25. Enable **scan of WiFi networks** for selection in Configuration Portal
 
 
 ---
@@ -1536,6 +1722,16 @@ Submit issues to: [ESP_AT_WM_Lite issues](https://github.com/khoih-prog/ESP_AT_W
 
 Please help contribute to this project and add your name here.
 
+1. Thanks to [Michael H. "bizprof"](https://github.com/bizprof) to be `collaborator, co-author/maintainer` of this library. With the impressive new feature : 
+  - `Enable scan of WiFi networks for selection in Configuration Portal`. Check [PR for v1.3.0 - Enable scan of WiFi networks #10](https://github.com/khoih-prog/WiFiManager_NINA_Lite/pull/10) leading to v1.2.0
+
+<table>
+  <tr>
+    <td align="center"><a href="https://github.com/bizprof"><img src="https://github.com/bizprof.png" width="100px;" alt="bizprof"/><br /><sub><b>⭐️ Michael H. "bizprof"</b></sub></a><br /></td>
+  </tr> 
+</table>
+
+---
 
 ### Contributing
 

@@ -23,19 +23,20 @@
 #define ESP_AT_DEBUG_OUTPUT           Serial
 
 #define ESP_AT_DEBUG                  true
+#define _ESP_AT_WM_LOGLEVEL_          3
 
 // Uncomment to use ESP32-AT commands
 //#define USE_ESP32_AT                  true
 
-#if ( defined(STM32F0) || defined(STM32F1) || defined(STM32F2) || defined(STM32F3)  ||defined(STM32F4) || defined(STM32F7) )
+#if ( defined(STM32F0) || defined(STM32F1)  || defined(STM32F2) || defined(STM32F3)  ||defined(STM32F4) || defined(STM32F7) || \
+      defined(STM32L0) || defined(STM32L1)  || defined(STM32L4) || defined(STM32H7)  ||defined(STM32G0) || defined(STM32G4) || \
+      defined(STM32WB) || defined(STM32MP1) || defined(STM32L5) )
   #if defined(ESP8266_AT_USE_STM32)
     #undef ESP8266_AT_USE_STM32
   #endif
   #define ESP8266_AT_USE_STM32      true
-#endif
-
-#if ( defined(ESP8266) || defined(ESP32) || defined(ARDUINO_AVR_MEGA) || defined(ARDUINO_AVR_MEGA2560) || defined(CORE_TEENSY) || !(ESP8266_AT_USE_STM32) )
-  #error This code is intended to run on STM32F platform! Please check your Tools->Board setting.
+#else
+  #error This code is intended to run on STM32F platform! Please check your Tools->Board setting.  
 #endif
 
 #if ESP8266_AT_USE_STM32
@@ -43,23 +44,78 @@
   #define EspSerial Serial1
   
   #if defined(STM32F0)
+    #warning STM32F0 board selected
     #define BOARD_TYPE  "STM32F0"
-    #error Board STM32F0 not supported
   #elif defined(STM32F1)
+    #warning STM32F1 board selected
     #define BOARD_TYPE  "STM32F1"
   #elif defined(STM32F2)
+    #warning STM32F2 board selected
     #define BOARD_TYPE  "STM32F2"
   #elif defined(STM32F3)
+    #warning STM32F3 board selected
     #define BOARD_TYPE  "STM32F3"
   #elif defined(STM32F4)
+    #warning STM32F4 board selected
     #define BOARD_TYPE  "STM32F4"
   #elif defined(STM32F7)
-    #define BOARD_TYPE  "STM32F7"
+
+    #if defined(ARDUINO_NUCLEO_F767ZI)
+      #warning Nucleo-144 NUCLEO_F767ZI board selected, using HardwareSerial Serial1 @ pin D0/RX and D1/TX
+      // RX TX
+      HardwareSerial Serial1(D0, D1);
+    #else
+    
+      #warning STM32F7 board selected
+      #define BOARD_TYPE  "STM32F7"
+
+    #endif
+    
+  #elif defined(STM32L0)
+    #if defined(ARDUINO_NUCLEO_L053R8)
+      #warning Nucleo-64 NUCLEO_L053R8 board selected, using HardwareSerial Serial1 @ pin D0/RX and D1/TX
+      // RX TX
+      HardwareSerial Serial1(D0, D1);   // (PA3, PA2);
+    #else
+    
+      #warning STM32L0 board selected
+      #define BOARD_TYPE  "STM32L0"
+
+    #endif
+    
+  #elif defined(STM32L1)
+    #warning STM32L1 board selected
+    #define BOARD_TYPE  "STM32L1"
+  #elif defined(STM32L4)
+    #warning STM32L4 board selected
+    #define BOARD_TYPE  "STM32L4"
+  #elif defined(STM32L5)
+    #warning STM32L5 board selected
+    #define BOARD_TYPE  "STM32L5"  
+  #elif defined(STM32H7)
+    #warning STM32H7 board selected
+    #define BOARD_TYPE  "STM32H7"
+  #elif defined(STM32G0)
+    #warning STM32G0 board selected
+    #define BOARD_TYPE  "STM32G0"
+  #elif defined(STM32G4)
+    #warning STM32G4 board selected
+    #define BOARD_TYPE  "STM32G4"
+  #elif defined(STM32WB)
+    #warning STM32WB board selected
+    #define BOARD_TYPE  "STM32WB"
+  #elif defined(STM32MP1)
+    #warning STM32MP1 board selected
+    #define BOARD_TYPE  "STM32MP1"
   #else
     #warning STM32 unknown board selected
     #define BOARD_TYPE  "STM32 Unknown"
   #endif
 
+#endif
+
+#ifndef BOARD_NAME
+  #define BOARD_NAME    BOARD_TYPE
 #endif
 
 // Start location in EEPROM to store config data. Default 0
@@ -73,6 +129,16 @@
 #define REQUIRE_ONE_SET_SSID_PW       false
 
 #define USE_DYNAMIC_PARAMETERS        true
+
+/////////////////////////////////////////////
+
+#define SCAN_WIFI_NETWORKS                  true
+
+// To be able to manually input SSID, not from a scanned SSID lists
+#define MANUAL_SSID_INPUT_ALLOWED           true
+
+// From 2-15
+#define MAX_SSID_IN_LIST                    6
 
 /////////////////////////////////////////////
 

@@ -23,6 +23,7 @@
 #define ESP_AT_DEBUG_OUTPUT           Serial
 
 #define ESP_AT_DEBUG                  true
+#define _ESP_AT_WM_LOGLEVEL_          3
 
 // Uncomment to use ESP32-AT commands
 //#define USE_ESP32_AT                  true
@@ -41,11 +42,19 @@
   #define BOARD_TYPE      "AVR Mega"
 #endif
 
+#ifndef BOARD_NAME
+  #define BOARD_NAME    BOARD_TYPE
+#endif
+
 // Start location in EEPROM to store config data. Default 0
 // Config data Size currently is 116 bytes)
 #define EEPROM_START      0
 
 /////////////////////////////////////////////
+
+// Permit input only one set of WiFi SSID/PWD. The other can be "NULL or "blank"
+// Default is false (if not defined) => must input 2 sets of SSID/PWD
+#define REQUIRE_ONE_SET_SSID_PW       false
 
 #define USE_DYNAMIC_PARAMETERS        true
 

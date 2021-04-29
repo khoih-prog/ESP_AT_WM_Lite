@@ -8,7 +8,7 @@
 
    Built by Khoi Hoang https://github.com/khoih-prog/ESP_AT_WM_Lite
    Licensed under MIT license
-   Version: 1.1.0
+   Version: 1.2.0
 
    Version Modified By   Date        Comments
    ------- -----------  ----------   -----------
@@ -20,7 +20,8 @@
                                     Add DRD support. Add MultiWiFi support 
    1.0.4   K Hoang      03/07/2020  Add support to ESP32-AT shields. Modify LOAD_DEFAULT_CONFIG_DATA logic.
                                     Enhance MultiWiFi connection logic. Fix WiFi Status bug.
-   1.1.0   K Hoang      13/04/2021  Fix invalid "blank" Config Data treated as Valid. Optional one set of WiFi Credentials                          
+   1.1.0   K Hoang      13/04/2021  Fix invalid "blank" Config Data treated as Valid. Optional one set of WiFi Credentials
+   1.2.0   Michael H    28/04/2021  Enable scan of WiFi networks for selection in Configuration Portal                      
  ***************************************************************************************************************************************/
 
 #ifndef Esp8266_AT_WM_Lite_h
@@ -34,7 +35,7 @@
   #error This code is intended to run on the Mega2560 platform! Please check your Tools->Board setting.
 #endif
 
-#define ESP_AT_WM_LITE_VERSION        "ESP_AT_WM_Lite v1.1.0"
+#define ESP_AT_WM_LITE_VERSION        "ESP_AT_WM_Lite v1.2.0"
 
 //////////////////////////////////////////////
 
@@ -148,7 +149,7 @@ class ESP_AT_WiFiManager_Lite
       // check for the presence of the shield
       if (WiFi.status() == WL_NO_SHIELD) 
       {
-        DEBUG_WM1(F("NoESP"));
+        ESP_AT_LOGDEBUG(F("NoESP"));
       }
       
       //WiFi.reset();
@@ -164,7 +165,7 @@ class ESP_AT_WiFiManager_Lite
         
     bool connectWiFi(const char* ssid, const char* pass)
     {
-      DEBUG_WM2(F("Con2:"), ssid);
+      ESP_AT_LOGDEBUG1(F("Con2:"), ssid);
 
       if ( WiFi.begin(ssid, pass) )  
       {
@@ -172,11 +173,11 @@ class ESP_AT_WiFiManager_Lite
       }
       else
       {
-        DEBUG_WM1(F("NoW"));
+        ESP_AT_LOGDEBUG(F("NoW"));
         return false;
       }
 
-      DEBUG_WM1(F("WOK"));
+      ESP_AT_LOGDEBUG(F("WOK"));
 
       wifi_connected = true;
 
@@ -188,7 +189,7 @@ class ESP_AT_WiFiManager_Lite
     void begin(const char* ssid,
                const char* pass )
     {
-      DEBUG_WM1(F("conW"));
+      ESP_AT_LOGDEBUG(F("conW"));
       connectWiFi(ssid, pass);
     }
     
@@ -204,12 +205,12 @@ class ESP_AT_WiFiManager_Lite
    
       if (drd->detectDoubleReset())
       {
-        DEBUG_WM1(F("Double Reset Detected"));
+        ESP_AT_LOGDEBUG(F("Double Reset Detected"));
      
         useConfigPortal = true;
       }
       //// New DRD ////
-      DEBUG_WM1(F("======= Start Default Config Data ======="));
+      ESP_AT_LOGDEBUG(F("======= Start Default Config Data ======="));
       displayConfigData(defaultConfig);
       
       hadConfigData = getConfigData();
@@ -221,18 +222,18 @@ class ESP_AT_WiFiManager_Lite
       {
         if (connectToWifi(RETRY_TIMES_CONNECT_WIFI))
         {
-          DEBUG_WM1(F("b:WOK"));
+          ESP_AT_LOGDEBUG(F("b:WOK"));
         }
         else
         {
-          DEBUG_WM1(F("b:NoW"));
+          ESP_AT_LOGDEBUG(F("b:NoW"));
           // failed to connect to WiFi, will start configuration mode
           startConfigurationMode();
         }
       }
       else
       {
-        INFO_WM2(F("b:StayInCfgPortal:"), useConfigPortal ? F("DRD") : F("NoCfgDat"));
+        ESP_AT_LOGERROR1(F("b:StayInCfgPortal:"), useConfigPortal ? F("DRD") : F("NoCfgDat"));
         
         // failed to connect to WiFi, will start configuration mode
         hadConfigData = false;
@@ -309,7 +310,7 @@ class ESP_AT_WiFiManager_Lite
           {
             wifiDisconnectedOnce = false;
             wifi_connected = false;
-            DEBUG_WM1(F("r:Check&WLost"));
+            ESP_AT_LOGDEBUG(F("r:Check&WLost"));
           }
           else
           {
@@ -331,7 +332,7 @@ class ESP_AT_WiFiManager_Lite
 
           if (server)
           {
-            //DEBUG_WM1(F("r:hC"));           
+            //ESP_AT_LOGDEBUG(F("r:hC"));           
             server->handleClient();
           }
            
@@ -346,7 +347,7 @@ class ESP_AT_WiFiManager_Lite
           {
             if (++retryTimes <= CONFIG_TIMEOUT_RETRYTIMES_BEFORE_RESET)
             {
-              DEBUG_WM2(F("r:Wlost&TOut.ConW.Retry#"), retryTimes);
+              ESP_AT_LOGDEBUG1(F("r:Wlost&TOut.ConW.Retry#"), retryTimes);
             }
             else
             {
@@ -358,10 +359,10 @@ class ESP_AT_WiFiManager_Lite
           // Not in config mode, try reconnecting before forcing to config mode
           if ( !wifi_connected )
           {
-            DEBUG_WM1(F("r:Wlost.ReconW"));
+            ESP_AT_LOGDEBUG(F("r:Wlost.ReconW"));
             if (connectToWifi(RETRY_TIMES_RECONNECT_WIFI))
             {
-              DEBUG_WM1(F("r:WOK"));
+              ESP_AT_LOGDEBUG(F("r:WOK"));
             }
           }
         }
@@ -369,7 +370,7 @@ class ESP_AT_WiFiManager_Lite
       else if (configuration_mode)
       {
         configuration_mode = false;
-        DEBUG_WM1(F("r:gotWBack"));
+        ESP_AT_LOGDEBUG(F("r:gotWBack"));
       }
     }
     
@@ -529,13 +530,13 @@ class ESP_AT_WiFiManager_Lite
 
     void displayConfigData(ESP8266_AT_Configuration configData)
     {
-      DEBUG_WM6(F("Hdr="),   configData.header, F(",SSID="), configData.wifi_ssid,
+      ESP_AT_LOGDEBUG5(F("Hdr="),   configData.header, F(",SSID="), configData.wifi_ssid,
                 F(",PW="),   configData.wifi_pw);  
       
       #if 0          
       for (uint8_t i = 0; i < NUM_MENU_ITEMS; i++)
       {
-        DEBUG_WM6("i=", i, ",id=", myMenuItems[i].id, ",data=", myMenuItems[i].pdata);
+        ESP_AT_LOGDEBUG5("i=", i, ",id=", myMenuItems[i].id, ",data=", myMenuItems[i].pdata);
       }      
       #endif     
     }
@@ -544,7 +545,7 @@ class ESP_AT_WiFiManager_Lite
 
     void displayWiFiData()
     {
-      DEBUG_WM2(F("IP="), localIP() );
+      ESP_AT_LOGDEBUG1(F("IP="), localIP() );
     }
     
     //////////////////////////////////////////////
@@ -621,7 +622,7 @@ class ESP_AT_WiFiManager_Lite
         if (myMenuItems[i].maxlen > BUFFER_LEN)
         {
           // Size too large, abort and flag false
-          DEBUG_WM1(F("ChkCrR: Error Small Buffer."));
+          ESP_AT_LOGDEBUG(F("ChkCrR: Error Small Buffer."));
           return false;
         }
       }
@@ -638,7 +639,7 @@ class ESP_AT_WiFiManager_Lite
         // NULL terminated
         readBuffer[myMenuItems[i].maxlen] = 0;
    
-        DEBUG_WM4(F("ChkCrR:pdata="), readBuffer, F(",len="), myMenuItems[i].maxlen);         
+        ESP_AT_LOGDEBUG3(F("ChkCrR:pdata="), readBuffer, F(",len="), myMenuItems[i].maxlen);         
                
         for (uint16_t j = 0; j < myMenuItems[i].maxlen; j++,_pointer++)
         {         
@@ -650,7 +651,7 @@ class ESP_AT_WiFiManager_Lite
 
       EEPROM.get(offset, readCheckSum);
            
-      DEBUG_WM4(F("ChkCrR:CrCCsum=0x"), String(checkSum, HEX), F(",CrRCsum=0x"), String(readCheckSum, HEX));
+      ESP_AT_LOGDEBUG3(F("ChkCrR:CrCCsum=0x"), String(checkSum, HEX), F(",CrRCsum=0x"), String(readCheckSum, HEX));
            
       if ( checkSum != readCheckSum)
       {
@@ -688,7 +689,7 @@ class ESP_AT_WiFiManager_Lite
       
       EEPROM.get(offset, readCheckSum);
       
-      DEBUG_WM4(F("CrCCsum=0x"), String(checkSum, HEX), F(",CrRCsum=0x"), String(readCheckSum, HEX));
+      ESP_AT_LOGDEBUG3(F("CrCCsum=0x"), String(checkSum, HEX), F(",CrRCsum=0x"), String(readCheckSum, HEX));
       
       if ( checkSum != readCheckSum)
       {
@@ -709,7 +710,7 @@ class ESP_AT_WiFiManager_Lite
       {       
         char* _pointer = myMenuItems[i].pdata;
         
-        //DEBUG_WM4(F("pdata="), myMenuItems[i].pdata, F(",len="), myMenuItems[i].maxlen);
+        //ESP_AT_LOGDEBUG3(F("pdata="), myMenuItems[i].pdata, F(",len="), myMenuItems[i].maxlen);
                             
         for (uint16_t j = 0; j < myMenuItems[i].maxlen; j++,_pointer++,offset++)
         {
@@ -721,7 +722,7 @@ class ESP_AT_WiFiManager_Lite
       
       EEPROM.put(offset, checkSum);
       
-      DEBUG_WM2(F("CrCCSum=0x"), String(checkSum, HEX));
+      ESP_AT_LOGDEBUG1(F("CrCCSum=0x"), String(checkSum, HEX));
     }
     
     //////////////////////////////////////////////  
@@ -744,7 +745,7 @@ class ESP_AT_WiFiManager_Lite
       #endif     
       {
         // If SSID, PW ="blank" or NULL, set the flag
-        INFO_WM1(F("Invalid Stored WiFi Config Data"));
+        ESP_AT_LOGERROR(F("Invalid Stored WiFi Config Data"));
         
         hadConfigData = false;
         
@@ -799,7 +800,7 @@ class ESP_AT_WiFiManager_Lite
       // Including config and dynamic data, and assume valid
       saveConfigData();
           
-      DEBUG_WM1(F("======= Start Loaded Config Data ======="));
+      ESP_AT_LOGDEBUG(F("======= Start Loaded Config Data ======="));
       displayConfigData(ESP8266_AT_config);    
     }
     
@@ -826,7 +827,7 @@ class ESP_AT_WiFiManager_Lite
       else
       {   
         // Load stored config data from EEPROM
-        DEBUG_WM2(F("EEPROMsz:"), EEPROM_SIZE);
+        ESP_AT_LOGDEBUG1(F("EEPROMsz:"), EEPROM_SIZE);
         //EEPROM.get(CONFIG_EEPROM_START, ESP8266_AT_config);
         
         // If WiFi SSID/PWD "blank" or NULL, or PWD len < 8, set false flag and exit
@@ -841,14 +842,14 @@ class ESP_AT_WiFiManager_Lite
         
         calChecksum = calcChecksum();
 
-        DEBUG_WM4(F("CCSum=0x"), String(calChecksum, HEX), F(",RCSum=0x"), String(ESP8266_AT_config.checkSum, HEX));
+        ESP_AT_LOGDEBUG3(F("CCSum=0x"), String(calChecksum, HEX), F(",RCSum=0x"), String(ESP8266_AT_config.checkSum, HEX));
                    
         if (dynamicDataValid)
         {
           EEPROM_getDynamicData();
              
-          DEBUG_WM1(F("Valid Stored Dynamic Data"));        
-          DEBUG_WM1(F("======= Start Stored Config Data ======="));
+          ESP_AT_LOGDEBUG(F("Valid Stored Dynamic Data"));        
+          ESP_AT_LOGDEBUG(F("======= Start Stored Config Data ======="));
           displayConfigData(ESP8266_AT_config);
           
           // Don't need Config Portal anymore
@@ -857,7 +858,7 @@ class ESP_AT_WiFiManager_Lite
         else
         {
           // Invalid Stored config data => Config Portal
-          DEBUG_WM1(F("Invalid Stored Dynamic Data. Load default from Sketch"));
+          ESP_AT_LOGDEBUG(F("Invalid Stored Dynamic Data. Load default from Sketch"));
           
           // Load Default Config Data from Sketch, better than just "blank"
           loadAndSaveDefaultConfigData();
@@ -872,7 +873,7 @@ class ESP_AT_WiFiManager_Lite
            (calChecksum != ESP8266_AT_config.checkSum) || !dynamicDataValid )
       {
         // Including Credentials CSum
-        DEBUG_WM2(F("InitCfgDat,Sz="), sizeof(ESP8266_AT_config));
+        ESP_AT_LOGDEBUG1(F("InitCfgDat,Sz="), sizeof(ESP8266_AT_config));
 
         // doesn't have any configuration        
         if (LOAD_DEFAULT_CONFIG_DATA)
@@ -902,7 +903,7 @@ class ESP_AT_WiFiManager_Lite
         
         for (uint8_t i = 0; i < NUM_MENU_ITEMS; i++)
         {
-          DEBUG_WM4(F("g:myMenuItems["), i, F("]="), myMenuItems[i].pdata );
+          ESP_AT_LOGDEBUG3(F("g:myMenuItems["), i, F("]="), myMenuItems[i].pdata );
         }
         
         // Don't need
@@ -933,7 +934,7 @@ class ESP_AT_WiFiManager_Lite
       int calChecksum = calcChecksum();
       ESP8266_AT_config.checkSum = calChecksum;
       
-      DEBUG_WM6(F("SaveEEPROM,sz="), EEPROM.length(), F(",Datasz="), totalDataSize, F(",CSum="), calChecksum);
+      ESP_AT_LOGDEBUG5(F("SaveEEPROM,sz="), EEPROM.length(), F(",Datasz="), totalDataSize, F(",CSum="), calChecksum);
 
       //EEPROM.put(CONFIG_EEPROM_START, ESP8266_AT_config);
       EEPROM_put();
@@ -949,19 +950,19 @@ class ESP_AT_WiFiManager_Lite
       int sleep_time  = 250;
       uint8_t status  = WL_IDLE_STATUS;
                        
-      DEBUG_WM1(F("Con2Wifi"));
+      ESP_AT_LOGDEBUG(F("Con2Wifi"));
 
       if (static_IP != IPAddress(0, 0, 0, 0))
       {
-        DEBUG_WM1(F("UseStatIP"));
+        ESP_AT_LOGDEBUG(F("UseStatIP"));
         WiFi.config(static_IP);
       }
          
-      DEBUG_WM4(F("con2WF:SSID="), ESP8266_AT_config.wifi_ssid, F(",PW="), ESP8266_AT_config.wifi_pw);
+      ESP_AT_LOGDEBUG3(F("con2WF:SSID="), ESP8266_AT_config.wifi_ssid, F(",PW="), ESP8266_AT_config.wifi_pw);
              
       while ( !wifi_connected && ( 0 < retry_time ) )
       {      
-        DEBUG_WM2(F("Remaining retry_time="), retry_time);
+        ESP_AT_LOGDEBUG1(F("Remaining retry_time="), retry_time);
         
         status = WiFi.begin(ESP8266_AT_config.wifi_ssid, ESP8266_AT_config.wifi_pw); 
             
@@ -980,17 +981,17 @@ class ESP_AT_WiFiManager_Lite
           
       if (retry_time <= 0)
       {      
-        DEBUG_WM2(F("Con2WF:Failed, retry_time="), retry_time);             
+        ESP_AT_LOGDEBUG1(F("Con2WF:Failed, retry_time="), retry_time);             
       }  
 
       if (wifi_connected)
       {
-        DEBUG_WM1(F("con2WF:OK"));
+        ESP_AT_LOGDEBUG(F("con2WF:OK"));
         displayWiFiData();
       }
       else
       {
-        DEBUG_WM1(F("con2WF:failed"));  
+        ESP_AT_LOGDEBUG(F("con2WF:failed"));  
         // Can't connect, so try another index next time. Faking this index is OK and lost
       }
 
@@ -1067,7 +1068,7 @@ class ESP_AT_WiFiManager_Lite
           String result;
           createHTML(result);
           
-          DEBUG_WM1(F("h:repl"));
+          ESP_AT_LOGDEBUG(F("h:repl"));
 
           // Reset configTimeout to stay here until finished.
           configTimeout = 0;
@@ -1086,11 +1087,11 @@ class ESP_AT_WiFiManager_Lite
           // Use conservative value 2000 instead of 2048
           uint16_t HTML_page_size = result.length();
           
-          DEBUG_WM2(F("h:HTML page size:"), HTML_page_size);
+          ESP_AT_LOGDEBUG1(F("h:HTML page size:"), HTML_page_size);
           
           if (HTML_page_size > 2000)
           {
-            DEBUG_WM1(F("h:HTML page larger than 2K. Config Portal won't work. Reduce dynamic params"));
+            ESP_AT_LOGDEBUG(F("h:HTML page larger than 2K. Config Portal won't work. Reduce dynamic params"));
           }   
           
           server->send(200, "text/html", result);
@@ -1125,7 +1126,7 @@ class ESP_AT_WiFiManager_Lite
         {
           if (key == myMenuItems[i].id)
           {
-            DEBUG_WM4(F("h:"), myMenuItems[i].id, F("="), value.c_str() );
+            ESP_AT_LOGDEBUG3(F("h:"), myMenuItems[i].id, F("="), value.c_str() );
             number_items_Updated++;
 
             // Actual size of pdata is [maxlen + 1]
@@ -1143,11 +1144,11 @@ class ESP_AT_WiFiManager_Lite
         // NEW
         if (number_items_Updated == NUM_CONFIGURABLE_ITEMS + NUM_MENU_ITEMS)
         {
-          DEBUG_WM1(F("h:UpdEEPROM"));
+          ESP_AT_LOGDEBUG(F("h:UpdEEPROM"));
 
           saveConfigData();
 
-          DEBUG_WM1(F("h:Rst"));
+          ESP_AT_LOGDEBUG(F("h:Rst"));
 
           // TO DO : what command to reset
           // Delay then reset the board after save data
@@ -1187,8 +1188,8 @@ class ESP_AT_WiFiManager_Lite
       else
         channel = AP_channel;
 
-      INFO_WM4(F("SSID="), portal_ssid, F(",PW="), portal_pass);
-      INFO_WM4(F("IP="), portal_apIP, F(",CH="), channel);
+      ESP_AT_LOGERROR3(F("SSID="), portal_ssid, F(",PW="), portal_pass);
+      ESP_AT_LOGERROR3(F("IP="), portal_apIP, F(",CH="), channel);
      
       WiFi.beginAP(portal_ssid.c_str(), channel, portal_pass.c_str(), ENC_TYPE_WPA2_PSK, true);
 

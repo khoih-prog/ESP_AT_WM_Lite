@@ -8,7 +8,7 @@
 
    Built by Khoi Hoang https://github.com/khoih-prog/ESP_AT_WM_Lite
    Licensed under MIT license
-   Version: 1.1.0
+   Version: 1.2.0
 
    Version Modified By   Date        Comments
    ------- -----------  ----------   -----------
@@ -21,6 +21,7 @@
    1.0.4   K Hoang      03/07/2020  Add support to ESP32-AT shields. Modify LOAD_DEFAULT_CONFIG_DATA logic.
                                     Enhance MultiWiFi connection logic. Fix WiFi Status bug.
    1.1.0   K Hoang      13/04/2021  Fix invalid "blank" Config Data treated as Valid. Optional one set of WiFi Credentials
+   1.2.0   Michael H    28/04/2021  Enable scan of WiFi networks for selection in Configuration Portal 
  *****************************************************************************************************************************/
 
 #include "defines.h"
@@ -70,8 +71,10 @@ void setup()
   while (!Serial);
 
   Serial.print("\nStart SAM_DUE_ESP8266Shield on ");
-  Serial.println(BOARD_TYPE);
+  Serial.println(BOARD_NAME);
   Serial.println(ESP_AT_WM_LITE_VERSION);
+  Serial.print("Debug Level = ");
+  Serial.println(_ESP_AT_WM_LOGLEVEL_);
 
   // initialize serial for ESP module
   EspSerial.begin(115200);
