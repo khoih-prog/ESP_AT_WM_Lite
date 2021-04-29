@@ -52,7 +52,7 @@
   * [7. To use and input only one set of WiFi SSID and PWD](#7-to-use-and-input-only-one-set-of-wifi-ssid-and-pwd)
     * [7.1 If you need to use and input only one set of WiFi SSID/PWD](#71-if-you-need-to-use-and-input-only-one-set-of-wifi-ssidpwd)
     * [7.2 If you need to use both sets of WiFi SSID/PWD](#72-if-you-need-to-use-both-sets-of-wifi-ssidpwd)
-  * [8. To enable auto-scan of WiFi networks for selection in Configuration Portal](#82-to-enable-auto-scan-of-wifi-networks-for-selection-in-configuration-portal)
+  * [8. To enable auto-scan of WiFi networks for selection in Configuration Portal](8-to-enable-auto-scan-of-wifi-networks-for-selection-in-configuration-portal)
     * [8.1 Enable auto-scan of WiFi networks for selection in Configuration Portal](#81-enable-auto-scan-of-wifi-networks-for-selection-in-configuration-portal)
     * [8.2 Disable manually input SSIDs](#82-disable-manually-input-ssids)
     * [8.3 Select maximum number of SSIDs in the list](#83-select-maximum-number-of-ssids-in-the-list)
@@ -705,9 +705,6 @@ The maximum number of SSIDs in the list is selectable from 2 to 6 for ESP8266/ES
 ---
 ---
 
----
----
-
 ### Important Notes for using Dynamic Parameters' ids
 
 1. These ids (such as "mqtt" in example) must be **unique**.
@@ -740,7 +737,7 @@ Please be noted that the following **reserved names are already used in library*
 In `Configuration Portal Mode`, it starts an AP named `ESP_AT_XXXXXX`. Connect to it using the `configurable password` you can define in the code. For example, `MyESP_AT_XXXXXX` (see examples):
 
 <p align="center">
-    <img src="https://github.com/khoih-prog/ESP_AT_WM_Lite/blob/master/pics/PortalAuth.jpg">
+    <img src="https://github.com/khoih-prog/ESP_AT_WM_Lite/blob/master/pics/PortalAuth.png">
 </p>
 
 
@@ -1722,7 +1719,7 @@ Submit issues to: [ESP_AT_WM_Lite issues](https://github.com/khoih-prog/ESP_AT_W
 
 Please help contribute to this project and add your name here.
 
-1. Thanks to [Michael H. "bizprof"](https://github.com/bizprof) to be `collaborator, co-author/maintainer` of this library. With the impressive new feature : 
+1. Thanks to [Michael H. "bizprof"](https://github.com/bizprof) with the impressive new feature : 
   - `Enable scan of WiFi networks for selection in Configuration Portal`. Check [PR for v1.3.0 - Enable scan of WiFi networks #10](https://github.com/khoih-prog/WiFiManager_NINA_Lite/pull/10) leading to v1.2.0
 
 <table>
