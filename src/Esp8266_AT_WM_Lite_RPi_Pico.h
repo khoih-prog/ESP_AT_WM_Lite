@@ -1,8 +1,8 @@
 /***************************************************************************************************************************************
-  Esp8266_AT_WM_Lite_DUE.h
-  For SAM DUE boards using ESP8266 AT WiFi Shields, using much less code to support boards with smaller memory
+  Esp8266_AT_WM_Lite_RPi_Pico.h
+  For RP2040-based boards, such as RASPBERRY_PI_PICO, using ESP8266 WiFi Shields
 
-  ESP_AT_WM_Lite is a library for the Mega, Teensy, SAM DUE, SAMD and STM32, nRF52 boards (https://github.com/khoih-prog/ESP_AT_WM_Lite)
+  ESP_AT_WM_Lite is a library for the Mega, Teensy, SAM DUE, SAMD and STM32, nRF52, RPi_Pico boards (https://github.com/khoih-prog/ESP_AT_WM_Lite)
   to enable store Credentials in EEPROM to easy configuration/reconfiguration and autoconnect/autoreconnect of WiFi and other services
   without Hardcoding.
 
@@ -22,20 +22,20 @@
                                   Enhance MultiWiFi connection logic. Fix WiFi Status bug.
   1.1.0   K Hoang      13/04/2021  Fix invalid "blank" Config Data treated as Valid. Optional one set of WiFi Credentials
   1.2.0   Michael H    28/04/2021  Enable scan of WiFi networks for selection in Configuration Portal
-  1.3.0   K Hoang      12/05/2021  Add support to RP2040-based boards, such as RASPBERRY_PI_PICO
+  1.3.0   K Hoang      12/05/2021  Add support to RP2040-based boards, such as RASPBERRY_PI_PICO 
  ***************************************************************************************************************************************/
 
-#ifndef Esp8266_AT_WM_Lite_DUE_h
-#define Esp8266_AT_WM_Lite_DUE_h
+#ifndef Esp8266_AT_WM_Lite_RPi_Pico_h
+#define Esp8266_AT_WM_Lite_RPi_Pico_h
 
-#if ( defined(ARDUINO_SAM_DUE) || defined(__SAM3X8E__) )
-  #if defined(ESP8266_AT_USE_SAM_DUE)
-    #undef ESP8266_AT_USE_SAM_DUE
+#if ( defined(ARDUINO_ARCH_RP2040) )
+  #if defined(ESP8266_AT_USE_RPI_PICO)
+    #undef ESP8266_AT_USE_RPI_PICO
   #endif
-  #define ESP8266_AT_USE_SAM_DUE      true
-  #warning Use SAM_DUE architecture from ESP8266_AT_WiFiManager
+  #define ESP8266_AT_USE_RPI_PICO      true
+  #warning Use RPI_PICO architecture from ESP8266_AT_WM_Lite
 #else
-  #error This code is intended to run on the SAM DUE platform! Please check your Tools->Board setting.
+  #error This code is intended to run on the RP2040 platform! Please check your Tools->Board setting.
 #endif
 
 #define ESP_AT_WM_LITE_VERSION        "ESP_AT_WM_Lite v1.3.0"
@@ -43,12 +43,16 @@
 //////////////////////////////////////////////
 
 #include <ESP8266_AT_WebServer.h>
+
+//Use LittleFS for RPI Pico
+#include <FS.h>
+#include <LittleFS.h>
+
+//FS* filesystem =      &LittleFS;
+#define FileFS        LittleFS
+#warning Using LittleFS in ESP8266_AT_WM_Lite_RPi_Pico.h
+
 #include <Esp8266_AT_WM_Lite_Debug.h>
-
-//Use DueFlashStorage to simulate EEPROM
-#include <DueFlashStorage.h>                 //https://github.com/sebnil/DueFlashStorage
-
-DueFlashStorage dueFlashStorageData;
 
 //////////////////////////////////////////////
 
@@ -142,7 +146,7 @@ typedef struct
 // New in v1.0.3
 
 #define SSID_MAX_LEN      32
-//From v1.0.3, WPA2 passwords can be up to 63 characters long.
+//From v1.1.0, WPA2 passwords can be up to 63 characters long.
 #define PASS_MAX_LEN      64
 
 typedef struct
@@ -172,14 +176,14 @@ typedef struct Configuration
 // Currently CONFIG_DATA_SIZE  =   236  = (16 + 96 * 2 + 4 + 24)
 uint16_t CONFIG_DATA_SIZE = sizeof(ESP8266_AT_Configuration);
 
+//////////////////////////////////////////////
+
 ///New from v1.0.3
 extern bool LOAD_DEFAULT_CONFIG_DATA;
 extern ESP8266_AT_Configuration defaultConfig;
 
-//////////////////////////////////////////////
-
 // -- HTML page fragments
-const char ESP_AT_HTML_HEAD_START[] /*PROGMEM*/ = "<!DOCTYPE html><html><head><title>SAM_DUE_AT_WM_Lite</title>";
+const char ESP_AT_HTML_HEAD_START[] /*PROGMEM*/ = "<!DOCTYPE html><html><head><title>RPi_Pico_AT_WM_Lite</title>";
 
 const char ESP_AT_HTML_HEAD_STYLE[] /*PROGMEM*/ = "<style>div,input{padding:5px;font-size:1em;}input{width:95%;}body{text-align: center;}button{background-color:#16A1E7;color:#fff;line-height:2.4rem;font-size:1.2rem;width:100%;}fieldset{border-radius:0.3rem;margin:0px;}</style>";
 
@@ -324,7 +328,7 @@ class ESP_AT_WiFiManager_Lite
     void begin(const char* ssid,
                const char* pass )
     {
-      ESP_AT_LOGDEBUG(F("conW"));
+      ESP_AT_LOGDEBUG(F("conWiFi"));
       connectWiFi(ssid, pass);
     }
     
@@ -419,7 +423,7 @@ class ESP_AT_WiFiManager_Lite
   #endif
 #endif
 
-  //////////////////////////////////////////////
+    //////////////////////////////////////////////
 
     void run()
     {
@@ -619,8 +623,6 @@ class ESP_AT_WiFiManager_Lite
 
       return ipAddress;
     }
-    
-    //////////////////////////////////////////////
 
     void clearConfigData()
     {
@@ -634,21 +636,61 @@ class ESP_AT_WiFiManager_Lite
       }
 #endif
 
-      saveConfigData();      
+      saveConfigData();
     }
     
     //////////////////////////////////////////////
-        
+    
     bool isConfigDataValid()
     {
       return hadConfigData;
     }
     
     //////////////////////////////////////////////
+    
+    typedef struct
+    {
+      uint32_t CPUID;                  /*!< Offset: 0x000 (R/ )  CPUID Base Register */
+      uint32_t ICSR;                   /*!< Offset: 0x004 (R/W)  Interrupt Control and State Register */
+      uint32_t RESERVED0;
+      uint32_t AIRCR;                  /*!< Offset: 0x00C (R/W)  Application Interrupt and Reset Control Register */
+      uint32_t SCR;                    /*!< Offset: 0x010 (R/W)  System Control Register */
+      uint32_t CCR;                    /*!< Offset: 0x014 (R/W)  Configuration Control Register */
+      uint32_t RESERVED1;
+      uint32_t SHP[2U];                /*!< Offset: 0x01C (R/W)  System Handlers Priority Registers. [0] is RESERVED */
+      uint32_t SHCSR;                  /*!< Offset: 0x024 (R/W)  System Handler Control and State Register */
+    } SCB_Type;
+
+    void NVIC_SystemReset()
+    {                  
+    /* SCB Application Interrupt and Reset Control Register Definitions */
+    #define SCB_AIRCR_VECTKEY_Pos              16U                                      /*!< SCB AIRCR: VECTKEY Position */
+    #define SCB_AIRCR_VECTKEY_Msk              (0xFFFFUL << SCB_AIRCR_VECTKEY_Pos)      /*!< SCB AIRCR: VECTKEY Mask */
+        
+    #define SCB_AIRCR_SYSRESETREQ_Pos           2U                                      /*!< SCB AIRCR: SYSRESETREQ Position */
+    #define SCB_AIRCR_SYSRESETREQ_Msk          (1UL << SCB_AIRCR_SYSRESETREQ_Pos)       /*!< SCB AIRCR: SYSRESETREQ Mask */    
+
+    #define SCS_BASE            (0xE000E000UL)                            /*!< System Control Space Base Address */
+    #define SysTick_BASE        (SCS_BASE +  0x0010UL)                    /*!< SysTick Base Address */
+    #define NVIC_BASE           (SCS_BASE +  0x0100UL)                    /*!< NVIC Base Address */
+    #define SCB_BASE            (SCS_BASE +  0x0D00UL)                    /*!< System Control Block Base Address */
+
+    #define SCB                 ((SCB_Type       *)     SCB_BASE      )   /*!< SCB configuration struct */
+    #define SysTick             ((SysTick_Type   *)     SysTick_BASE  )   /*!< SysTick configuration struct */
+    #define NVIC                ((NVIC_Type      *)     NVIC_BASE     )   /*!< NVIC configuration struct */
+
+                                  
+      SCB->AIRCR  = ((0x5FAUL << SCB_AIRCR_VECTKEY_Pos) | SCB_AIRCR_SYSRESETREQ_Msk);
+
+      while(true);
+    }
+
 
     void resetFunc()
     {
-      rstc_start_software_reset(RSTC);    
+      delay(1000);
+      // Restart for RPi_Pico
+      NVIC_SystemReset();
     }
     
     //////////////////////////////////////////////
@@ -670,7 +712,9 @@ class ESP_AT_WiFiManager_Lite
     bool wifi_connected = false;
 
     IPAddress portal_apIP = IPAddress(192, 168, 4, 1);
-    int AP_channel = 10;
+    
+    // default to channel 1
+    int AP_channel = 1;
 
     String portal_ssid = "";
     String portal_pass = "";
@@ -703,20 +747,20 @@ class ESP_AT_WiFiManager_Lite
 #endif
 
     //////////////////////////////////////
-
+    
     void displayConfigData(ESP8266_AT_Configuration configData)
     {
       ESP_AT_LOGDEBUG5(F("Hdr="),   configData.header, F(",SSID="), configData.WiFi_Creds[0].wifi_ssid,
                 F(",PW="),   configData.WiFi_Creds[0].wifi_pw);
       ESP_AT_LOGDEBUG3(F("SSID1="), configData.WiFi_Creds[1].wifi_ssid, F(",PW1="),  configData.WiFi_Creds[1].wifi_pw);     
       ESP_AT_LOGDEBUG1(F("BName="), configData.board_name);     
-              
+      
 #if USE_DYNAMIC_PARAMETERS     
       for (uint16_t i = 0; i < NUM_MENU_ITEMS; i++)
       {
         ESP_AT_LOGERROR5("i=", i, ",id=", myMenuItems[i].id, ",data=", myMenuItems[i].pdata);
       }
-#endif        
+#endif
     }
     
     //////////////////////////////////////////////
@@ -736,18 +780,8 @@ class ESP_AT_WiFiManager_Lite
 
 #define WM_NO_CONFIG        "blank"
 
-//////////////////////////////////////////////
-
-#ifndef EEPROM_START
-  #define EEPROM_START     0
-  #warning EEPROM_START not defined. Set to 0
-#endif
-
-// Stating positon to store ESP8266_AT_config
-#define CONFIG_EEPROM_START    (EEPROM_START + DRD_FLAG_DATA_SIZE)
-
     //////////////////////////////////////////////
-    
+
     int calcChecksum()
     {
       int checkSum = 0;
@@ -760,6 +794,15 @@ class ESP_AT_WiFiManager_Lite
     }
     
     //////////////////////////////////////////////
+    
+// Use LittleFS/InternalFS for RPi_Pico
+#define  CONFIG_FILENAME              ("/wm_config.dat")
+#define  CONFIG_FILENAME_BACKUP       ("/wm_config.bak")
+
+#define  CREDENTIALS_FILENAME         ("/wm_cred.dat")
+#define  CREDENTIALS_FILENAME_BACKUP  ("/wm_cred.bak")
+   
+   //////////////////////////////////////////////
 
 #if USE_DYNAMIC_PARAMETERS
    
@@ -767,174 +810,267 @@ class ESP_AT_WiFiManager_Lite
     {
       int checkSum = 0;
       int readCheckSum;
-      
-      uint16_t  byteCount = 0;
-           
-      #define BIG_BUFFER_LEN        768     
-      byte bigBuffer[BIG_BUFFER_LEN + 1];      
-      
-      uint16_t offset = CONFIG_EEPROM_START + sizeof(ESP8266_AT_config);      
-           
-      // Make address 4-byte aligned
-      if ( (offset % 4) != 0 )
+      char * readBuffer = NULL;
+                
+      // file existed
+      File file = FileFS.open(CREDENTIALS_FILENAME, "r"); 
+  
+      ESP_AT_LOGDEBUG(F("LoadCredFile "));
+
+      if (!file)
       {
-        offset += 4 - (offset % 4);
+        ESP_AT_LOGDEBUG(F("failed"));
+
+        // Trying open redundant config file
+        file = FileFS.open(CREDENTIALS_FILENAME_BACKUP, "r"); 
+        
+        ESP_AT_LOGDEBUG(F("LoadBkUpCredFile "));
+
+        if (!file)
+        {
+          ESP_AT_LOGDEBUG(F("failed"));
+          return false;
+        }
       }
       
       // Find the longest pdata, then dynamically allocate buffer. Remember to free when done
       // This is used to store tempo data to calculate checksum to see of data is valid
       // We dont like to destroy myMenuItems[i].pdata with invalid data
-      int totalLength = 0;
-            
-      for (uint8_t i = 0; i < NUM_MENU_ITEMS; i++)
-      {       
-        totalLength += myMenuItems[i].maxlen;
-        
-        if ( (totalLength > BIG_BUFFER_LEN) )
-        {
-          // Size too large, abort and flag false
-          ESP_AT_LOGDEBUG(F("ChkCrR: Error Small Buffer."));
-          return false;
-        }
-      }
-                         
-      // Both Buffers big enough, read all dynamicData to BigBuffer once 
-      // as address need to be 4-byte aligned
-      byte* dataPointer = (byte* ) dueFlashStorageData.readAddress(offset);
       
-      // Prepare buffer, more than enough
-      memset(bigBuffer, 0, sizeof(bigBuffer));
-      memcpy(bigBuffer, dataPointer, sizeof(bigBuffer));               
-         
-      // Don't need readBuffer
-      // Now to split into individual piece to add to CSum
+      uint16_t maxBufferLength = 0;
+      
       for (uint8_t i = 0; i < NUM_MENU_ITEMS; i++)
       {       
-        char* _pointer = (char*) bigBuffer;
+        if (myMenuItems[i].maxlen > maxBufferLength)
+          maxBufferLength = myMenuItems[i].maxlen;
+      }
+      
+      if (maxBufferLength > 0)
+      {
+        readBuffer = new char[ maxBufferLength + 1 ];
         
-        for (uint16_t j = 0; j < myMenuItems[i].maxlen; j++, _pointer++, byteCount++)
+        // check to see NULL => stop and return false
+        if (readBuffer == NULL)
         {
-          *_pointer = bigBuffer[byteCount];
-                  
-          checkSum += *_pointer;  
+          ESP_AT_LOGDEBUG(F("ChkCrR: Error can't allocate buffer."));
+          return false;
+        }     
+        else
+        {
+          ESP_AT_LOGDEBUG1(F("ChkCrR: Buffer allocated, Sz="), maxBufferLength + 1);
         }    
       }
-      
-      memcpy(&readCheckSum, &bigBuffer[byteCount], sizeof(readCheckSum));
-      
-      totalDataSize = sizeof(ESP8266_AT_config) + totalLength + sizeof(readCheckSum);
-          
-      ESP_AT_LOGDEBUG3(F("ChkCrR:CrCCsum=0x"), String(checkSum, HEX), F(",CrRCsum=0x"), String(readCheckSum, HEX));
+     
+      uint16_t offset = 0;
            
-      if ( checkSum != readCheckSum )
-      {
-        return false;
-      }
-      
-      return true;    
-    }
-
-//////////////////////////////////////////////
-    
-    bool dueFlashStorage_getDynamicData()
-    {      
-      uint16_t offset = CONFIG_EEPROM_START + sizeof(ESP8266_AT_config);
-           
-      // Make address 4-byte aligned
-      if ( (offset % 4) != 0 )
-      {
-        offset += 4 - (offset % 4);
-      }
-            
-      int checkSum = 0;
-      int readCheckSum;
-      
-      uint16_t  byteCount = 0;
-           
-      #define BIG_BUFFER_LEN        768     
-      byte buffer[BIG_BUFFER_LEN + 1];      
-      
-      byte* dataPointer = (byte* ) dueFlashStorageData.readAddress(offset);
-      
-      memcpy(buffer, dataPointer, sizeof(buffer));
-      
-      totalDataSize = sizeof(ESP8266_AT_config) + sizeof(readCheckSum);
-   
-      for (int i = 0; i < NUM_MENU_ITEMS; i++)
+      for (uint8_t i = 0; i < NUM_MENU_ITEMS; i++)
       {       
-        char* _pointer = myMenuItems[i].pdata;
-        totalDataSize += myMenuItems[i].maxlen;
-        
+        uint8_t * _pointer = (uint8_t *) readBuffer;
+
         // Actual size of pdata is [maxlen + 1]
-        memset(myMenuItems[i].pdata, 0, myMenuItems[i].maxlen + 1);
-                      
-        for (uint16_t j = 0; j < myMenuItems[i].maxlen; j++,_pointer++, byteCount++)
-        {
-          *_pointer = buffer[byteCount];
-          
+        memset(readBuffer, 0, myMenuItems[i].maxlen + 1);
+        
+        // Redundant, but to be sure correct position
+        file.seek(offset);
+        file.read(_pointer, myMenuItems[i].maxlen);
+        
+        offset += myMenuItems[i].maxlen;
+     
+        ESP_AT_LOGDEBUG3(F("ChkCrR:pdata="), readBuffer, F(",len="), myMenuItems[i].maxlen);         
+               
+        for (uint16_t j = 0; j < myMenuItems[i].maxlen; j++,_pointer++)
+        {         
           checkSum += *_pointer;  
-        }     
+        }       
       }
+
+      file.read((uint8_t *) &readCheckSum, sizeof(readCheckSum));
       
-      memcpy(&readCheckSum, &buffer[byteCount], sizeof(readCheckSum));
+      ESP_AT_LOGDEBUG(F("OK"));
+      file.close();
       
-      byteCount += sizeof(readCheckSum);      
+      totalDataSize = sizeof(ESP8266_AT_config) + sizeof(readCheckSum) + offset;
       
-      ESP_AT_LOGERROR5(F("CrCCsum=0x"), String(checkSum, HEX), F(",CrRCsum=0x"), String(readCheckSum, HEX), 
-                F(",TotalDataSz="), totalDataSize);
+      ESP_AT_LOGDEBUG3(F("CrCCsum=0x"), String(checkSum, HEX), F(",CrRCsum=0x"), String(readCheckSum, HEX));
+      
+      // Free buffer
+      if (readBuffer != NULL)
+      {
+        free(readBuffer);
+        ESP_AT_LOGDEBUG(F("Buffer freed"));
+      }
       
       if ( checkSum != readCheckSum)
       {
         return false;
       }
       
-      return true;
+      return true;    
     }
     
     //////////////////////////////////////////////
-    
-    void dueFlashStorage_putDynamicData()
-    {   
-      uint16_t offset = CONFIG_EEPROM_START + sizeof(ESP8266_AT_config);
+
+    bool loadDynamicData()
+    {
+      int checkSum = 0;
+      int readCheckSum;
       
-      // Make address 4-byte aligned
-      if ( (offset % 4) != 0 )
+      // file existed
+      File file = FileFS.open(CREDENTIALS_FILENAME, "r");
+      
+      ESP_AT_LOGDEBUG(F("LoadCredFile "));
+
+      if (!file)
       {
-        offset += 4 - (offset % 4);
+        ESP_AT_LOGDEBUG(F("failed"));
+
+        // Trying open redundant config file
+         file = FileFS.open(CREDENTIALS_FILENAME_BACKUP, "r");
+        
+        ESP_AT_LOGDEBUG(F("LoadBkUpCredFile "));
+
+        if (!file)
+        {
+          ESP_AT_LOGDEBUG(F("failed"));
+          return false;
+        }
       }
+     
+      uint16_t offset = 0;
       
-      int       checkSum = 0;
-      uint16_t  byteCount = 0;
-           
-      // Use 2K buffer, if need more memory, can reduce this
-      byte buffer[2048];
-         
-      for (int i = 0; i < NUM_MENU_ITEMS; i++)
+      for (uint8_t i = 0; i < NUM_MENU_ITEMS; i++)
       {       
         char* _pointer = myMenuItems[i].pdata;
- 
-        ESP_AT_LOGDEBUG3(F("pdata="), myMenuItems[i].pdata, F(",len="), myMenuItems[i].maxlen);
-                     
-        for (uint16_t j = 0; j < myMenuItems[i].maxlen; j++, _pointer++, /*offset++,*/ byteCount++)
+
+        // Actual size of pdata is [maxlen + 1]
+        memset(myMenuItems[i].pdata, 0, myMenuItems[i].maxlen + 1);
+        
+        // Redundant, but to be sure correct position
+        file.seek(offset);
+        file.read((uint8_t *) _pointer, myMenuItems[i].maxlen);
+        
+        offset += myMenuItems[i].maxlen;        
+    
+        ESP_AT_LOGDEBUG3(F("CrR:pdata="), myMenuItems[i].pdata, F(",len="), myMenuItems[i].maxlen);         
+               
+        for (uint16_t j = 0; j < myMenuItems[i].maxlen; j++,_pointer++)
+        {         
+          checkSum += *_pointer;  
+        }       
+      }
+
+      file.read((uint8_t *) &readCheckSum, sizeof(readCheckSum));
+      
+      totalDataSize = sizeof(ESP8266_AT_config) + sizeof(readCheckSum) + offset;
+      
+      ESP_AT_LOGDEBUG(F("OK"));
+      file.close();
+      
+      ESP_AT_LOGDEBUG3(F("CrCCsum=0x"), String(checkSum, HEX), F(",CrRCsum=0x"), String(readCheckSum, HEX));
+      
+      if ( checkSum != readCheckSum)
+      {
+        return false;
+      }
+      
+      return true;    
+    }
+    
+    //////////////////////////////////////////////
+
+    void saveDynamicData()
+    {
+      int checkSum = 0;
+    
+      // file existed
+      File file = FileFS.open(CREDENTIALS_FILENAME, "w");
+      
+      ESP_AT_LOGDEBUG(F("SaveCredFile "));
+
+      uint16_t offset = 0;
+      
+      for (uint8_t i = 0; i < NUM_MENU_ITEMS; i++)
+      {       
+        char* _pointer = myMenuItems[i].pdata;
+       
+        ESP_AT_LOGDEBUG3(F("CW1:pdata="), myMenuItems[i].pdata, F(",len="), myMenuItems[i].maxlen);
+        
+        if (file)
         {
-          if (byteCount >= sizeof(buffer))
-          {
-            ESP_AT_LOGERROR1(F("Danger:dynamic data too long >"), sizeof(buffer));
-          }
+          // Redundant, but to be sure correct position
+          file.seek(offset);                   
+          file.write((uint8_t*) _pointer, myMenuItems[i].maxlen); 
           
-          buffer[byteCount] = *_pointer;          
+          offset += myMenuItems[i].maxlen;      
+        }
+        else
+        {
+          ESP_AT_LOGDEBUG(F("failed"));
+        }        
+                     
+        for (uint16_t j = 0; j < myMenuItems[i].maxlen; j++,_pointer++)
+        {         
           checkSum += *_pointer;     
          }
       }
+      
+      if (file)
+      {
+        file.write((uint8_t*) &checkSum, sizeof(checkSum));     
+        file.close();
+        ESP_AT_LOGDEBUG(F("OK"));    
+      }
+      else
+      {
+        ESP_AT_LOGDEBUG(F("failed"));
+      }   
            
-      memcpy(&buffer[byteCount], &checkSum, sizeof(checkSum));
+      ESP_AT_LOGDEBUG1(F("CrWCSum=0x"), String(checkSum, HEX));
       
-      byteCount += sizeof(checkSum);
+      // Trying open redundant Auth file
+      file = FileFS.open(CREDENTIALS_FILENAME_BACKUP, "w");
       
-      dueFlashStorageData.write(offset, buffer, byteCount);
+      ESP_AT_LOGDEBUG(F("SaveBkUpCredFile "));
+
+      offset = 0;
       
-      ESP_AT_LOGERROR3(F("CrCCSum=0x"), String(checkSum, HEX), F(",byteCount="), byteCount);
+      for (uint8_t i = 0; i < NUM_MENU_ITEMS; i++)
+      {       
+        char* _pointer = myMenuItems[i].pdata;
+     
+        ESP_AT_LOGDEBUG3(F("CW2:pdata="), myMenuItems[i].pdata, F(",len="), myMenuItems[i].maxlen);
+        
+        if (file)
+        {
+          file.seek(offset);                   
+          file.write((uint8_t*) _pointer, myMenuItems[i].maxlen); 
+          
+          // Redundant, but to be sure correct position
+          offset += myMenuItems[i].maxlen; 
+        }
+        else
+        {
+          ESP_AT_LOGDEBUG(F("failed"));
+        }        
+                     
+        for (uint16_t j = 0; j < myMenuItems[i].maxlen; j++,_pointer++)
+        {         
+          checkSum += *_pointer;     
+         }
+      }
+      
+      if (file)
+      {
+        file.write((uint8_t*) &checkSum, sizeof(checkSum));     
+        file.close();
+        ESP_AT_LOGDEBUG(F("OK"));    
+      }
+      else
+      {
+        ESP_AT_LOGDEBUG(F("failed"));
+      }   
     }
+
 #endif
 
     //////////////////////////////////////////////
@@ -1005,50 +1141,92 @@ class ESP_AT_WiFiManager_Lite
       
       return true;
     }
-            
+                
     //////////////////////////////////////////////
-    
-    bool dueFlashStorage_get()
+
+    bool loadConfigData()
     {
-      uint16_t offset = CONFIG_EEPROM_START;
-            
-      byte* dataPointer = (byte* ) dueFlashStorageData.readAddress(offset);
+      ESP_AT_LOGWARN(F("LoadCfgFile "));
       
-      memcpy(&ESP8266_AT_config, dataPointer, sizeof(ESP8266_AT_config));
+      // file existed
+      File file = FileFS.open(CONFIG_FILENAME, "r");
+         
+      if (!file)
+      {
+        ESP_AT_LOGWARN(F("failed"));
+
+        // Trying open redundant config file
+        file = FileFS.open(CONFIG_FILENAME_BACKUP, "r");
+        ESP_AT_LOGWARN(F("LoadBkUpCfgFile "));
+
+        if (!file)
+        {
+          ESP_AT_LOGWARN(F("failed"));
+          return false;
+        }
+      }
      
+      file.seek(0);
+      file.read((uint8_t *) &ESP8266_AT_config, sizeof(ESP8266_AT_config));
+
+      ESP_AT_LOGWARN(F("OK"));
+      file.close();
+      
       NULLTerminateConfig();
       
       return isWiFiConfigValid();
     }
     
     //////////////////////////////////////////////
-    
-    void dueFlashStorage_put()
-    {
-      uint16_t offset = CONFIG_EEPROM_START;
-      
-      dueFlashStorageData.write(offset, (byte *) &ESP8266_AT_config, sizeof(ESP8266_AT_config));   
-    }
-    
-    //////////////////////////////////////////////
 
     void saveConfigData()
     {
+      ESP_AT_LOGWARN(F("SaveCfgFile "));
+
       int calChecksum = calcChecksum();
       ESP8266_AT_config.checkSum = calChecksum;
+      ESP_AT_LOGWARN1(F("WCSum=0x"), String(calChecksum, HEX));
       
-      ESP_AT_LOGERROR1(F("SaveData,ChkSum=0x"), String(calChecksum, HEX));
+      // file existed
+      File file = FileFS.open(CONFIG_FILENAME, "w");
 
-      dueFlashStorage_put();
+      if (file)
+      {
+        file.seek(0);
+        file.write((uint8_t*) &ESP8266_AT_config, sizeof(ESP8266_AT_config));
+        
+        file.close();
+        ESP_AT_LOGWARN(F("OK"));
+      }
+      else
+      {
+        ESP_AT_LOGWARN(F("failed"));
+      }
+      
+      ESP_AT_LOGWARN(F("SaveBkUpCfgFile "));
+      
+      // Trying open redundant Auth file
+      file = FileFS.open(CONFIG_FILENAME_BACKUP, "w");
+
+      if (file)
+      {
+        file.seek(0);
+        file.write((uint8_t *) &ESP8266_AT_config, sizeof(ESP8266_AT_config));
+        
+        file.close();
+        ESP_AT_LOGWARN(F("OK"));
+      }
+      else
+      {
+        ESP_AT_LOGWARN(F("failed"));
+      }
       
 #if USE_DYNAMIC_PARAMETERS      
-      dueFlashStorage_putDynamicData();
-#endif      
+      saveDynamicData();
+#endif
     }
     
-    
     //////////////////////////////////////////////
-    
     // New from v1.0.4
     void loadAndSaveDefaultConfigData()
     {
@@ -1059,21 +1237,26 @@ class ESP_AT_WiFiManager_Lite
       // Including config and dynamic data, and assume valid
       saveConfigData();
           
-      ESP_AT_LOGDEBUG(F("======= Start Loaded Config Data ======="));
+      ESP_AT_LOGWARN(F("======= Start Loaded Config Data ======="));
       displayConfigData(ESP8266_AT_config);    
     }
     
     //////////////////////////////////////////////
- 
+    
+    // Return false if init new EEPROM or SPIFFS. No more need trying to connect. Go directly to config mode
     bool getConfigData()
     {
-      bool dynamicDataValid = true;
-      int calChecksum;
+      bool dynamicDataValid = true;  
+      int calChecksum; 
       
-      hadConfigData = false;    
-          
-      // For DUE, DATA_LENGTH = ((IFLASH1_PAGE_SIZE/sizeof(byte))*4) = 1KBytes
-      ESP_AT_LOGWARN1(F("Simulate EEPROM, Sz:"), DATA_LENGTH);
+      hadConfigData = false;
+      
+      // Initialize Internal File System
+      if (!FileFS.begin())
+      {
+        ESP_AT_LOGERROR(F("LittleFS failed"));
+        return false;
+      }
 
       // Use new LOAD_DEFAULT_CONFIG_DATA logic
       if (LOAD_DEFAULT_CONFIG_DATA)
@@ -1085,39 +1268,36 @@ class ESP_AT_WiFiManager_Lite
         return true; 
       }
       else
-      {
-        // Load stored config / dynamic data from dueFlashStorage
-        // Verify ChkSum
-        // Get config data. If "blank" or NULL, set false flag and exit
-        if (!dueFlashStorage_get())
+      {   
+        // Load stored config data from LittleFS
+        // If WiFi SSID/PWD "blank" or NULL, or PWD len < 8, set false flag and exit
+        if (!loadConfigData())
         {
           return false;
-        }       
-            
+        }
+        
         calChecksum = calcChecksum();
 
-        ESP_AT_LOGERROR3(F("CCSum=0x"), String(calChecksum, HEX),
-                         F(",RCSum=0x"), String(ESP8266_AT_config.checkSum, HEX));
+        ESP_AT_LOGWARN3(F("CCSum=0x"), String(calChecksum, HEX), F(",RCSum=0x"), String(ESP8266_AT_config.checkSum, HEX));
         
-#if USE_DYNAMIC_PARAMETERS      
-        // Load stored config / dynamic data from dueFlashStorage
-        // Verify ChkSum
+#if USE_DYNAMIC_PARAMETERS        
+        // Load stored dynamic data from LittleFS
         dynamicDataValid = checkDynamicData();
 #endif
         
-        // If checksum = 0 => DueFlashStorage has been cleared (by uploading new FW, etc) => force to CP
+        // If checksum = 0 => LittleFS has been cleared (by uploading new FW, etc) => force to CP
         // If bad checksum = 0 => force to CP
         if ( (calChecksum != 0) && (calChecksum == ESP8266_AT_config.checkSum) )
         {            
           if (dynamicDataValid)
           {
-#if USE_DYNAMIC_PARAMETERS  
-            dueFlashStorage_getDynamicData();
+    #if USE_DYNAMIC_PARAMETERS        
+            loadDynamicData();
+               
+            ESP_AT_LOGWARN(F("Valid Stored Dynamic Data"));
+    #endif
             
-            ESP_AT_LOGERROR(F("Valid Stored Dynamic Data"));
-#endif
-                   
-            ESP_AT_LOGERROR(F("======= Start Stored Config Data ======="));
+            ESP_AT_LOGWARN(F("======= Start Stored Config Data ======="));
             displayConfigData(ESP8266_AT_config);
             
             // Don't need Config Portal anymore
@@ -1126,7 +1306,7 @@ class ESP_AT_WiFiManager_Lite
           else
           {
             // Invalid Stored config data => Config Portal
-            ESP_AT_LOGERROR(F("Invalid Stored Dynamic Data. Load default from Sketch"));
+            ESP_AT_LOGWARN(F("Invalid Stored Dynamic Data. Load default from Sketch"));
             
             // Load Default Config Data from Sketch, better than just "blank"
             loadAndSaveDefaultConfigData();
@@ -1134,15 +1314,15 @@ class ESP_AT_WiFiManager_Lite
             // Need Config Portal here as data can be just dummy
             // Even if you don't open CP, you're OK on next boot if your default config data is valid 
             return false;
-          } 
-        }     
-      }     
-
+          }
+        }  
+      }
+      
       if ( (strncmp(ESP8266_AT_config.header, ESP_AT_BOARD_TYPE, strlen(ESP_AT_BOARD_TYPE)) != 0) ||
            (calChecksum != ESP8266_AT_config.checkSum) || !dynamicDataValid )
       {
         // Including Credentials CSum
-        ESP_AT_LOGERROR1(F("InitCfgDat,Sz="), sizeof(ESP8266_AT_config));
+        ESP_AT_LOGWARN1(F("InitCfgDat,sz="), sizeof(ESP8266_AT_config));
 
         // doesn't have any configuration        
         if (LOAD_DEFAULT_CONFIG_DATA)
@@ -1160,8 +1340,7 @@ class ESP_AT_WiFiManager_Lite
             memset(myMenuItems[i].pdata, 0, myMenuItems[i].maxlen + 1);
           }
 #endif
-                   
-          // doesn't have any configuration    
+              
           strcpy(ESP8266_AT_config.WiFi_Creds[0].wifi_ssid,   WM_NO_CONFIG);
           strcpy(ESP8266_AT_config.WiFi_Creds[0].wifi_pw,     WM_NO_CONFIG);
           strcpy(ESP8266_AT_config.WiFi_Creds[1].wifi_ssid,   WM_NO_CONFIG);
@@ -1190,12 +1369,11 @@ class ESP_AT_WiFiManager_Lite
 
         saveConfigData();
         
-        return false;
+        return false;        
       }
       else if ( !isWiFiConfigValid() )
       {
-        // If SSID, PW ="blank" or NULL, or PWD len < 8
-        // stay in config mode forever until having config Data.
+        // If SSID, PW ="blank" or NULL, stay in config mode forever until having config Data.
         return false;
       }
       else
@@ -1332,6 +1510,7 @@ class ESP_AT_WiFiManager_Lite
     }
        
     //////////////////////////////////////////////
+    
     // NEW
     void createHTML(String& root_html_template)
     {
@@ -1353,7 +1532,7 @@ class ESP_AT_WiFiManager_Lite
       if (_CustomsHeadElement)
         root_html_template += _CustomsHeadElement;
   #endif          
-     
+      
 #if SCAN_WIFI_NETWORKS
       ESP_AT_LOGDEBUG1(WiFiNetworksFound, F(" SSIDs found, generating HTML now"));
       // Replace HTML <input...> with <select...>, based on WiFi network scan in startConfigurationMode()
@@ -1411,7 +1590,7 @@ class ESP_AT_WiFiManager_Lite
         root_html_template += pitem;
       }
 #endif
-     
+      
       root_html_template += String(ESP_AT_FLDSET_END) + ESP_AT_HTML_BUTTON + ESP_AT_HTML_SCRIPT;     
 
 #if USE_DYNAMIC_PARAMETERS      
@@ -1452,9 +1631,9 @@ class ESP_AT_WiFiManager_Lite
        
     //////////////////////////////////////////////
 
-    
+
     void handleRequest()
-    {     
+    {
       if (server)
       {
         String key    = server->arg("key");
@@ -1479,7 +1658,7 @@ class ESP_AT_WiFiManager_Lite
           if ( ESP8266_AT_config.board_name[0] != 0 )
           {
             // Or replace only if board_name is valid.  Otherwise, keep intact
-            result.replace("SAM_DUE_AT_WM_Lite", ESP8266_AT_config.board_name);
+            result.replace("RPi_Pico_AT_WM_Lite", ESP8266_AT_config.board_name);
           }
          
           if (hadConfigData)
@@ -1498,7 +1677,7 @@ class ESP_AT_WiFiManager_Lite
             result.replace("[[pw1]]", "");
             result.replace("[[nm]]",  "");
           }
- 
+
 #if USE_DYNAMIC_PARAMETERS          
           for (uint8_t i = 0; i < NUM_MENU_ITEMS; i++)
           {
@@ -1517,7 +1696,7 @@ class ESP_AT_WiFiManager_Lite
           if (HTML_page_size > 2000)
           {
             ESP_AT_LOGERROR(F("h:HTML page larger than 2K. Config Portal won't work. Reduce dynamic params"));
-          }   
+          }
           
           server->send(200, "text/html", result);
 
@@ -1658,7 +1837,7 @@ class ESP_AT_WiFiManager_Lite
         if (number_items_Updated == NUM_CONFIGURABLE_ITEMS)
 #endif
         {
-          ESP_AT_LOGERROR(F("h:UpdFlash"));
+          ESP_AT_LOGERROR(F("h:UpdLittleFS"));
 
           saveConfigData();
 
@@ -1714,6 +1893,7 @@ class ESP_AT_WiFiManager_Lite
       ESP_AT_LOGERROR3(F("SSID="), portal_ssid, F(",PW="), portal_pass);
       ESP_AT_LOGERROR3(F("IP="), portal_apIP, F(",CH="), channel);
      
+      // start access point, AP only,default channel 10
       WiFi.beginAP(portal_ssid.c_str(), channel, portal_pass.c_str(), ENC_TYPE_WPA2_PSK, true);
 
       if (!server)
@@ -1916,4 +2096,4 @@ class ESP_AT_WiFiManager_Lite
 };
 
 
-#endif    //Esp8266_AT_WM_Lite_DUE_h
+#endif    //Esp8266_AT_WM_Lite_RPi_Pico_h

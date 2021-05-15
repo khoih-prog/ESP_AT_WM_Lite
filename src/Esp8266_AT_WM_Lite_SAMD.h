@@ -1,27 +1,28 @@
 /***************************************************************************************************************************************
-   Esp8266_AT_WM_Lite_SAMD.h
-   For SAMD boards using ESP8266 WiFi Shields
+  Esp8266_AT_WM_Lite_SAMD.h
+  For SAMD boards using ESP8266 WiFi Shields
 
-   ESP_AT_WM_Lite is a library for the Mega, Teensy, SAM DUE, SAMD and STM32, nRF52 boards (https://github.com/khoih-prog/ESP_AT_WM_Lite)
-   to enable store Credentials in EEPROM to easy configuration/reconfiguration and autoconnect/autoreconnect of WiFi and other services
-   without Hardcoding.
+  ESP_AT_WM_Lite is a library for the Mega, Teensy, SAM DUE, SAMD and STM32, nRF52 boards (https://github.com/khoih-prog/ESP_AT_WM_Lite)
+  to enable store Credentials in EEPROM to easy configuration/reconfiguration and autoconnect/autoreconnect of WiFi and other services
+  without Hardcoding.
 
-   Built by Khoi Hoang https://github.com/khoih-prog/ESP_AT_WM_Lite
-   Licensed under MIT license
-   Version: 1.2.0
+  Built by Khoi Hoang https://github.com/khoih-prog/ESP_AT_WM_Lite
+  Licensed under MIT license
+  Version: 1.3.0
 
-   Version Modified By   Date        Comments
-   ------- -----------  ----------   -----------
-   1.0.0   K Hoang      09/03/2020  Initial coding
-   1.0.1   K Hoang      20/03/2020  Add feature to enable adding dynamically more Credentials parameters in sketch
-   1.0.2   K Hoang      17/04/2020  Fix bug. Add support to SAMD51 and SAMD DUE. WPA2 SSID PW to 63 chars.
-                                    Permit to input special chars such as !,@,#,$,%,^,&,* into data fields.
-   1.0.3   K Hoang      11/06/2020  Add support to nRF52 boards, such as AdaFruit Feather nRF52832, NINA_B30_ublox, etc.
-                                    Add DRD support. Add MultiWiFi support 
-   1.0.4   K Hoang      03/07/2020  Add support to ESP32-AT shields. Modify LOAD_DEFAULT_CONFIG_DATA logic.
-                                    Enhance MultiWiFi connection logic. Fix WiFi Status bug.
-   1.1.0   K Hoang      13/04/2021  Fix invalid "blank" Config Data treated as Valid. Optional one set of WiFi Credentials
-   1.2.0   Michael H    28/04/2021  Enable scan of WiFi networks for selection in Configuration Portal                       
+  Version Modified By   Date        Comments
+  ------- -----------  ----------   -----------
+  1.0.0   K Hoang      09/03/2020  Initial coding
+  1.0.1   K Hoang      20/03/2020  Add feature to enable adding dynamically more Credentials parameters in sketch
+  1.0.2   K Hoang      17/04/2020  Fix bug. Add support to SAMD51 and SAMD DUE. WPA2 SSID PW to 63 chars.
+                                  Permit to input special chars such as !,@,#,$,%,^,&,* into data fields.
+  1.0.3   K Hoang      11/06/2020  Add support to nRF52 boards, such as AdaFruit Feather nRF52832, NINA_B30_ublox, etc.
+                                  Add DRD support. Add MultiWiFi support 
+  1.0.4   K Hoang      03/07/2020  Add support to ESP32-AT shields. Modify LOAD_DEFAULT_CONFIG_DATA logic.
+                                  Enhance MultiWiFi connection logic. Fix WiFi Status bug.
+  1.1.0   K Hoang      13/04/2021  Fix invalid "blank" Config Data treated as Valid. Optional one set of WiFi Credentials
+  1.2.0   Michael H    28/04/2021  Enable scan of WiFi networks for selection in Configuration Portal
+  1.3.0   K Hoang      12/05/2021  Add support to RP2040-based boards, such as RASPBERRY_PI_PICO            
  ***************************************************************************************************************************************/
 
 #ifndef Esp8266_AT_WM_Lite_SAMD_h
@@ -36,14 +37,11 @@
     #undef ESP8266_AT_USE_SAMD
   #endif
   #define ESP8266_AT_USE_SAMD      true
-#endif
-
-#if ( defined(ESP8266) || defined(ESP32) || defined(ARDUINO_AVR_MEGA2560) || defined(ARDUINO_AVR_MEGA) || \
-      defined(CORE_TEENSY) || !(ESP8266_AT_USE_SAMD) )
+#else
   #error This code is intended to run on the SAMD platform! Please check your Tools->Board setting.
 #endif
 
-#define ESP_AT_WM_LITE_VERSION        "ESP_AT_WM_Lite v1.2.0"
+#define ESP_AT_WM_LITE_VERSION        "ESP_AT_WM_Lite v1.3.0"
 
 //////////////////////////////////////////////
 
@@ -131,9 +129,15 @@ typedef struct
 } MenuItem;
 //
 
-///NEW
-extern uint16_t NUM_MENU_ITEMS;
-extern MenuItem myMenuItems [];
+#if USE_DYNAMIC_PARAMETERS
+  #warning Using Dynamic Parameters
+  ///NEW
+  extern uint16_t NUM_MENU_ITEMS;
+  extern MenuItem myMenuItems [];
+  bool *menuItemUpdated = NULL;
+#else
+  #warning Not using Dynamic Parameters
+#endif
 
 //////////////////////////////////////////////
 // New in v1.0.3
@@ -330,6 +334,13 @@ class ESP_AT_WiFiManager_Lite
     void begin()
     {
 #define RETRY_TIMES_CONNECT_WIFI			3
+
+      // Due to notorious 2K buffer limitation of ESP8266-AT shield, the NUM_MENU_ITEMS is limited to max 3
+      // to avoid WebServer not working due to HTML data larger than 2K can't be sent successfully
+      // The items with index larger than 3 will be ignored
+      // Limit NUM_MENU_ITEMS to max 3     
+      if (NUM_MENU_ITEMS > 3)
+        NUM_MENU_ITEMS = 3;
            
       //// New DRD ////
       drd = new DoubleResetDetector_Generic(DRD_TIMEOUT, DRD_ADDRESS);  
@@ -616,11 +627,13 @@ class ESP_AT_WiFiManager_Lite
     {
       memset(&ESP8266_AT_config, 0, sizeof(ESP8266_AT_config));
       
-      for (uint8_t i = 0; i < NUM_MENU_ITEMS; i++)
+#if USE_DYNAMIC_PARAMETERS      
+      for (uint16_t i = 0; i < NUM_MENU_ITEMS; i++)
       {
         // Actual size of pdata is [maxlen + 1]
         memset(myMenuItems[i].pdata, 0, myMenuItems[i].maxlen + 1);
       }
+#endif
 
       saveConfigData();
     }
@@ -699,12 +712,12 @@ class ESP_AT_WiFiManager_Lite
       ESP_AT_LOGDEBUG3(F("SSID1="), configData.WiFi_Creds[1].wifi_ssid, F(",PW1="),  configData.WiFi_Creds[1].wifi_pw);     
       ESP_AT_LOGDEBUG1(F("BName="), configData.board_name);     
       
-      #if 0          
-      for (uint8_t i = 0; i < NUM_MENU_ITEMS; i++)
+#if USE_DYNAMIC_PARAMETERS     
+      for (uint16_t i = 0; i < NUM_MENU_ITEMS; i++)
       {
-        ESP_AT_LOGDEBUG5("i=", i, ",id=", myMenuItems[i].id, ",data=", myMenuItems[i].pdata);
-      }      
-      #endif     
+        ESP_AT_LOGERROR5("i=", i, ",id=", myMenuItems[i].id, ",data=", myMenuItems[i].pdata);
+      }
+#endif     
     }
     
     //////////////////////////////////////////////
@@ -757,39 +770,58 @@ class ESP_AT_WiFiManager_Lite
     }
     
     //////////////////////////////////////////////
+
+#if USE_DYNAMIC_PARAMETERS
     
     bool checkDynamicData()
-    {
-      // It's too bad that emulate EEPROM.read()/write() can only deal with bytes. 
-      // Have to read/write each byte. To rewrite the library
-      
+    {      
       int checkSum = 0;
       int readCheckSum;
       
       uint16_t offset = CONFIG_EEPROM_START + sizeof(ESP8266_AT_config);
                 
+      #define BUFFER_LEN      128
+      char readBuffer[BUFFER_LEN + 1];
+                     
       // Find the longest pdata, then dynamically allocate buffer. Remember to free when done
       // This is used to store tempo data to calculate checksum to see of data is valid
       // We dont like to destroy myMenuItems[i].pdata with invalid data
-          
-      for (uint8_t i = 0; i < NUM_MENU_ITEMS; i++)
-      {                             
-        for (uint16_t j = 0; j < myMenuItems[i].maxlen; j++, offset++)
-        {       
-          checkSum += EEPROM.read(offset);    
-         }       
+      
+      for (uint16_t i = 0; i < NUM_MENU_ITEMS; i++)
+      {       
+        if (myMenuItems[i].maxlen > BUFFER_LEN)
+        {
+          // Size too large, abort and flag false
+          ESP_AT_LOGERROR(F("ChkCrR: Error Small Buffer."));
+          return false;
+        }
       }
-      
-      uint8_t* _pointer = (uint8_t *) &readCheckSum;
-      
-      for (uint8_t i = 0; i < sizeof(readCheckSum); i++, _pointer++, offset++)
-      {                  
-        *_pointer = EEPROM.read(offset);
+         
+      for (uint16_t i = 0; i < NUM_MENU_ITEMS; i++)
+      {       
+        char* _pointer = readBuffer;
+        
+        // Prepare buffer, more than enough
+        memset(readBuffer, 0, sizeof(readBuffer));
+        
+        // Read more than necessary, but OK and easier to code
+        EEPROM.get(offset, readBuffer);
+        // NULL terminated
+        readBuffer[myMenuItems[i].maxlen] = 0;
+   
+        ESP_AT_LOGDEBUG3(F("ChkCrR:pdata="), readBuffer, F(",len="), myMenuItems[i].maxlen);      
+               
+        for (uint16_t j = 0; j < myMenuItems[i].maxlen; j++,_pointer++)
+        {         
+          checkSum += *_pointer;  
+        }   
+        
+        offset += myMenuItems[i].maxlen;    
       }
-      
-      totalDataSize = offset + sizeof(readCheckSum) - CONFIG_EEPROM_START;
+
+      EEPROM.get(offset, readCheckSum);
                   
-      ESP_AT_LOGDEBUG3(F("ChkCrR:CrCCsum=0x"), String(checkSum, HEX), F(",CrRCsum=0x"), String(readCheckSum, HEX));
+      ESP_AT_LOGERROR3(F("ChkCrR:CrCCsum=0x"), String(checkSum, HEX), F(",CrRCsum=0x"), String(readCheckSum, HEX));
            
       if ( checkSum != readCheckSum)
       {
@@ -797,6 +829,103 @@ class ESP_AT_WiFiManager_Lite
       }
       
       return true;    
+    }
+    
+    //////////////////////////////////////////////
+    
+    bool EEPROM_getDynamicData()
+    {          
+      int checkSum = 0;
+      int readCheckSum;
+      
+      totalDataSize = sizeof(ESP8266_AT_config) + sizeof(readCheckSum);
+          
+      // Using FORCED_CONFIG_PORTAL_FLAG_DATA
+      //offset += FORCED_CONFIG_PORTAL_FLAG_DATA_SIZE;
+      uint16_t offset = CONFIG_EEPROM_START + sizeof(ESP8266_AT_config);
+      
+      uint8_t* _pointer;
+   
+      for (uint16_t i = 0; i < NUM_MENU_ITEMS; i++)
+      {       
+        _pointer = (uint8_t *) myMenuItems[i].pdata;
+        totalDataSize += myMenuItems[i].maxlen;
+        
+        // Actual size of pdata is [maxlen + 1]
+        memset(myMenuItems[i].pdata, 0, myMenuItems[i].maxlen + 1);
+               
+        for (uint16_t j = 0; j < myMenuItems[i].maxlen; j++, _pointer++, offset++)
+        {
+          *_pointer = EEPROM.read(offset);          
+          checkSum += *_pointer;  
+        }       
+      }
+
+      EEPROM.get(offset, readCheckSum);
+         
+      ESP_AT_LOGERROR3(F("CrCCSum="), String(checkSum, HEX), F(",CrRCSum="), String(readCheckSum, HEX));
+      
+      if ( checkSum != readCheckSum)
+      {
+        return false;
+      }
+     
+      return true;
+    }
+    
+    //////////////////////////////////////////////
+    
+    void EEPROM_putDynamicData()
+    {
+      // It's too bad that emulate EEPROM.read()/writ() can only deal with bytes. 
+      // Have to read/write each byte. To rewrite the library          
+      int checkSum = 0;
+      
+      // Using FORCED_CONFIG_PORTAL_FLAG_DATA
+      //offset += FORCED_CONFIG_PORTAL_FLAG_DATA_SIZE;
+      uint16_t offset = CONFIG_EEPROM_START + sizeof(ESP8266_AT_config);
+      uint8_t* _pointer;
+    
+      for (uint16_t i = 0; i < NUM_MENU_ITEMS; i++)
+      {       
+        _pointer = (uint8_t *) myMenuItems[i].pdata;
+      
+        ESP_AT_LOGDEBUG3(F("pdata="), myMenuItems[i].pdata, F(",len="), myMenuItems[i].maxlen);
+                     
+        for (uint16_t j = 0; j < myMenuItems[i].maxlen; j++,_pointer++,offset++)
+        {
+          EEPROM.write(offset, *_pointer);
+          
+          checkSum += *_pointer;     
+        }
+      }
+
+      EEPROM.put(offset, checkSum);
+     
+      ESP_AT_LOGERROR1(F("CrCCSum=0x"), String(checkSum, HEX));
+      
+      EEPROM.commit();
+    }
+
+#endif
+
+    //////////////////////////////////////////////
+ 
+    void NULLTerminateConfig()
+    {
+      //#define HEADER_MAX_LEN      16
+      //#define BOARD_NAME_MAX_LEN  24
+      
+      // NULL Terminating to be sure
+      ESP8266_AT_config.header    [HEADER_MAX_LEN - 1]      = 0;
+      ESP8266_AT_config.board_name[BOARD_NAME_MAX_LEN - 1]  = 0;
+      
+      // For WiFi SSID/PWD here
+      for (uint8_t i = 0; i < NUM_WIFI_CREDENTIALS; i++)
+      {
+        ESP8266_AT_config.WiFi_Creds[i].wifi_ssid[SSID_MAX_LEN - 1] = 0;
+        ESP8266_AT_config.WiFi_Creds[i].wifi_pw  [PASS_MAX_LEN - 1] = 0;
+      }
     }
     
     //////////////////////////////////////////////  
@@ -827,6 +956,9 @@ class ESP_AT_WiFiManager_Lite
       {
         ESP_AT_LOGERROR(F("Invalid Stored WiFi Config Data."));
         
+        // Nullify the invalid data to avoid displaying garbage
+        memset(&ESP8266_AT_config, 0, sizeof(ESP8266_AT_config));
+        
         // If SSID, PW ="blank" or NULL, or PPWD len < 8, set the flag      
         if ( ( strlen(ESP8266_AT_config.WiFi_Creds[0].wifi_pw) < PASSWORD_MIN_LEN ) ||
              ( strlen(ESP8266_AT_config.WiFi_Creds[1].wifi_pw) < PASSWORD_MIN_LEN ) )
@@ -835,7 +967,7 @@ class ESP_AT_WiFiManager_Lite
         }
         else
         {
-          ESP_AT_LOGERROR(F("SSID is blanl or NULL"));
+          ESP_AT_LOGERROR(F("SSID is blank or NULL"));
         }
         
         hadConfigData = false;
@@ -845,75 +977,12 @@ class ESP_AT_WiFiManager_Lite
       
       return true;
     }
-    
-    //////////////////////////////////////////////
- 
-    void NULLTerminateConfig()
-    {
-      //#define HEADER_MAX_LEN      16
-      //#define BOARD_NAME_MAX_LEN  24
-      
-      // NULL Terminating to be sure
-      ESP8266_AT_config.header    [HEADER_MAX_LEN - 1]      = 0;
-      ESP8266_AT_config.board_name[BOARD_NAME_MAX_LEN - 1]  = 0;
-      
-      // For WiFi SSID/PWD here
-      for (uint8_t i = 0; i < NUM_WIFI_CREDENTIALS; i++)
-      {
-        ESP8266_AT_config.WiFi_Creds[i].wifi_ssid[SSID_MAX_LEN - 1] = 0;
-        ESP8266_AT_config.WiFi_Creds[i].wifi_pw[PASS_MAX_LEN - 1]   = 0;
-      }
-    }
             
     //////////////////////////////////////////////
     
     bool EEPROM_get()
-    {
-      // It's too bad that emulate EEPROM.read()/write() can only deal with bytes. 
-      // Have to read/write each byte. To rewrite the library
-      
-      uint16_t offset = CONFIG_EEPROM_START;
-                
-      uint8_t* _pointer = (uint8_t *) &ESP8266_AT_config;
-      
-      for (uint8_t i = 0; i < sizeof(ESP8266_AT_config); i++, _pointer++, offset++)
-      {              
-        *_pointer = EEPROM.read(offset);
-      }
-           
-      int checkSum = 0;
-      int readCheckSum;
-      
-      totalDataSize = sizeof(ESP8266_AT_config) + sizeof(readCheckSum);
-   
-      for (uint8_t i = 0; i < NUM_MENU_ITEMS; i++)
-      {       
-        _pointer = (uint8_t *) myMenuItems[i].pdata;
-        totalDataSize += myMenuItems[i].maxlen;
-        
-        // Actual size of pdata is [maxlen + 1]
-        memset(myMenuItems[i].pdata, 0, myMenuItems[i].maxlen + 1);
-               
-        for (uint16_t j = 0; j < myMenuItems[i].maxlen; j++, _pointer++, offset++)
-        {
-          *_pointer = EEPROM.read(offset);          
-          checkSum += *_pointer;  
-         }       
-      }
-      
-      _pointer = (uint8_t *) &readCheckSum;
-      
-      for (uint8_t i = 0; i < sizeof(readCheckSum); i++, _pointer++, offset++)
-      {                  
-        *_pointer = EEPROM.read(offset);
-      }
-         
-      ESP_AT_LOGDEBUG3(F("CrCCsum=0x"), String(checkSum, HEX), F(",CrRCsum=0x"), String(readCheckSum, HEX));
-      
-      if ( checkSum != readCheckSum)
-      {
-        return false;
-      }
+    {  
+      EEPROM.get(CONFIG_EEPROM_START, ESP8266_AT_config);
       
       NULLTerminateConfig();
       
@@ -924,44 +993,24 @@ class ESP_AT_WiFiManager_Lite
     
     void EEPROM_put()
     {
-      // It's too bad that emulate EEPROM.read()/writ() can only deal with bytes. 
-      // Have to read/write each byte. To rewrite the library
-      
-      uint16_t offset = CONFIG_EEPROM_START;
-           
-      uint8_t* _pointer = (uint8_t *) &ESP8266_AT_config;
-      
-      for (uint8_t i = 0; i < sizeof(ESP8266_AT_config); i++, _pointer++, offset++)
-      {              
-        EEPROM.write(offset, *_pointer);
-      }
-           
-      int checkSum = 0;
-    
-      for (uint8_t i = 0; i < NUM_MENU_ITEMS; i++)
-      {       
-        _pointer = (uint8_t *) myMenuItems[i].pdata;
-        
-        //ESP_AT_LOGDEBUG3(F("pdata="), myMenuItems[i].pdata, F(",len="), myMenuItems[i].maxlen);
-                     
-        for (uint16_t j = 0; j < myMenuItems[i].maxlen; j++,_pointer++,offset++)
-        {
-          EEPROM.write(offset, *_pointer);
-          
-          checkSum += *_pointer;     
-         }
-      }
-      
-      _pointer = (uint8_t *) &checkSum;
-      
-      for (uint8_t i = 0; i < sizeof(checkSum); i++, _pointer++, offset++)
-      {              
-        EEPROM.write(offset, *_pointer);
-      }
-      
+      EEPROM.put(CONFIG_EEPROM_START, ESP8266_AT_config);
       EEPROM.commit();
+    }
+        
+    //////////////////////////////////////////////
+
+    void saveConfigData()
+    {
+      int calChecksum = calcChecksum();
+      ESP8266_AT_config.checkSum = calChecksum;
       
-      ESP_AT_LOGDEBUG1(F("CrCCSum=0x"), String(checkSum, HEX));
+      ESP_AT_LOGWARN5(F("SaveEEPROM,sz="), EEPROM.length(), F(",Datasz="), sizeof(ESP8266_AT_config) + totalDataSize, F(",CSum="), calChecksum);
+
+      EEPROM_put();
+      
+#if USE_DYNAMIC_PARAMETERS        
+      EEPROM_putDynamicData();
+#endif      
     }
     
     //////////////////////////////////////////////
@@ -984,7 +1033,7 @@ class ESP_AT_WiFiManager_Lite
     
     bool getConfigData()
     {
-      bool dynamicDataValid;
+      bool dynamicDataValid = true;
       int calChecksum;
       
       hadConfigData = false;  
@@ -999,50 +1048,62 @@ class ESP_AT_WiFiManager_Lite
         return true; 
       }
       else
-      {   
-        // Load stored config / dynamic data from dueFlashStorage
-        // Verify ChkSum
-        dynamicDataValid = checkDynamicData();
+      { 
+        // Get config data. If "blank" or NULL, set false flag and exit
+        if (!EEPROM_get())
+        {
+          return false;
+        }
         
+        // Verify ChkSum
         calChecksum = calcChecksum();
 
-        ESP_AT_LOGWARN3(F("CCSum=0x"), String(calChecksum, HEX), F(",RCSum=0x"), String(ESP8266_AT_config.checkSum, HEX));
+        ESP_AT_LOGERROR3(F("CCSum=0x"), String(calChecksum, HEX),
+                     F(",RCSum=0x"), String(ESP8266_AT_config.checkSum, HEX));
+        
+#if USE_DYNAMIC_PARAMETERS        
+        // Load stored dynamic data from EEPROM
+        dynamicDataValid = checkDynamicData();              
+#endif
                    
-        if (dynamicDataValid)
-        {
-          // CkSum verified, Now get valid config/ dynamic data
-          // If WiFi SSID/PWD "blank" or NULL, or PWD len < 8, set false flag and exit
-          if ( !EEPROM_get() )
+        // If checksum = 0 => FlashStorage has been cleared (by uploading new FW, etc) => force to CP
+        if ( (calChecksum != 0) && (calChecksum == ESP8266_AT_config.checkSum) )
+        {           
+          if (dynamicDataValid)
           {
-            return false;
+#if USE_DYNAMIC_PARAMETERS          
+            // CkSum verified, Now get valid config/ dynamic data
+            EEPROM_getDynamicData();
+            
+            ESP_AT_LOGERROR(F("Valid Stored Dynamic Data"));
+#endif            
+            ESP_AT_LOGERROR(F("======= Start Stored Config Data ======="));
+            displayConfigData(ESP8266_AT_config);
+            
+            // Don't need Config Portal anymore
+            return true;
           }
-                     
-          ESP_AT_LOGWARN(F("Valid Stored Dynamic Data"));        
-          ESP_AT_LOGWARN(F("======= Start Stored Config Data ======="));
-          displayConfigData(ESP8266_AT_config);
-          
-          // Don't need Config Portal anymore
-          return true;
+          else
+          {
+            // Invalid Stored config data => Config Portal
+            ESP_AT_LOGERROR(F("Invalid Stored Dynamic Data. Load default from Sketch"));
+            
+            // Load Default Config Data from Sketch, better than just "blank"
+            loadAndSaveDefaultConfigData();
+                             
+            // Need Config Portal here as data can be just dummy
+            // Even if you don't open CP, you're OK on next boot if your default config data is valid 
+            return false;
+          }      
         }
-        else
-        {
-          // Invalid Stored config data => Config Portal
-          ESP_AT_LOGWARN(F("Invalid Stored Dynamic Data. Load default from Sketch"));
-          
-          // Load Default Config Data from Sketch, better than just "blank"
-          loadAndSaveDefaultConfigData();
-                           
-          // Need Config Portal here as data can be just dummy
-          // Even if you don't open CP, you're OK on next boot if your default config data is valid 
-          return false;
-        }      
       }
       
       if ( (strncmp(ESP8266_AT_config.header, ESP_AT_BOARD_TYPE, strlen(ESP_AT_BOARD_TYPE)) != 0) ||
-           (calChecksum != ESP8266_AT_config.checkSum) || !dynamicDataValid )
+           (calChecksum != ESP8266_AT_config.checkSum) || !dynamicDataValid || 
+           ( (calChecksum == 0) && (ESP8266_AT_config.checkSum == 0) ) ) 
       {
         // Including Credentials CSum
-        ESP_AT_LOGWARN1(F("InitCfgDat,Sz="), sizeof(ESP8266_AT_config));
+        ESP_AT_LOGERROR1(F("InitCfgDat,Sz="), sizeof(ESP8266_AT_config));
 
         // doesn't have any configuration        
         if (LOAD_DEFAULT_CONFIG_DATA)
@@ -1053,30 +1114,37 @@ class ESP_AT_WiFiManager_Lite
         {
           memset(&ESP8266_AT_config, 0, sizeof(ESP8266_AT_config));
 
+#if USE_DYNAMIC_PARAMETERS
           for (uint8_t i = 0; i < NUM_MENU_ITEMS; i++)
           {
             // Actual size of pdata is [maxlen + 1]
             memset(myMenuItems[i].pdata, 0, myMenuItems[i].maxlen + 1);
           }
+#endif
+
               
           strcpy(ESP8266_AT_config.WiFi_Creds[0].wifi_ssid,   WM_NO_CONFIG);
           strcpy(ESP8266_AT_config.WiFi_Creds[0].wifi_pw,     WM_NO_CONFIG);
           strcpy(ESP8266_AT_config.WiFi_Creds[1].wifi_ssid,   WM_NO_CONFIG);
           strcpy(ESP8266_AT_config.WiFi_Creds[1].wifi_pw,     WM_NO_CONFIG);
           strcpy(ESP8266_AT_config.board_name, WM_NO_CONFIG);
-          
+
+#if USE_DYNAMIC_PARAMETERS          
           for (uint8_t i = 0; i < NUM_MENU_ITEMS; i++)
           {
             strncpy(myMenuItems[i].pdata, WM_NO_CONFIG, myMenuItems[i].maxlen);
           }
-        }
-    
-        strcpy(ESP8266_AT_config.header, ESP_AT_BOARD_TYPE);
+#endif
+        }    
         
+        strcpy(ESP8266_AT_config.header, ESP_AT_BOARD_TYPE);
+
+#if USE_DYNAMIC_PARAMETERS        
         for (uint8_t i = 0; i < NUM_MENU_ITEMS; i++)
         {
           ESP_AT_LOGDEBUG3(F("g:myMenuItems["), i, F("]="), myMenuItems[i].pdata );
         }
+#endif
         
         // Don't need
         ESP8266_AT_config.checkSum = 0;
@@ -1097,18 +1165,6 @@ class ESP_AT_WiFiManager_Lite
       }
 
       return true;
-    }
-    
-    //////////////////////////////////////////////
-
-    void saveConfigData()
-    {
-      int calChecksum = calcChecksum();
-      ESP8266_AT_config.checkSum = calChecksum;
-      
-      ESP_AT_LOGWARN5(F("SaveEEPROM,sz="), EEPROM.length(), F(",Datasz="), sizeof(ESP8266_AT_config) + totalDataSize, F(",CSum="), calChecksum);
-
-      EEPROM_put();
     }
     
     //////////////////////////////////////////////
@@ -1403,12 +1459,14 @@ class ESP_AT_WiFiManager_Lite
             result.replace("[[pw1]]", "");
             result.replace("[[nm]]",  "");
           }
-          
+
+#if USE_DYNAMIC_PARAMETERS          
           for (uint8_t i = 0; i < NUM_MENU_ITEMS; i++)
           {
             String toChange = String("[[") + myMenuItems[i].id + "]]";
             result.replace(toChange, myMenuItems[i].pdata);
           }
+#endif
           
           // Check if HTML size is larger than 2K, warn that WebServer won't work
           // because of notorious 2K buffer limitation of ESP8266-AT. 
@@ -1419,7 +1477,7 @@ class ESP_AT_WiFiManager_Lite
           
           if (HTML_page_size > 2000)
           {
-            ESP_AT_LOGDEBUG(F("h:HTML page larger than 2K. Config Portal won't work. Reduce dynamic params"));
+            ESP_AT_LOGERROR(F("h:HTML page larger than 2K. Config Portal won't work. Reduce dynamic params"));
           }   
           
           server->send(200, "text/html", result);
@@ -1433,68 +1491,133 @@ class ESP_AT_WiFiManager_Lite
           strcpy(ESP8266_AT_config.header, ESP_AT_BOARD_TYPE);
         }
 
-        if (key == "id")
+#if USE_DYNAMIC_PARAMETERS
+        if (!menuItemUpdated)
         {
+          // Don't need to free
+          menuItemUpdated = new bool[NUM_MENU_ITEMS];
+          
+          if (menuItemUpdated)
+          {
+            for (uint16_t i = 0; i < NUM_MENU_ITEMS; i++)
+            {           
+              // To flag item is not yet updated
+              menuItemUpdated[i] = false;       
+            }
+            
+            ESP_AT_LOGDEBUG1(F("h: Init menuItemUpdated :" ), NUM_MENU_ITEMS);                    
+          }
+          else
+          {
+            ESP_AT_LOGERROR(F("h: Error can't alloc memory for menuItemUpdated" ));
+          }
+        }  
+#endif
+
+        static bool id_Updated  = false;
+        static bool pw_Updated  = false;
+        static bool id1_Updated = false;
+        static bool pw1_Updated = false;
+        static bool nm_Updated  = false;
+        
+        if (!id_Updated && (key == String("id")))
+        {
+          ESP_AT_LOGDEBUG(F("h:repl id"));
+          id_Updated = true;
+          
           number_items_Updated++;
+          
           if (strlen(value.c_str()) < sizeof(ESP8266_AT_config.WiFi_Creds[0].wifi_ssid) - 1)
             strcpy(ESP8266_AT_config.WiFi_Creds[0].wifi_ssid, value.c_str());
           else
             strncpy(ESP8266_AT_config.WiFi_Creds[0].wifi_ssid, value.c_str(), sizeof(ESP8266_AT_config.WiFi_Creds[0].wifi_ssid) - 1);
         }
-        else if (key == "pw")
+        else if (!pw_Updated && (key == String("pw")))
         {
+          ESP_AT_LOGDEBUG(F("h:repl pw"));
+          pw_Updated = true;
+          
           number_items_Updated++;
+          
           if (strlen(value.c_str()) < sizeof(ESP8266_AT_config.WiFi_Creds[0].wifi_pw) - 1)
             strcpy(ESP8266_AT_config.WiFi_Creds[0].wifi_pw, value.c_str());
           else
             strncpy(ESP8266_AT_config.WiFi_Creds[0].wifi_pw, value.c_str(), sizeof(ESP8266_AT_config.WiFi_Creds[0].wifi_pw) - 1);
         }
-        else if (key == "id1")
+        else if (!id1_Updated && (key == String("id1")))
         {
+          ESP_AT_LOGDEBUG(F("h:repl id1"));
+          id1_Updated = true;
+          
           number_items_Updated++;
+          
           if (strlen(value.c_str()) < sizeof(ESP8266_AT_config.WiFi_Creds[1].wifi_ssid) - 1)
             strcpy(ESP8266_AT_config.WiFi_Creds[1].wifi_ssid, value.c_str());
           else
             strncpy(ESP8266_AT_config.WiFi_Creds[1].wifi_ssid, value.c_str(), sizeof(ESP8266_AT_config.WiFi_Creds[1].wifi_ssid) - 1);
         }
-        else if (key == "pw1")
+        else if (!pw1_Updated && (key == String("pw1")))
         {
+          ESP_AT_LOGDEBUG(F("h:repl pw1"));
+          pw1_Updated = true;
+          
           number_items_Updated++;
+          
           if (strlen(value.c_str()) < sizeof(ESP8266_AT_config.WiFi_Creds[1].wifi_pw) - 1)
             strcpy(ESP8266_AT_config.WiFi_Creds[1].wifi_pw, value.c_str());
           else
             strncpy(ESP8266_AT_config.WiFi_Creds[1].wifi_pw, value.c_str(), sizeof(ESP8266_AT_config.WiFi_Creds[1].wifi_pw) - 1);
         }
-        else if (key == "nm")
+        else if (!nm_Updated && (key == String("nm")))
         {
+          ESP_AT_LOGDEBUG(F("h:repl nm"));
+          nm_Updated = true;
+          
           number_items_Updated++;
+          
           if (strlen(value.c_str()) < sizeof(ESP8266_AT_config.board_name) - 1)
             strcpy(ESP8266_AT_config.board_name, value.c_str());
           else
             strncpy(ESP8266_AT_config.board_name, value.c_str(), sizeof(ESP8266_AT_config.board_name) - 1);
         }
-        
-        for (uint8_t i = 0; i < NUM_MENU_ITEMS; i++)
+        else
         {
-          if (key == myMenuItems[i].id)
-          {
-            ESP_AT_LOGDEBUG3(F("h:"), myMenuItems[i].id, F("="), value.c_str() );
-            number_items_Updated++;
+        
+#if USE_DYNAMIC_PARAMETERS        
+          for (uint16_t i = 0; i < NUM_MENU_ITEMS; i++)
+          {           
+            if ( !menuItemUpdated[i] && (key == myMenuItems[i].id) )
+            {
+              ESP_AT_LOGDEBUG3(F("h:"), myMenuItems[i].id, F("="), value.c_str() );
+              
+              menuItemUpdated[i] = true;
+              
+              number_items_Updated++;
 
-            // Actual size of pdata is [maxlen + 1]
-            memset(myMenuItems[i].pdata, 0, myMenuItems[i].maxlen + 1);
+              // Actual size of pdata is [maxlen + 1]
+              memset(myMenuItems[i].pdata, 0, myMenuItems[i].maxlen + 1);
 
-            if ((int) strlen(value.c_str()) < myMenuItems[i].maxlen)
-              strcpy(myMenuItems[i].pdata, value.c_str());
-            else
-              strncpy(myMenuItems[i].pdata, value.c_str(), myMenuItems[i].maxlen);
+              if ((int) strlen(value.c_str()) < myMenuItems[i].maxlen)
+                strcpy(myMenuItems[i].pdata, value.c_str());
+              else
+                strncpy(myMenuItems[i].pdata, value.c_str(), myMenuItems[i].maxlen);
+                
+              break;  
+            }
           }
+#endif
         }
-
+        
+        ESP_AT_LOGDEBUG1(F("h:items updated ="), number_items_Updated);
+        ESP_AT_LOGDEBUG3(F("h:key ="), key, ", value =", value);
+        
         server->send(200, "text/html", "OK");
 
-        // NEW
+#if USE_DYNAMIC_PARAMETERS        
         if (number_items_Updated == NUM_CONFIGURABLE_ITEMS + NUM_MENU_ITEMS)
+#else
+        if (number_items_Updated == NUM_CONFIGURABLE_ITEMS)
+#endif
         {
           ESP_AT_LOGERROR(F("h:UpdFlash"));
 

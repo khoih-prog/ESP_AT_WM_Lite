@@ -52,10 +52,6 @@
 
 /////////////////////////////////////////////
 
-// Permit input only one set of WiFi SSID/PWD. The other can be "NULL or "blank"
-// Default is false (if not defined) => must input 2 sets of SSID/PWD
-#define REQUIRE_ONE_SET_SSID_PW       false
-
 #define USE_DYNAMIC_PARAMETERS        true
 
 /////////////////////////////////////////////
