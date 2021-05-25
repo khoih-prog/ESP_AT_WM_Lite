@@ -336,10 +336,11 @@ class ESP_AT_WiFiManager_Lite
       // Due to notorious 2K buffer limitation of ESP8266-AT shield, the NUM_MENU_ITEMS is limited to max 3
       // to avoid WebServer not working due to HTML data larger than 2K can't be sent successfully
       // The items with index larger than 3 will be ignored
-      // Limit NUM_MENU_ITEMS to max 3     
+      // Limit NUM_MENU_ITEMS to max 3  
+#if USE_DYNAMIC_PARAMETERS          
       if (NUM_MENU_ITEMS > 3)
         NUM_MENU_ITEMS = 3;
-           
+#endif           
       //// New DRD ////
       drd = new DoubleResetDetector_Generic(DRD_TIMEOUT, DRD_ADDRESS);  
       bool useConfigPortal = false;
