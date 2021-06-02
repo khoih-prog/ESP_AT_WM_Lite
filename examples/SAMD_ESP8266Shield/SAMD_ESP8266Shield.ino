@@ -1,28 +1,29 @@
 /****************************************************************************************************************************
-   SAMD_ESP8266Shield.ino
-   For SAMD boards using ESP8266 AT WiFi Shields, using much less code to support boards with smaller memory
-
-   ESP_AT_WM_Lite is a library for the Mega, Teensy, SAM DUE, SAMD and STM32 boards (https://github.com/khoih-prog/ESP_AT_WM_Lite)
-   to enable store Credentials in EEPROM to easy configuration/reconfiguration and autoconnect/autoreconnect of WiFi and other services
-   without Hardcoding.
-
-   Built by Khoi Hoang https://github.com/khoih-prog/ESP_AT_WM_Lite
-   Licensed under MIT license
-   Version: 1.3.0
+  SAMD_ESP8266Shield.ino
+  For SAMD boards using ESP8266 AT WiFi Shields, using much less code to support boards with smaller memory
+  
+  ESP_AT_WM_Lite is a library for the Mega, Teensy, SAM DUE, SAMD and STM32 boards (https://github.com/khoih-prog/ESP_AT_WM_Lite)
+  to enable store Credentials in EEPROM to easy configuration/reconfiguration and autoconnect/autoreconnect of WiFi and other services
+  without Hardcoding.
+  
+  Built by Khoi Hoang https://github.com/khoih-prog/ESP_AT_WM_Lite
+  Licensed under MIT license
+  Version: 1.4.0
 
   Version Modified By   Date        Comments
   ------- -----------  ----------   -----------
   1.0.0   K Hoang      09/03/2020  Initial coding
   1.0.1   K Hoang      20/03/2020  Add feature to enable adding dynamically more Credentials parameters in sketch
   1.0.2   K Hoang      17/04/2020  Fix bug. Add support to SAMD51 and SAMD DUE. WPA2 SSID PW to 63 chars.
-                                  Permit to input special chars such as !,@,#,$,%,^,&,* into data fields.
+                                   Permit to input special chars such as !,@,#,$,%,^,&,* into data fields.
   1.0.3   K Hoang      11/06/2020  Add support to nRF52 boards, such as AdaFruit Feather nRF52832, NINA_B30_ublox, etc.
-                                  Add DRD support. Add MultiWiFi support 
+                                   Add DRD support. Add MultiWiFi support 
   1.0.4   K Hoang      03/07/2020  Add support to ESP32-AT shields. Modify LOAD_DEFAULT_CONFIG_DATA logic.
-                                  Enhance MultiWiFi connection logic. Fix WiFi Status bug.
+                                   Enhance MultiWiFi connection logic. Fix WiFi Status bug.
   1.1.0   K Hoang      13/04/2021  Fix invalid "blank" Config Data treated as Valid. Optional one set of WiFi Credentials
   1.2.0   Michael H    28/04/2021  Enable scan of WiFi networks for selection in Configuration Portal
-  1.3.0   K Hoang      12/05/2021  Add support to RP2040-based boards, such as RASPBERRY_PI_PICO
+  1.3.0   K Hoang      12/05/2021  Add support to RASPBERRY_PI_PICO using Arduino-pico core
+  1.4.0   K Hoang      01/06/2021  Add support to Nano_RP2040_Connect, RASPBERRY_PI_PICO using RP2040 Arduino mbed core
  *****************************************************************************************************************************/
 
 #include "defines.h"

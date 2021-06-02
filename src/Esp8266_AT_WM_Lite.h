@@ -8,7 +8,7 @@
 
   Built by Khoi Hoang https://github.com/khoih-prog/ESP_AT_WM_Lite
   Licensed under MIT license
-  Version: 1.3.0
+  Version: 1.4.0
 
   Version Modified By   Date        Comments
   ------- -----------  ----------   -----------
@@ -22,7 +22,8 @@
                                   Enhance MultiWiFi connection logic. Fix WiFi Status bug.
   1.1.0   K Hoang      13/04/2021  Fix invalid "blank" Config Data treated as Valid. Optional one set of WiFi Credentials
   1.2.0   Michael H    28/04/2021  Enable scan of WiFi networks for selection in Configuration Portal
-  1.3.0   K Hoang      12/05/2021  Add support to RP2040-based boards, such as RASPBERRY_PI_PICO              
+  1.3.0   K Hoang      12/05/2021  Add support to RASPBERRY_PI_PICO using Arduino-pico core
+  1.4.0   K Hoang      01/06/2021  Add support to Nano_RP2040_Connect, RASPBERRY_PI_PICO using RP2040 Arduino mbed core       
  ***************************************************************************************************************************************/
 
 #ifndef Esp8266_AT_WM_Lite_h
@@ -36,7 +37,9 @@
   #error This code is intended to run on the Mega2560 platform! Please check your Tools->Board setting.
 #endif
 
-#define ESP_AT_WM_LITE_VERSION        "ESP_AT_WM_Lite v1.3.0"
+#define ESP_AT_WM_LITE_VERSION        "ESP_AT_WM_Lite v1.4.0"
+
+#define DEFAULT_BOARD_NAME            "AVR-MEGA"
 
 //////////////////////////////////////////////
 
@@ -206,8 +209,10 @@ class ESP_AT_WiFiManager_Lite
       // to avoid WebServer not working due to HTML data larger than 2K can't be sent successfully
       // The items with index larger than 3 will be ignored
       // Limit NUM_MENU_ITEMS to max 3     
+#if USE_DYNAMIC_PARAMETERS        
       if (NUM_MENU_ITEMS > 3)
         NUM_MENU_ITEMS = 3;
+#endif
            
       //// New DRD ////
       drd = new DoubleResetDetector_Generic(DRD_TIMEOUT, DRD_ADDRESS);  

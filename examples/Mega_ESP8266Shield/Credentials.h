@@ -1,13 +1,13 @@
 /****************************************************************************************************************************
-   Credentials.h for Mega_ESP8266Shield.ino
-   For AVR or Generic boards using ESP8266 AT WiFi Shields, using much less code to support boards with smaller memory
-
-   ESP_AT_WM_Lite is a library for the Mega, Teensy, SAM DUE, SAMD and STM32 boards (https://github.com/khoih-prog/ESP_AT_WM_Lite)
-   to enable store Credentials in EEPROM to easy configuration/reconfiguration and autoconnect/autoreconnect of WiFi and other services
-   without Hardcoding.
-
-   Built by Khoi Hoang https://github.com/khoih-prog/ESP_AT_WM_Lite
-   Licensed under MIT license
+  Credentials.h for Mega_ESP8266Shield.ino
+  For AVR or Generic boards using ESP8266 AT WiFi Shields, using much less code to support boards with smaller memory
+  
+  ESP_AT_WM_Lite is a library for the Mega, Teensy, SAM DUE, SAMD and STM32 boards (https://github.com/khoih-prog/ESP_AT_WM_Lite)
+  to enable store Credentials in EEPROM to easy configuration/reconfiguration and autoconnect/autoreconnect of WiFi and other services
+  without Hardcoding.
+  
+  Built by Khoi Hoang https://github.com/khoih-prog/ESP_AT_WM_Lite
+  Licensed under MIT license
  *****************************************************************************************************************************/
 
 #ifndef Credentials_h

@@ -1,13 +1,13 @@
 /****************************************************************************************************************************
-   defines.h for SAM_DUE_ESP8266Shield.ino
-   For SAM DUE boards using ESP8266 AT WiFi Shields, using much less code to support boards with smaller memory
-
-   ESP_AT_WM_Lite is a library for the Mega, Teensy, SAM DUE, SAMD and STM32 boards (https://github.com/khoih-prog/ESP_AT_WM_Lite)
-   to enable store Credentials in EEPROM to easy configuration/reconfiguration and autoconnect/autoreconnect of WiFi and other services
-   without Hardcoding.
-
-   Built by Khoi Hoang https://github.com/khoih-prog/ESP_AT_WM_Lite
-   Licensed under MIT license
+  defines.h
+  For SAM DUE boards using ESP8266 AT WiFi Shields, using much less code to support boards with smaller memory
+  
+  ESP_AT_WM_Lite is a library for the Mega, Teensy, SAM DUE, SAMD and STM32 boards (https://github.com/khoih-prog/ESP_AT_WM_Lite)
+  to enable store Credentials in EEPROM to easy configuration/reconfiguration and autoconnect/autoreconnect of WiFi and other services
+  without Hardcoding.
+  
+  Built by Khoi Hoang https://github.com/khoih-prog/ESP_AT_WM_Lite
+  Licensed under MIT license
  *****************************************************************************************************************************/
 
 #ifndef defines_h
@@ -63,7 +63,8 @@
 // Default is false (if not defined) => must input 2 sets of SSID/PWD
 #define REQUIRE_ONE_SET_SSID_PW       false
 
-#define USE_DYNAMIC_PARAMETERS        true
+#define USE_DYNAMIC_PARAMETERS        false
+#warning Disable USE_DYNAMIC_PARAMETERS for ESP_AT_SHIELD
 
 /////////////////////////////////////////////
 
@@ -73,7 +74,7 @@
 #define MANUAL_SSID_INPUT_ALLOWED           true
 
 // From 2-15
-#define MAX_SSID_IN_LIST                    6
+#define MAX_SSID_IN_LIST                    4
 
 /////////////////////////////////////////////
 

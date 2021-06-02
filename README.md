@@ -15,6 +15,7 @@
   * [Features](#features)
   * [Currently supported Boards](#currently-supported-boards)
 * [Changelog](#changelog)
+  * [Major Release v1.4.0](#major-release-v140)
   * [Major Release v1.3.0](#major-release-v130)
   * [Major Release v1.2.0](#major-release-v120)
   * [Major Release v1.1.0](#major-release-v110)
@@ -67,7 +68,7 @@
   * [ 3. SAM_DUE_ESP8266Shield](examples/SAM_DUE_ESP8266Shield)
   * [ 4. STM32_ESP8266Shield](examples/STM32_ESP8266Shield)
   * [ 5. nRF52_ESP8266Shield](examples/nRF52_ESP8266Shield)
-  * [ 6. RPi_Pico_ESP8266Shield](examples/RPi_Pico_ESP8266Shield)
+  * [ 6. RPi_Pico_ESP8266Shield](examples/RPi_Pico_ESP8266Shield) **New**
 * [So, how it works?](#so-how-it-works)
   * [1. Without SCAN_WIFI_NETWORKS](#1-without-scan_wifi_networks)
   * [2. With SCAN_WIFI_NETWORKS](#2-with-scan_wifi_networks)
@@ -94,7 +95,10 @@
     * [2.3 Lost a WiFi and autoconnect to another WiFi AP](#23-lost-a-wifi-and-autoconnect-to-another-wifi-ap)
   * [3. RPi_Pico_ESP8266Shield on RASPBERRY_PI_PICO](#3-rpi_pico_esp8266shield-on-raspberry_pi_pico)
     * [3.1 Open Config Portal](#31-open-config-portal)
-    * [3.2 Got valid Credential from Config Portal, then connected to WiFi](#32-got-valid-credential-from-config-portal-then-connected-to-wifi) 
+    * [3.2 Got valid Credential from Config Portal, then connected to WiFi](#32-got-valid-credential-from-config-portal-then-connected-to-wifi)
+  * [4. RPi_Pico_ESP8266Shield on MBED RASPBERRY_PI_PICO](#4-rpi_pico_esp8266shield-on-mbed-raspberry_pi_pico)
+    * [4.1 Open Config Portal](#41-open-config-portal)
+    * [4.2 Got valid Credential from Config Portal, then connected to WiFi](#42-got-valid-credential-from-config-portal-then-connected-to-wifi)
 * [Debug](#debug)
 * [Troubleshooting](#troubleshooting)
 * [Releases](#releases)
@@ -115,7 +119,7 @@
 
 This library is a Light Weight Credentials / WiFi Manager for ESP8266/ESP32-AT shields, specially designed to support **AVR Mega, SAM DUE, SAMD21, SAMD51, nRF52, STM32F/L/H/G/WB/MP1, etc. boards running ESP8266/ESP32-AT-command shields.** with smaller memory (64+K bytes)
 
-The **RP2040-based boards, such as RASPBERRY_PI_PICO**, are currently supported using [Earle Philhower's arduino-pico core](https://github.com/earlephilhower/arduino-pico) and LittleFS. The support to [**Arduino-mbed RP2040** core](https://github.com/arduino/ArduinoCore-mbed), which has **no LittleFS support yet**, will be added in the future using **simulated-EEPROM** if LittleFS not ready then.
+The **RP2040-based boards, such as Nano_RP1040_Connect, RASPBERRY_PI_PICO**, are currently supported using [**Earle Philhower's arduino-pico** core](https://github.com/earlephilhower/arduino-pico) or [**Arduino-mbed RP2040** core](https://github.com/arduino/ArduinoCore-mbed) with Blynk/WiFiManager features thanks to **LittleFS** support.
 
 Other AVR-family boards (UNO, Nano, etc.) are **not supported** as they don't have enough memory to run Config Portal WebServer.
 
@@ -181,12 +185,18 @@ This [**ESP_AT_WM_Lite** library](https://github.com/khoih-prog/ESP_AT_WM_Lite) 
 - Generic Flight Controllers
 - Midatronics boards
  
- 7. RP2040-based boards, such as **RASPBERRY_PI_PICO, ADAFRUIT_FEATHER_RP2040 and GENERIC_RP2040**, using [Earle Philhower's arduino-pico core](https://github.com/earlephilhower/arduino-pico) and **LittleFS**
+ 7. RP2040-based boards, such as **Nano RP2040 Connect**, using [**Arduino mbed OS for Nano boards**](https://github.com/arduino/ArduinoCore-mbed).
+
+ 8. RP2040-based boards, such as **RASPBERRY_PI_PICO, ADAFRUIT_FEATHER_RP2040 and GENERIC_RP2040**, using [**Arduino-mbed RP2040** core](https://github.com/arduino/ArduinoCore-mbed) or [**Earle Philhower's arduino-pico** core](https://github.com/earlephilhower/arduino-pico).
  
 ---
 ---
 
 ## Changelog
+
+### Major Release v1.4.0
+
+1. Add support to RP2040-based boards, such as **Nano_RP2040_Connect, RASPBERRY_PI_PICO, ADAFRUIT_FEATHER_RP2040 and GENERIC_RP2040**, using [**Arduino-mbed RP2040** core](https://github.com/arduino/ArduinoCore-mbed).
 
 ### Major Release v1.3.0
 
@@ -245,25 +255,30 @@ This [**ESP_AT_WM_Lite** library](https://github.com/khoih-prog/ESP_AT_WM_Lite) 
 
 ## Prerequisites
 
- 1. [`Arduino IDE 1.8.13+` for Arduino](https://www.arduino.cc/en/Main/Software)
+ 1. [`Arduino IDE 1.8.15+` for Arduino](https://www.arduino.cc/en/Main/Software)
  2. [`Arduino AVR core 1.8.3+`](https://github.com/arduino/ArduinoCore-avr) for Arduino (Use Arduino Board Manager) for AVR boards. [![GitHub release](https://img.shields.io/github/release/arduino/ArduinoCore-avr.svg)](https://github.com/arduino/ArduinoCore-avr/releases/latest)
  3. [`Arduino Core for STM32 v2.0.0+`](https://github.com/stm32duino/Arduino_Core_STM32) for STM32F/L/H/G/WB/MP1 boards (Nucleo-144 NUCLEO_F767ZI, Nucleo-64 NUCLEO_L053R8, etc.). [![GitHub release](https://img.shields.io/github/release/stm32duino/Arduino_Core_STM32.svg)](https://github.com/stm32duino/Arduino_Core_STM32/releases/latest)
  4. [`Teensy core 1.53+`](https://www.pjrc.com/teensy/td_download.html) for Teensy (4.1, 4.0, 3.6, 3.5, 3,2, 3.1, 3.0, LC) boards
  5. [`Arduino SAM DUE core v1.6.12+`](https://github.com/arduino/ArduinoCore-sam) for SAM DUE ARM Cortex-M3 boards.
  6. [`Arduino SAMD core 1.8.11+`](https://github.com/arduino/ArduinoCore-samd) for SAMD ARM Cortex-M0+ boards. [![GitHub release](https://img.shields.io/github/release/arduino/ArduinoCore-samd.svg)](https://github.com/arduino/ArduinoCore-samd/releases/latest)
- 7. [`Adafruit SAMD core 1.6.8+`](https://github.com/adafruit/ArduinoCore-samd) for SAMD ARM Cortex-M0+ and M4 boards (Nano 33 IoT, etc.). [![GitHub release](https://img.shields.io/github/release/adafruit/ArduinoCore-samd.svg)](https://github.com/adafruit/ArduinoCore-samd/releases/latest)
+ 7. [`Adafruit SAMD core 1.7.2+`](https://github.com/adafruit/ArduinoCore-samd) for SAMD ARM Cortex-M0+ and M4 boards (Nano 33 IoT, etc.). [![GitHub release](https://img.shields.io/github/release/adafruit/ArduinoCore-samd.svg)](https://github.com/adafruit/ArduinoCore-samd/releases/latest)
  8. [`Seeeduino SAMD core 1.8.1+`](https://github.com/Seeed-Studio/ArduinoCore-samd) for SAMD21/SAMD51 boards (XIAO M0, Wio Terminal, etc.). [![Latest release](https://img.shields.io/github/release/Seeed-Studio/ArduinoCore-samd.svg)](https://github.com/Seeed-Studio/ArduinoCore-samd/releases/latest/)
+ 
  9. [`Adafruit nRF52 v0.21.0+`](https://github.com/adafruit/Adafruit_nRF52_Arduino) for nRF52 boards such as Adafruit NRF52840_FEATHER, NRF52832_FEATHER, NRF52840_FEATHER_SENSE, NRF52840_ITSYBITSY, NRF52840_CIRCUITPLAY, NRF52840_CLUE, NRF52840_METRO, NRF52840_PCA10056, PARTICLE_XENON, **NINA_B302_ublox**, etc. [![GitHub release](https://img.shields.io/github/release/adafruit/Adafruit_nRF52_Arduino.svg)](https://github.com/adafruit/Adafruit_nRF52_Arduino/releases/latest)
-10. [`Earle Philhower's arduino-pico core v1.4.0+`](https://github.com/earlephilhower/arduino-pico) for RP2040-based boards such as **RASPBERRY_PI_PICO, ADAFRUIT_FEATHER_RP2040 and GENERIC_RP2040**, etc. [![GitHub release](https://img.shields.io/github/release/earlephilhower/arduino-pico.svg)](https://github.com/earlephilhower/arduino-pico/releases/latest)
-11. [`ESP8266_AT_WebServer library v1.2.0+`](https://github.com/khoih-prog/ESP8266_AT_WebServer). To install, check [![arduino-library-badge](https://www.ardu-badge.com/badge/ESP8266_AT_WebServer.svg?)](https://www.ardu-badge.com/ESP8266_AT_WebServer)
-12. [`FlashStorage_SAMD library v1.1.0+`](https://github.com/khoih-prog/FlashStorage_SAMD) for SAMD21 and SAMD51 boards (ZERO, MKR, NANO_33_IOT, M0, M0 Pro, AdaFruit Itsy-Bitsy M4, etc.). To install, check [![arduino-library-badge](https://www.ardu-badge.com/badge/FlashStorage_SAMD.svg?)](https://www.ardu-badge.com/FlashStorage_SAMD)
-13. [`FlashStorage_STM32 library v1.1.0+`](https://github.com/khoih-prog/FlashStorage_STM32) for STM32F/L/H/G/WB/MP1 boards. To install. check [![arduino-library-badge](https://www.ardu-badge.com/badge/FlashStorage_STM32.svg?)](https://www.ardu-badge.com/FlashStorage_STM32) 
-14. [`DueFlashStorage library v1.0.0+`](https://github.com/sebnil/DueFlashStorage) for SAM DUE. To install, check [![arduino-library-badge](https://www.ardu-badge.com/badge/DueFlashStorage.svg?)](https://www.ardu-badge.com/DueFlashStorage)
-15. [`Adafruit's LittleFS/InternalFS`](www.adafruit.com) for nRF52
-16. [`DoubleResetDetector_Generic v1.2.0+`](https://github.com/khoih-prog/DoubleResetDetector_Generic). To install. check [![arduino-library-badge](https://www.ardu-badge.com/badge/DoubleResetDetector_Generic.svg?)](https://www.ardu-badge.com/DoubleResetDetector_Generic)
-17. [`Ai-Thinker AT Firmware v1.5.4`](https://github.com/khoih-prog/ESP8266_AT_WebServer/blob/master/AT_Firmwares/At_firmware_bin1.54.zip) or [`AT Firmware v1.7.4.0`](https://github.com/khoih-prog/ESP8266_AT_WebServer/blob/master/AT_Firmwares/AT_Firmware_bin_1.7.4.0.zip) for ESP8266-AT WiFi shields.
-18. [`AT version_2.1.0.0_dev`](https://github.com/khoih-prog/ESP8266_AT_WebServer/blob/master/AT_Firmwares/AT_version_2.1.0.0_dev.zip) for ESP32-AT WiFi shields.
-19. `AT version_1.1.4` for WIS600-01S and W600-AT WiFi shields.
+ 
+  **Warnings** : Use [`Adafruit nRF52 v0.22.0+`](https://github.com/adafruit/Adafruit_nRF52_Arduino/releases/tag/0.22.0) will create **compiler errors** to some boards. If so, please use the [`Adafruit nRF52 v0.21.0`](https://github.com/adafruit/Adafruit_nRF52_Arduino/releases/tag/0.21.0) until the issue fixed.
+  
+10. [`Arduino mbed_rp2040 core 2.1.0+`](https://github.com/arduino/ArduinoCore-mbed) for Arduino RP2040-based boards, such as **Arduino Nano RP2040 Connect, RASPBERRY_PI_PICO, etc.**. [![GitHub release](https://img.shields.io/github/release/arduino/ArduinoCore-mbed.svg)](https://github.com/arduino/ArduinoCore-mbed/releases/latest)
+11. [`Earle Philhower's arduino-pico core v1.6.2+`](https://github.com/earlephilhower/arduino-pico) for RP2040-based boards such as **RASPBERRY_PI_PICO, ADAFRUIT_FEATHER_RP2040 and GENERIC_RP2040**, etc. [![GitHub release](https://img.shields.io/github/release/earlephilhower/arduino-pico.svg)](https://github.com/earlephilhower/arduino-pico/releases/latest)
+12. [`ESP8266_AT_WebServer library v1.3.0+`](https://github.com/khoih-prog/ESP8266_AT_WebServer) to be able to support ESP32-AT shields. To install, check [![arduino-library-badge](https://www.ardu-badge.com/badge/ESP8266_AT_WebServer.svg?)](https://www.ardu-badge.com/ESP8266_AT_WebServer)
+13. [`FlashStorage_SAMD library v1.1.0+`](https://github.com/khoih-prog/FlashStorage_SAMD) for SAMD21 and SAMD51 boards (ZERO, MKR, NANO_33_IOT, M0, M0 Pro, AdaFruit Itsy-Bitsy M4, etc.). To install, check [![arduino-library-badge](https://www.ardu-badge.com/badge/FlashStorage_SAMD.svg?)](https://www.ardu-badge.com/FlashStorage_SAMD)
+14. [`FlashStorage_STM32 library v1.1.0+`](https://github.com/khoih-prog/FlashStorage_STM32) for STM32F/L/H/G/WB/MP1 boards. To install. check [![arduino-library-badge](https://www.ardu-badge.com/badge/FlashStorage_STM32.svg?)](https://www.ardu-badge.com/FlashStorage_STM32) 
+15. [`DueFlashStorage library v1.0.0+`](https://github.com/sebnil/DueFlashStorage) for SAM DUE. To install, check [![arduino-library-badge](https://www.ardu-badge.com/badge/DueFlashStorage.svg?)](https://www.ardu-badge.com/DueFlashStorage)
+16. [`Adafruit's LittleFS/InternalFS`](www.adafruit.com) for nRF52
+17. [`DoubleResetDetector_Generic v1.3.0+`](https://github.com/khoih-prog/DoubleResetDetector_Generic). To install. check [![arduino-library-badge](https://www.ardu-badge.com/badge/DoubleResetDetector_Generic.svg?)](https://www.ardu-badge.com/DoubleResetDetector_Generic)
+18. [`Ai-Thinker AT Firmware v1.5.4`](https://github.com/khoih-prog/ESP8266_AT_WebServer/blob/master/AT_Firmwares/At_firmware_bin1.54.zip) or [`AT Firmware v1.7.4.0`](https://github.com/khoih-prog/ESP8266_AT_WebServer/blob/master/AT_Firmwares/AT_Firmware_bin_1.7.4.0.zip) for ESP8266-AT WiFi shields.
+19. [`AT version_2.1.0.0_dev`](https://github.com/khoih-prog/ESP8266_AT_WebServer/blob/master/AT_Firmwares/AT_version_2.1.0.0_dev.zip) for ESP32-AT WiFi shields.
+20. `AT version_1.1.4` for WIS600-01S and W600-AT WiFi shields.
 
 ---
 
@@ -364,6 +379,8 @@ You can also use this link [![arduino-library-badge](https://www.ardu-badge.com/
 
 #### 1. For Adafruit nRF52840 and nRF52832 boards
 
+**Don't use v0.22.0+ yet because of compiler error. To be fixed.**
+
 **To be able to compile, run and automatically detect and display BOARD_NAME on nRF52840/nRF52832 boards**, you have to copy the whole [nRF52 0.21.0](Packages_Patches/adafruit/hardware/nrf52/0.21.0) directory into Adafruit nRF52 directory (~/.arduino15/packages/adafruit/hardware/nrf52/0.21.0). 
 
 Supposing the Adafruit nRF52 version is 0.21.0. These files must be copied into the directory:
@@ -420,7 +437,7 @@ This file must be copied into the directory:
 
 #### 4. For Arduino SAMD boards
  
- ***To be able to compile without error and automatically detect and display BOARD_NAME on Arduino SAMD (Nano-33-IoT, etc) boards***, you have to copy the whole [Arduino SAMD cores 1.8.10](Packages_Patches/arduino/hardware/samd/1.8.10) directory into Arduino SAMD directory (~/.arduino15/packages/arduino/hardware/samd/1.8.10).
+ ***To be able to compile without error and automatically detect and display BOARD_NAME on Arduino SAMD (Nano-33-IoT, etc) boards***, you have to copy the whole [Arduino SAMD cores 1.8.11](Packages_Patches/arduino/hardware/samd/1.8.11) directory into Arduino SAMD directory (~/.arduino15/packages/arduino/hardware/samd/1.8.11).
  
 #### For core version v1.8.10+
 
@@ -459,11 +476,11 @@ Whenever the above-mentioned compiler error issue is fixed with the new Arduino 
 
 #### 5. For Adafruit SAMD boards
  
- ***To be able to automatically detect and display BOARD_NAME on Adafruit SAMD (Itsy-Bitsy M4, etc) boards***, you have to copy the file [Adafruit SAMD platform.txt](Packages_Patches/adafruit/hardware/samd/1.6.8) into Adafruit samd directory (~/.arduino15/packages/adafruit/hardware/samd/1.6.8). 
+ ***To be able to automatically detect and display BOARD_NAME on Adafruit SAMD (Itsy-Bitsy M4, etc) boards***, you have to copy the file [Adafruit SAMD platform.txt](Packages_Patches/adafruit/hardware/samd/1.7.1) into Adafruit samd directory (~/.arduino15/packages/adafruit/hardware/samd/1.7.1). 
 
-Supposing the Adafruit SAMD core version is 1.6.8. This file must be copied into the directory:
+Supposing the Adafruit SAMD core version is 1.7.1. This file must be copied into the directory:
 
-- `~/.arduino15/packages/adafruit/hardware/samd/1.6.8/platform.txt`
+- `~/.arduino15/packages/adafruit/hardware/samd/1.7.1/platform.txt`
 
 Whenever a new version is installed, remember to copy this file into the new version directory. For example, new version is x.yy.zz
 This file must be copied into the directory:
@@ -493,12 +510,12 @@ To use LAN8720 on some STM32 boards
 - **Discovery (DISCO_F746NG)**
 - **STM32F4 boards (BLACK_F407VE, BLACK_F407VG, BLACK_F407ZE, BLACK_F407ZG, BLACK_F407VE_Mini, DIYMORE_F407VGT, FK407M1)**
 
-you have to copy the files [stm32f4xx_hal_conf_default.h](Packages_Patches/STM32/hardware/stm32/2.0.0/system/STM32F4xx) and [stm32f7xx_hal_conf_default.h](Packages_Patches/STM32/hardware/stm32/2.0.0/system/STM32F7xx) into STM32 stm32 directory (~/.arduino15/packages/STM32/hardware/stm32/2.0.0/system) to overwrite the old files.
+you have to copy the files [stm32f4xx_hal_conf_default.h](Packages_Patches/STM32/hardware/stm32/1.9.0/system/STM32F4xx) and [stm32f7xx_hal_conf_default.h](Packages_Patches/STM32/hardware/stm32/1.9.0/system/STM32F7xx) into STM32 stm32 directory (~/.arduino15/packages/STM32/hardware/stm32/1.9.0/system) to overwrite the old files.
 
-Supposing the STM32 stm32 core version is 2.0.0. These files must be copied into the directory:
+Supposing the STM32 stm32 core version is 1.9.0. These files must be copied into the directory:
 
-- `~/.arduino15/packages/STM32/hardware/stm32/2.0.0/system/STM32F4xx/stm32f4xx_hal_conf_default.h` for STM32F4.
-- `~/.arduino15/packages/STM32/hardware/stm32/2.0.0/system/STM32F7xx/stm32f7xx_hal_conf_default.h` for Nucleo-144 STM32F7.
+- `~/.arduino15/packages/STM32/hardware/stm32/1.9.0/system/STM32F4xx/stm32f4xx_hal_conf_default.h` for STM32F4.
+- `~/.arduino15/packages/STM32/hardware/stm32/1.9.0/system/STM32F7xx/stm32f7xx_hal_conf_default.h` for Nucleo-144 STM32F7.
 
 Whenever a new version is installed, remember to copy this file into the new version directory. For example, new version is x.yy.zz,
 theses files must be copied into the corresponding directory:
@@ -509,12 +526,12 @@ theses files must be copied into the corresponding directory:
 
 #### 7.2 For STM32 boards to use Serial1
 
-**To use Serial1 on some STM32 boards without Serial1 definition (Nucleo-144 NUCLEO_F767ZI, Nucleo-64 NUCLEO_L053R8, etc.) boards**, you have to copy the files [STM32 variant.h](Packages_Patches/STM32/hardware/stm32/2.0.0) into STM32 stm32 directory (~/.arduino15/packages/STM32/hardware/stm32/2.0.0). You have to modify the files corresponding to your boards, this is just an illustration how to do.
+**To use Serial1 on some STM32 boards without Serial1 definition (Nucleo-144 NUCLEO_F767ZI, Nucleo-64 NUCLEO_L053R8, etc.) boards**, you have to copy the files [STM32 variant.h](Packages_Patches/STM32/hardware/stm32/1.9.0) into STM32 stm32 directory (~/.arduino15/packages/STM32/hardware/stm32/1.9.0). You have to modify the files corresponding to your boards, this is just an illustration how to do.
 
-Supposing the STM32 stm32 core version is 2.0.0. These files must be copied into the directory:
+Supposing the STM32 stm32 core version is 1.9.0. These files must be copied into the directory:
 
-- `~/.arduino15/packages/STM32/hardware/stm32/2.0.0/variants/NUCLEO_F767ZI/variant.h` for Nucleo-144 NUCLEO_F767ZI.
-- `~/.arduino15/packages/STM32/hardware/stm32/2.0.0/variants/NUCLEO_L053R8/variant.h` for Nucleo-64 NUCLEO_L053R8.
+- `~/.arduino15/packages/STM32/hardware/stm32/1.9.0/variants/NUCLEO_F767ZI/variant.h` for Nucleo-144 NUCLEO_F767ZI.
+- `~/.arduino15/packages/STM32/hardware/stm32/1.9.0/variants/NUCLEO_L053R8/variant.h` for Nucleo-64 NUCLEO_L053R8.
 
 Whenever a new version is installed, remember to copy this file into the new version directory. For example, new version is x.yy.zz,
 theses files must be copied into the corresponding directory:
@@ -537,7 +554,7 @@ This file must be copied into the directory:
 
 - `~/.arduino15/packages/rp2040/hardware/rp2040/x.yy.zz/platform.txt`
 
-With core after v1.4.0, this step is not necessary anymore thanks to the PR [Add -DBOARD_NAME="{build.board}" #136](https://github.com/earlephilhower/arduino-pico/pull/136).
+With core after v1.5.0, this step is not necessary anymore thanks to the PR [Add -DBOARD_NAME="{build.board}" #136](https://github.com/earlephilhower/arduino-pico/pull/136).
 
 #### 8.2 To avoid compile error relating to microsecondsToClockCycles
 
@@ -552,7 +569,7 @@ This file must be copied to replace:
 
 - `~/.arduino15/packages/rp2040/hardware/rp2040/x.yy.zz/cores/rp2040/Arduino.h`
 
-With core after v1.4.0, this step is not necessary anymore thanks to the PR [Add defs for compatibility #142](https://github.com/earlephilhower/arduino-pico/pull/142).
+With core after v1.5.0, this step is not necessary anymore thanks to the PR [Add defs for compatibility #142](https://github.com/earlephilhower/arduino-pico/pull/142).
 
 ---
 ---
@@ -1243,7 +1260,8 @@ void loop()
 // Default is false (if not defined) => must input 2 sets of SSID/PWD
 #define REQUIRE_ONE_SET_SSID_PW       false
 
-#define USE_DYNAMIC_PARAMETERS        true
+#define USE_DYNAMIC_PARAMETERS        false
+#warning Disable USE_DYNAMIC_PARAMETERS for ESP_AT_SHIELD
 
 /////////////////////////////////////////////
 
@@ -1253,7 +1271,7 @@ void loop()
 #define MANUAL_SSID_INPUT_ALLOWED           true
 
 // From 2-15
-#define MAX_SSID_IN_LIST                    6
+#define MAX_SSID_IN_LIST                    4
 
 /////////////////////////////////////////////
 
@@ -1428,7 +1446,7 @@ This is the terminal output when running [nRF52_ESP8266Shield](examples/nRF52_ES
 
 ```
 Start nRF52_ESP8266Shield on NRF52840_FEATHER
-ESP_AT_WM_Lite v1.3.0
+ESP_AT_WM_Lite v1.4.0
 Debug Level = 3
 [ESP_AT] Use ES8266-AT Command
 LittleFS Flag read = 0xd0d01234
@@ -1468,7 +1486,7 @@ FFFF
 
 ```
 Start nRF52_ESP8266Shield on NRF52840_FEATHER
-ESP_AT_WM_Lite v1.3.0
+ESP_AT_WM_Lite v1.4.0
 Debug Level = 3
 [ESP_AT] Use ES8266-AT Command
 LittleFS Flag read = 0xd0d04321
@@ -1484,7 +1502,7 @@ SetFlag write = 0xd0d01234
 [ESP_AT] ======= Start Stored Config Data =======
 [ESP_AT] ConMultiWifi
 [ESP_AT] First connection, Using index=0
-[ESP_AT] con2WF:SSID=HueNet1,PW=jenniqqs
+[ESP_AT] con2WF:SSID=HueNet1,PW=password
 [ESP_AT] Remaining retry_time=3
 [ESP_AT] WOK, lastConnectedIndex=0
 [ESP_AT] con2WF:OK
@@ -1504,7 +1522,7 @@ HHHHHHHHH HHHHHHHHHH HHHHHHHHHH HHHHHHHHHH
 
 ```
 Start nRF52_ESP8266Shield on NRF52840_FEATHER
-ESP_AT_WM_Lite v1.3.0
+ESP_AT_WM_Lite v1.4.0
 Debug Level = 3
 [ESP_AT] Use ES8266-AT Command
 LittleFS Flag read = 0xd0d04321
@@ -1548,7 +1566,7 @@ This is the terminal output when running [SAMD_ESP8266Shield](examples/SAMD_ESP8
 
 ```
 Start SAMD_ESP8266Shield on ITSYBITSY_M4
-ESP_AT_WM_Lite v1.3.0
+ESP_AT_WM_Lite v1.4.0
 Debug Level = 3
 [ESP_AT] Use ES8266-AT Command
 Flag read = 0xffffffff
@@ -1588,7 +1606,7 @@ FFFF[ESP_AT] h:UpdFlash
 
 ```
 Start SAMD_ESP8266Shield on ITSYBITSY_M4
-ESP_AT_WM_Lite v1.3.0
+ESP_AT_WM_Lite v1.4.0
 Debug Level = 3
 [ESP_AT] Use ES8266-AT Command
 Flag read = 0xd0d04321
@@ -1616,7 +1634,7 @@ HHHHHHHHH HHHHHHHHHH HHHHHHHHHH HHHHHHHHHH
 
 ```
 Start SAMD_ESP8266Shield on ITSYBITSY_M4
-ESP_AT_WM_Lite v1.3.0
+ESP_AT_WM_Lite v1.4.0
 Debug Level = 3
 [ESP_AT] Use ES8266-AT Command
 Flag read = 0xd0d04321
@@ -1656,7 +1674,7 @@ This is the terminal output when running [RPi_Pico_ESP8266Shield](examples/RPi_P
 
 ```
 Start RPi_Pico_ESP8266Shield on RASPBERRY_PI_PICO
-ESP_AT_WM_Lite v1.3.0
+ESP_AT_WM_Lite v1.4.0
 Debug Level = 3
 [ESP_AT] Use ES8266-AT Command
 LittleFS Flag read = 0xd0d04321
@@ -1698,7 +1716,7 @@ FFFFFFFFF FFFF
 
 ```
 Start RPi_Pico_ESP8266Shield on RASPBERRY_PI_PICO
-ESP_AT_WM_Lite v1.3.0
+ESP_AT_WM_Lite v1.4.0
 Debug Level = 4
 [ESP_AT] Use ES8266-AT Command
 LittleFS Flag read = 0xd0d04321
@@ -1755,6 +1773,97 @@ Port = 1883
 HHHHHHHHH HHHHHHHHHH HHHHHHHHHH HHHHHHHHHH 
 ```
 
+---
+
+#### 4. RPi_Pico_ESP8266Shield on MBED RASPBERRY_PI_PICO
+
+This is the terminal output when running [RPi_Pico_ESP8266Shield](examples/RPi_Pico_ESP8266Shield) example on **MBED RASPBERRY_PI_PICO** :
+
+#### 4.1 Open Config Portal
+
+```
+Start RPi_Pico_ESP8266Shield on MBED RASPBERRY_PI_PICO
+ESP_AT_WM_Lite v1.4.0
+Debug Level = 3
+[ESP_AT] Use ES8266-AT Command
+LittleFS size (KB) = 64
+LittleFS Mount OK
+LittleFS Flag read = 0xd0d04321
+Flag read = 0xd0d04321
+No doubleResetDetected
+Saving DOUBLERESETDETECTOR_FLAG to DRD file : 0xd0d01234
+Saving DRD file OK
+SetFlag write = 0xd0d01234
+[ESP_AT] LoadCfgFile 
+[ESP_AT] OK
+[ESP_AT] Invalid Stored WiFi Config Data.
+[ESP_AT] SSID is blank or NULL
+[ESP_AT] b:StayInCfgPortal:NoCfgDat
+[ESP_AT] Scanning Network
+[ESP_AT] scanWifiNetworks: Done, Scanned Networks n = 9
+[ESP_AT] WiFi networks found:
+[ESP_AT] 1: HueNetTek, -35dB
+[ESP_AT] 2: HueNet1, -85dB
+[ESP_AT] 3: , -83dB
+[ESP_AT] 4: Waterhome, -82dB
+[ESP_AT] 5: dlink-4F96, -77dB
+[ESP_AT] 8: BELL627, -47dB
+[ESP_AT] 9: Primus-f6b1, -82dB
+[ESP_AT] SSID=CfgPrtl-SSID,PW=CfgPrtl-PW
+[ESP_AT] IP=192.168.4.1,CH=1
+Stop doubleResetDetecting
+Saving to DRD file : 0xd0d04321
+Saving DRD file OK
+LittleFS Flag read = 0xd0d04321
+ClearFlag write = 0xd0d04321
+F
+Stored Dynamic Params:
+MQTT Server = mqtt-server
+Port = 1883
+FFFFFFFFF FFFF
+```
+
+#### 4.2 Got valid Credential from Config Portal, then connected to WiFi
+
+```
+Start RPi_Pico_ESP8266Shield on MBED RASPBERRY_PI_PICO
+ESP_AT_WM_Lite v1.4.0
+Debug Level = 4
+[ESP_AT] Use ES8266-AT Command
+LittleFS size (KB) = 64
+LittleFS Mount OK
+LittleFS Flag read = 0xd0d04321
+Flag read = 0xd0d04321
+No doubleResetDetected
+Saving DOUBLERESETDETECTOR_FLAG to DRD file : 0xd0d01234
+Saving DRD file OK
+SetFlag write = 0xd0d01234
+[ESP_AT] ======= Start Default Config Data =======
+[ESP_AT] Hdr=SHD_ESP8266,SSID=SSID1,PW=password1
+[ESP_AT] SSID1=SSID2,PW1=password2
+[ESP_AT] BName=nRF52-ESP_AT
+[ESP_AT] LoadCfgFile 
+[ESP_AT] OK
+[ESP_AT] CCSum=0x1170,RCSum=0x1170
+[ESP_AT] ======= Start Stored Config Data =======
+[ESP_AT] Hdr=SHD_ESP8266,SSID=HueNet1,PW=password
+[ESP_AT] SSID1=HueNet2,PW1=password
+[ESP_AT] BName=MBED-RP2040
+[ESP_AT] ConMultiWifi
+[ESP_AT] First connection, Using index=0
+[ESP_AT] con2WF:SSID=HueNet1,PW=password
+[ESP_AT] Remaining retry_time=3
+[ESP_AT] WOK, lastConnectedIndex=0
+[ESP_AT] con2WF:OK
+[ESP_AT] IP=192.168.2.76
+[ESP_AT] b:WOK
+Stop doubleResetDetecting
+Saving to DRD file : 0xd0d04321
+Saving DRD file OK
+LittleFS Flag read = 0xd0d04321
+ClearFlag write = 0xd0d04321
+HHHHHHHHHH HHHHHHHHHH HHHHHHHHHH HH
+```
 
 ---
 ---
@@ -1789,6 +1898,10 @@ Sometimes, the library will only work if you update the `ESP8266 AT shield` core
 ---
 
 ## Releases
+
+### Major Release v1.4.0
+
+1. Add support to RP2040-based boards, such as **Nano_RP2040_Connect, RASPBERRY_PI_PICO, ADAFRUIT_FEATHER_RP2040 and GENERIC_RP2040**, using [**Arduino-mbed RP2040** core](https://github.com/arduino/ArduinoCore-mbed).
 
 ### Major Release v1.3.0
 
@@ -1882,7 +1995,9 @@ Submit issues to: [ESP_AT_WM_Lite issues](https://github.com/khoih-prog/ESP_AT_W
 13. Enforce WiFi PWD minimum length of 8 chars
 14. Enable **scan of WiFi networks** for selection in Configuration Portal
 15. Add support to new STM32 core v2.0.0 and new STM32L5 boards.
-16. Add support to RP2040-based boards such as RASPBERRY_PI_PICO, using [Earle Philhower's arduino-pico core](https://github.com/earlephilhower/arduino-pico) using LittleFS
+16. Add support to RP2040-based boards, such as **RASPBERRY_PI_PICO, ADAFRUIT_FEATHER_RP2040 and GENERIC_RP2040**, using [**Earle Philhower's arduino-pico** core](https://github.com/earlephilhower/arduino-pico).
+17. Add support to RP2040-based boards, such as **RASPBERRY_PI_PICO, ADAFRUIT_FEATHER_RP2040 and GENERIC_RP2040**, using [**Arduino-mbed RP2040** core](https://github.com/arduino/ArduinoCore-mbed)
+18. Add support to **Arduino Nano RP2040 Connect** using [**Arduino mbed OS for Nano boards**](https://github.com/arduino/ArduinoCore-mbed).
 
 ---
 ---
