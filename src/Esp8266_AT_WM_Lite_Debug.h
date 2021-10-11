@@ -8,7 +8,7 @@
 
   Built by Khoi Hoang https://github.com/khoih-prog/ESP_AT_WM_Lite
   Licensed under MIT license
-  Version: 1.4.0
+  Version: 1.4.1
 
   Version Modified By   Date        Comments
   ------- -----------  ----------   -----------
@@ -23,7 +23,8 @@
   1.1.0   K Hoang      13/04/2021  Fix invalid "blank" Config Data treated as Valid. Optional one set of WiFi Credentials
   1.2.0   Michael H    28/04/2021  Enable scan of WiFi networks for selection in Configuration Portal
   1.3.0   K Hoang      12/05/2021  Add support to RASPBERRY_PI_PICO using Arduino-pico core
-  1.4.0   K Hoang      01/06/2021  Add support to Nano_RP2040_Connect, RASPBERRY_PI_PICO using RP2040 Arduino mbed core              
+  1.4.0   K Hoang      01/06/2021  Add support to Nano_RP2040_Connect, RASPBERRY_PI_PICO using RP2040 Arduino mbed core  
+  1.4.1   K Hoang      10/10/2021  Update `platform.ini` and `library.json`              
  ***************************************************************************************************************************************/
 
 #ifndef Esp8266_AT_WM_Lite_Debug_h
