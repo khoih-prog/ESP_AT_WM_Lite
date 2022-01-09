@@ -8,23 +8,24 @@
 
   Built by Khoi Hoang https://github.com/khoih-prog/ESP_AT_WM_Lite
   Licensed under MIT license
-  Version: 1.4.1
+  Version: 1.5.0
 
   Version Modified By   Date        Comments
   ------- -----------  ----------   -----------
   1.0.0   K Hoang      09/03/2020  Initial coding
   1.0.1   K Hoang      20/03/2020  Add feature to enable adding dynamically more Credentials parameters in sketch
   1.0.2   K Hoang      17/04/2020  Fix bug. Add support to SAMD51 and SAMD DUE. WPA2 SSID PW to 63 chars.
-                                  Permit to input special chars such as !,@,#,$,%,^,&,* into data fields.
+                                   Permit to input special chars such as !,@,#,$,%,^,&,* into data fields.
   1.0.3   K Hoang      11/06/2020  Add support to nRF52 boards, such as AdaFruit Feather nRF52832, NINA_B30_ublox, etc.
-                                  Add DRD support. Add MultiWiFi support 
+                                   Add DRD support. Add MultiWiFi support 
   1.0.4   K Hoang      03/07/2020  Add support to ESP32-AT shields. Modify LOAD_DEFAULT_CONFIG_DATA logic.
-                                  Enhance MultiWiFi connection logic. Fix WiFi Status bug.
+                                   Enhance MultiWiFi connection logic. Fix WiFi Status bug.
   1.1.0   K Hoang      13/04/2021  Fix invalid "blank" Config Data treated as Valid. Optional one set of WiFi Credentials
   1.2.0   Michael H    28/04/2021  Enable scan of WiFi networks for selection in Configuration Portal
   1.3.0   K Hoang      12/05/2021  Add support to RASPBERRY_PI_PICO using Arduino-pico core
   1.4.0   K Hoang      01/06/2021  Add support to Nano_RP2040_Connect, RASPBERRY_PI_PICO using RP2040 Arduino mbed core  
-  1.4.1   K Hoang      10/10/2021  Update `platform.ini` and `library.json`  
+  1.4.1   K Hoang      10/10/2021  Update `platform.ini` and `library.json`
+  1.5.0   K Hoang      08/01/2022  Fix the blocking issue in loop() with configurable WIFI_RECON_INTERVAL
  ***************************************************************************************************************************************/
 
 #ifndef Esp8266_AT_WM_Lite_h
@@ -38,7 +39,7 @@
   #error This code is intended to run on the Mega2560 platform! Please check your Tools->Board setting.
 #endif
 
-#define ESP_AT_WM_LITE_VERSION        "ESP_AT_WM_Lite v1.4.1"
+#define ESP_AT_WM_LITE_VERSION        "ESP_AT_WM_Lite v1.5.0"
 
 #define DEFAULT_BOARD_NAME            "AVR-MEGA"
 
@@ -295,6 +296,16 @@ class ESP_AT_WiFiManager_Lite
 
     //////////////////////////////////////////////
 
+#if !defined(WIFI_RECON_INTERVAL)      
+  #define WIFI_RECON_INTERVAL       0         // default 0s between reconnecting WiFi
+#else
+  #if (WIFI_RECON_INTERVAL < 0)
+    #define WIFI_RECON_INTERVAL     0
+  #elif  (WIFI_RECON_INTERVAL > 600000)
+    #define WIFI_RECON_INTERVAL     600000    // Max 10min
+  #endif
+#endif
+
     void run()
     {
       static int retryTimes = 0;
@@ -306,6 +317,10 @@ class ESP_AT_WiFiManager_Lite
       static unsigned long checkstatus_timeout = 0;
       #define WIFI_STATUS_CHECK_INTERVAL    5000L
       
+      static uint32_t curMillis;
+      
+      curMillis = millis();
+      
       //// New DRD ////
       // Call the double reset detector loop method every so often,
       // so that it can recognise when the timeout expires.
@@ -313,8 +328,8 @@ class ESP_AT_WiFiManager_Lite
       // consider the next reset as a double reset.
       drd->loop();
       //// New DRD ////
-
-      if ( !configuration_mode && (millis() > checkstatus_timeout) )
+         
+      if ( !configuration_mode && (curMillis > checkstatus_timeout) )
       {       
         if (WiFi.status() == WL_CONNECTED)
         {
@@ -326,7 +341,7 @@ class ESP_AT_WiFiManager_Lite
           {
             wifiDisconnectedOnce = false;
             wifi_connected = false;
-            ESP_AT_LOGDEBUG(F("r:Check&WLost"));
+            ESP_AT_LOGERROR(F("r:Check&WLost"));
           }
           else
           {
@@ -334,8 +349,8 @@ class ESP_AT_WiFiManager_Lite
           }
         }
         
-        checkstatus_timeout = millis() + WIFI_STATUS_CHECK_INTERVAL;
-      }   
+        checkstatus_timeout = curMillis + WIFI_STATUS_CHECK_INTERVAL;
+      }    
 
       // Lost connection in running. Give chance to reconfig.
       if ( !wifi_connected )
@@ -348,7 +363,7 @@ class ESP_AT_WiFiManager_Lite
 
           if (server)
           {
-            //ESP_AT_LOGDEBUG(F("r:hC"));           
+            //ESP_AT_LOGDEBUG(F("r:handleClient"));
             server->handleClient();
           }
            
@@ -363,7 +378,7 @@ class ESP_AT_WiFiManager_Lite
           {
             if (++retryTimes <= CONFIG_TIMEOUT_RETRYTIMES_BEFORE_RESET)
             {
-              ESP_AT_LOGDEBUG1(F("r:Wlost&TOut.ConW.Retry#"), retryTimes);
+              ESP_AT_LOGERROR1(F("r:WLost&TOut.ConW.Retry#"), retryTimes);
             }
             else
             {
@@ -375,18 +390,38 @@ class ESP_AT_WiFiManager_Lite
           // Not in config mode, try reconnecting before forcing to config mode
           if ( !wifi_connected )
           {
-            ESP_AT_LOGDEBUG(F("r:Wlost.ReconW"));
+            
+ 
+#if (WIFI_RECON_INTERVAL > 0)
+
+            static uint32_t lastMillis = 0;
+            
+            if ( (lastMillis == 0) || (curMillis - lastMillis) > WIFI_RECON_INTERVAL )
+            {
+              lastMillis = curMillis;
+              
+              ESP_AT_LOGERROR(F("r:WLost.ReconW"));
+               
+              if (connectToWifi(RETRY_TIMES_RECONNECT_WIFI))
+              {
+                ESP_AT_LOGERROR(F("r:WOK"));
+              }
+            }
+#else
+            ESP_AT_LOGERROR(F("r:WLost.ReconW"));
+            
             if (connectToWifi(RETRY_TIMES_RECONNECT_WIFI))
             {
-              ESP_AT_LOGDEBUG(F("r:WOK"));
+              ESP_AT_LOGERROR(F("r:WOK"));
             }
+#endif            
           }
         }
       }
       else if (configuration_mode)
       {
         configuration_mode = false;
-        ESP_AT_LOGDEBUG(F("r:gotWBack"));
+        ESP_AT_LOGERROR(F("r:gotWBack"));
       }
     }
     
@@ -984,8 +1019,18 @@ class ESP_AT_WiFiManager_Lite
     }
     
     //////////////////////////////////////////////
+    
+// Max times to try WiFi per loop() iteration. To avoid blocking issue in loop()
+// Default 1 and minimum 1.
+#if !defined(MAX_NUM_WIFI_RECON_TRIES_PER_LOOP)      
+  #define MAX_NUM_WIFI_RECON_TRIES_PER_LOOP     1
+#else
+  #if (MAX_NUM_WIFI_RECON_TRIES_PER_LOOP < 1)  
+    #define MAX_NUM_WIFI_RECON_TRIES_PER_LOOP     1
+  #endif
+#endif    
 
-// New connection logic for ESP32-AT from v1.0.6
+    // New connection logic for ESP32-AT from v1.0.6
     bool connectToWifi(int retry_time)
     {
       int sleep_time  = 250;
@@ -1000,8 +1045,10 @@ class ESP_AT_WiFiManager_Lite
       }
          
       ESP_AT_LOGDEBUG3(F("con2WF:SSID="), ESP8266_AT_config.wifi_ssid, F(",PW="), ESP8266_AT_config.wifi_pw);
+      
+      uint8_t numWiFiReconTries = 0;
              
-      while ( !wifi_connected && ( 0 < retry_time ) )
+      while ( !wifi_connected && ( 0 < retry_time ) && (numWiFiReconTries++ < MAX_NUM_WIFI_RECON_TRIES_PER_LOOP) )
       {      
         ESP_AT_LOGDEBUG1(F("Remaining retry_time="), retry_time);
         
