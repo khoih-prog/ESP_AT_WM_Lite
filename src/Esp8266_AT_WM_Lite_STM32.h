@@ -8,7 +8,7 @@
 
   Built by Khoi Hoang https://github.com/khoih-prog/ESP_AT_WM_Lite
   Licensed under MIT license
-  Version: 1.5.0
+  Version: 1.5.1
 
   Version Modified By   Date        Comments
   ------- -----------  ----------   -----------
@@ -26,6 +26,7 @@
   1.4.0   K Hoang      01/06/2021  Add support to Nano_RP2040_Connect, RASPBERRY_PI_PICO using RP2040 Arduino mbed core  
   1.4.1   K Hoang      10/10/2021  Update `platform.ini` and `library.json`
   1.5.0   K Hoang      08/01/2022  Fix the blocking issue in loop() with configurable WIFI_RECON_INTERVAL
+  1.5.1   K Hoang      26/01/2022  Update to be compatible with new FlashStorage libraries. Add support to more SAMD/STM32 boards
  ***************************************************************************************************************************************/
 
 #ifndef Esp8266_AT_WM_Lite_STM32_h
@@ -42,7 +43,16 @@
   #error This code is intended to run on STM32 platform! Please check your Tools->Board setting.  
 #endif
 
-#define ESP_AT_WM_LITE_VERSION        "ESP_AT_WM_Lite v1.5.0"
+#ifndef ESP_AT_WM_LITE_VERSION
+  #define ESP_AT_WM_LITE_VERSION            "ESP_AT_WM_Lite v1.5.1"
+
+  #define ESP_AT_WM_LITE_VERSION_MAJOR      1
+  #define ESP_AT_WM_LITE_VERSION_MINOR      5
+  #define ESP_AT_WM_LITE_VERSION_PATCH      1
+
+  #define ESP_AT_WM_LITE_VERSION_INT        1005001
+
+#endif
 
 #define DEFAULT_BOARD_NAME            "STM32"
 
@@ -51,7 +61,6 @@
 #include <IWatchdog.h>
 
 #include <ESP8266_AT_WebServer.h>
-//#include <EEPROM.h>
 #include <Esp8266_AT_WM_Lite_Debug.h>
 
 //////////////////////////////////////////////
@@ -830,21 +839,27 @@ class ESP_AT_WiFiManager_Lite
 //////////////////////////////////////////////
     
 #if defined(DATA_EEPROM_BASE)
-    // For STM32 devices having integrated EEPROM.
-    #include <EEPROM.h>
-    #warning STM32 devices have integrated EEPROM. Not using buffered API.   
-#else  
-    /**
-     Most STM32 devices don't have an integrated EEPROM. To emulate a EEPROM, the STM32 Arduino core emulated
-     the operation of an EEPROM with the help of the embedded flash.
-     Writing to a flash is very expensive operation, since a whole flash page needs to be written, even if you only
-     want to access the flash byte-wise.
-     The STM32 Arduino core provides a buffered access API to the emulated EEPROM. The library has allocated the
-     buffer even if you don't use the buffered API, so it's strongly suggested to use the buffered API anyhow.
-     */
+  // For STM32 devices having integrated EEPROM.
+  #include <EEPROM.h>
+  #warning STM32 devices have integrated EEPROM. Not using buffered API.   
+#else
+  /**
+   Most STM32 devices don't have an integrated EEPROM. To emulate a EEPROM, the STM32 Arduino core emulated
+   the operation of an EEPROM with the help of the embedded flash.
+   Writing to a flash is very expensive operation, since a whole flash page needs to be written, even if you only
+   want to access the flash byte-wise.
+   The STM32 Arduino core provides a buffered access API to the emulated EEPROM. The library has allocated the
+   buffer even if you don't use the buffered API, so it's strongly suggested to use the buffered API anyhow.
+   */
+  #if ( defined(STM32F1xx) || defined(STM32F3xx) )
+    #include <FlashStorage_STM32F1.h>       // https://github.com/khoih-prog/FlashStorage_STM32F1
+    #warning STM32F1/F3 devices have no integrated EEPROM. Using buffered API with FlashStorage_STM32F1 library
+  #else
     #include <FlashStorage_STM32.h>       // https://github.com/khoih-prog/FlashStorage_STM32
     #warning STM32 devices have no integrated EEPROM. Using buffered API with FlashStorage_STM32 library
-#endif    // #if defined(DATA_EEPROM_BASE)
+  #endif
+#endif    // #if defined(DATA_EEPROM_BASE)   
+
 //////////////////////////////////////////////  
 
 #if USE_DYNAMIC_PARAMETERS

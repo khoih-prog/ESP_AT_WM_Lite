@@ -8,7 +8,7 @@
 
   Built by Khoi Hoang https://github.com/khoih-prog/ESP_AT_WM_Lite
   Licensed under MIT license
-  Version: 1.5.0
+  Version: 1.5.1
 
   Version Modified By   Date        Comments
   ------- -----------  ----------   -----------
@@ -26,6 +26,7 @@
   1.4.0   K Hoang      01/06/2021  Add support to Nano_RP2040_Connect, RASPBERRY_PI_PICO using RP2040 Arduino mbed core  
   1.4.1   K Hoang      10/10/2021  Update `platform.ini` and `library.json`
   1.5.0   K Hoang      08/01/2022  Fix the blocking issue in loop() with configurable WIFI_RECON_INTERVAL
+  1.5.1   K Hoang      26/01/2022  Update to be compatible with new FlashStorage libraries. Add support to more SAMD/STM32 boards
  ***************************************************************************************************************************************/
 
 #ifndef Esp8266_AT_WM_Lite_DUE_h
@@ -41,7 +42,16 @@
   #error This code is intended to run on the SAM DUE platform! Please check your Tools->Board setting.
 #endif
 
-#define ESP_AT_WM_LITE_VERSION        "ESP_AT_WM_Lite v1.5.0"
+#ifndef ESP_AT_WM_LITE_VERSION
+  #define ESP_AT_WM_LITE_VERSION            "ESP_AT_WM_Lite v1.5.1"
+
+  #define ESP_AT_WM_LITE_VERSION_MAJOR      1
+  #define ESP_AT_WM_LITE_VERSION_MINOR      5
+  #define ESP_AT_WM_LITE_VERSION_PATCH      1
+
+  #define ESP_AT_WM_LITE_VERSION_INT        1005001
+
+#endif
 
 #define DEFAULT_BOARD_NAME            "SAM-DUE"
 

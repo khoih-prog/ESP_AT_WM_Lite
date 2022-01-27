@@ -8,7 +8,7 @@
 
   Built by Khoi Hoang https://github.com/khoih-prog/ESP_AT_WM_Lite
   Licensed under MIT license
-  Version: 1.5.0
+  Version: 1.5.1
 
   Version Modified By   Date        Comments
   ------- -----------  ----------   -----------
@@ -25,7 +25,8 @@
   1.3.0   K Hoang      12/05/2021  Add support to RASPBERRY_PI_PICO using Arduino-pico core
   1.4.0   K Hoang      01/06/2021  Add support to Nano_RP2040_Connect, RASPBERRY_PI_PICO using RP2040 Arduino mbed core  
   1.4.1   K Hoang      10/10/2021  Update `platform.ini` and `library.json`
-  1.5.0   K Hoang      08/01/2022  Fix the blocking issue in loop() with configurable WIFI_RECON_INTERVAL        
+  1.5.0   K Hoang      08/01/2022  Fix the blocking issue in loop() with configurable WIFI_RECON_INTERVAL
+  1.5.1   K Hoang      26/01/2022  Update to be compatible with new FlashStorage libraries. Add support to more SAMD/STM32 boards      
  ***************************************************************************************************************************************/
 
 #ifndef Esp8266_AT_WM_Lite_Debug_h
