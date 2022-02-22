@@ -789,6 +789,7 @@ Check [retries block the main loop #18](https://github.com/khoih-prog/WiFiManage
 Default is `true`. Just change to `false` to not using `Board_Name` on Config_Portal
 
 
+https://github.com/khoih-prog/ESP_AT_WM_Lite/blob/83964d54bd43fce6d8a7167b08e45d506ced8d27/examples/RPi_Pico_ESP8266Shield/defines.h#L126-L131
 
 ---
 ---
@@ -1084,384 +1085,27 @@ Please be noted that the following **reserved names are already used in library*
 
 #### 1. File [nRF52_ESP8266Shield.ino](examples/nRF52_ESP8266Shield/nRF52_ESP8266Shield.ino)
 
-```
-#include "defines.h"
-#include "Credentials.h"
-#include "dynamicParams.h"
+https://github.com/khoih-prog/ESP_AT_WM_Lite/blob/83964d54bd43fce6d8a7167b08e45d506ced8d27/examples/nRF52_ESP8266Shield/nRF52_ESP8266Shield.ino#L13-L130
 
-ESP_AT_WiFiManager_Lite* ESP_AT_WiFiManager;
 
-void heartBeatPrint()
-{
-  static int num = 1;
-
-  if (ESP_AT_WiFiManager->getWiFiStatus())
-    Serial.print("H");        // H means connected to WiFi
-  else
-    Serial.print("F");        // F means not connected to WiFi
-
-  if (num == 80)
-  {
-    Serial.println();
-    num = 1;
-  }
-  else if (num++ % 10 == 0)
-  {
-    Serial.print(" ");
-  }
-}
-
-void check_status()
-{
-  static unsigned long checkstatus_timeout = 0;
-
-  //KH
-#define HEARTBEAT_INTERVAL    20000L
-  // Print hearbeat every HEARTBEAT_INTERVAL (20) seconds.
-  if ((millis() > checkstatus_timeout) || (checkstatus_timeout == 0))
-  {
-    heartBeatPrint();
-    checkstatus_timeout = millis() + HEARTBEAT_INTERVAL;
-  }
-}
-
-void setup()
-{
-  // Debug console
-  Serial.begin(115200);
-  while (!Serial);
-
-  Serial.print("\nStart nRF52_ESP8266Shield on ");
-  Serial.println(BOARD_NAME);
-  Serial.println(ESP_AT_WM_LITE_VERSION);
-  Serial.print("Debug Level = ");
-  Serial.println(_ESP_AT_WM_LOGLEVEL_);
-    
-  // initialize serial for ESP module
-  EspSerial.begin(115200);
-
-  ESP_AT_WiFiManager = new ESP_AT_WiFiManager_Lite(&EspSerial, ESP8266_BAUD);
- 
-  // Optional to change default AP IP(192.168.4.1)
-  //ESP_AT_WiFiManager->setConfigPortalIP(IPAddress(192, 168, 220, 1));
-  // Use channel(0) for random AP WiFi channel
-  ESP_AT_WiFiManager->setConfigPortalChannel(0);
-
-  // Personalized portal_ssid and password
-  ESP_AT_WiFiManager->setConfigPortal(portal_ssid, portal_password);
-
-  ESP_AT_WiFiManager->begin();
-}
-
-#if USE_DYNAMIC_PARAMETERS
-void displayCredentials()
-{
-  Serial.println("\nStored Dynamic Params:");
-
-  for (uint8_t i = 0; i < NUM_MENU_ITEMS; i++)
-  {
-    Serial.print(myMenuItems[i].displayName);
-    Serial.print(" = ");
-    Serial.println(myMenuItems[i].pdata);
-  }
-}
-
-void displayCredentialsOnce()
-{
-  static bool displayedCredentials = false;
-
-  if (!displayedCredentials)
-  {
-    for (uint16_t i = 0; i < NUM_MENU_ITEMS; i++)
-    {
-      if (!strlen(myMenuItems[i].pdata))
-      {
-        break;
-      }
-
-      if ( i == (NUM_MENU_ITEMS - 1) )
-      {
-        displayedCredentials = true;
-        displayCredentials();
-      }
-    }
-  }
-}
-#endif
-
-void loop()
-{
-  ESP_AT_WiFiManager->run();
-  check_status();
-
-#if (USE_DYNAMIC_PARAMETERS)
-  displayCredentialsOnce();
-#endif
-}
-```
 
 #### 2. File [defines.h](examples/nRF52_ESP8266Shield/defines.h)
 
-```cpp
-#ifndef defines_h
-#define defines_h
+https://github.com/khoih-prog/ESP_AT_WM_Lite/blob/83964d54bd43fce6d8a7167b08e45d506ced8d27/examples/nRF52_ESP8266Shield/defines.h#L13-L149
 
-/* Comment this out to disable prints and save space */
-#define DRD_GENERIC_DEBUG             true
 
-#define USE_NEW_WEBSERVER_VERSION     true  //false
-#define _ESP_AT_LOGLEVEL_             1
-
-/* Comment this out to disable prints and save space */
-#define ESP_AT_DEBUG_OUTPUT           Serial
-
-#define ESP_AT_DEBUG                  true
-#define _ESP_AT_WM_LOGLEVEL_          3
-
-// Uncomment to use ESP32-AT commands
-//#define USE_ESP32_AT                  true
-
-#if ( defined(NRF52840_FEATHER) || defined(NRF52832_FEATHER) || defined(NRF52_SERIES) || defined(ARDUINO_NRF52_ADAFRUIT) || \
-      defined(NRF52840_FEATHER_SENSE) || defined(NRF52840_ITSYBITSY) || defined(NRF52840_CIRCUITPLAY) || defined(NRF52840_CLUE) || \
-      defined(NRF52840_METRO) || defined(NRF52840_PCA10056) || defined(PARTICLE_XENON) || defined(NINA_B302_ublox) || defined(NINA_B112_ublox) )
-  #if defined(ESP8266_AT_USE_NRF528XX)
-    #undef ESP8266_AT_USE_NRF528XX
-  #endif
-  #define ESP8266_AT_USE_NRF528XX      true
-#else
-  #error This code is intended to run only on the nRF52 boards ! Please check your Tools->Board setting.
-#endif
-
-#if (ESP8266_AT_USE_NRF528XX)
-
-#if defined(NRF52840_FEATHER)
-  #define BOARD_TYPE      "NRF52840_FEATHER_EXPRESS"
-#elif defined(NRF52832_FEATHER)
-  #define BOARD_TYPE      "NRF52832_FEATHER"
-#elif defined(NRF52840_FEATHER_SENSE)
-  #define BOARD_TYPE      "NRF52840_FEATHER_SENSE"
-#elif defined(NRF52840_ITSYBITSY)
-  #define BOARD_TYPE      "NRF52840_ITSYBITSY_EXPRESS"
-#elif defined(NRF52840_CIRCUITPLAY)
-  #define BOARD_TYPE      "NRF52840_CIRCUIT_PLAYGROUND"
-#elif defined(NRF52840_CLUE)
-  #define BOARD_TYPE      "NRF52840_CLUE"
-#elif defined(NRF52840_METRO)
-  #define BOARD_TYPE      "NRF52840_METRO_EXPRESS"
-#elif defined(NRF52840_PCA10056)
-  #define BOARD_TYPE      "NORDIC_NRF52840DK"
-#elif defined(NINA_B302_ublox)
-  #define BOARD_TYPE      "NINA_B302_ublox"
-#elif defined(NINA_B112_ublox)
-  #define BOARD_TYPE      "NINA_B112_ublox"
-#elif defined(PARTICLE_XENON)
-  #define BOARD_TYPE      "PARTICLE_XENON"
-#elif defined(MDBT50Q_RX)
-  #define BOARD_TYPE      "RAYTAC_MDBT50Q_RX"
-#elif defined(ARDUINO_NRF52_ADAFRUIT)
-  #define BOARD_TYPE      "ARDUINO_NRF52_ADAFRUIT"
-#else
-  #define BOARD_TYPE      "nRF52 Unknown"
-#endif
-
-#define EspSerial Serial1
-
-#endif    //ESP8266_AT_USE_NRF528XX
-
-#ifndef BOARD_NAME
-  #define BOARD_NAME    BOARD_TYPE
-#endif
-
-/////////////////////////////////////////////
-
-// Permit input only one set of WiFi SSID/PWD. The other can be "NULL or "blank"
-// Default is false (if not defined) => must input 2 sets of SSID/PWD
-#define REQUIRE_ONE_SET_SSID_PW             true    //false
-
-// Max times to try WiFi per loop() iteration. To avoid blocking issue in loop()
-// Default 1 if not defined, and minimum 1.
-//#define MAX_NUM_WIFI_RECON_TRIES_PER_LOOP     2
-
-// Default no interval between recon WiFi if lost
-// Max permitted interval will be 10mins
-// Uncomment to use. Be careful, WiFi reconnect will be delayed if using this method
-// Only use whenever urgent tasks in loop() can't be delayed. But if so, it's better you have to rewrite your code, e.g. using higher priority tasks.
-#define WIFI_RECON_INTERVAL                   30000
-
-/////////////////////////////////////////////
-
-#define USE_DYNAMIC_PARAMETERS                  false     //true
-
-#warning Disable USE_DYNAMIC_PARAMETERS for ESP_AT_SHIELD
-
-/////////////////////////////////////////////
-
-#define SCAN_WIFI_NETWORKS                  true
-
-// To be able to manually input SSID, not from a scanned SSID lists
-#define MANUAL_SSID_INPUT_ALLOWED           true
-
-// From 2-15
-#define MAX_SSID_IN_LIST                    4
-
-/////////////////////////////////////////////
-
-#include <Esp8266_AT_WM_Lite_nRF52.h>
-
-#define HOST_NAME   "nRF52-ESP_AT"
-
-// SSID and PW for Config Portal
-String portal_ssid      = "CfgPrtl-SSID";
-String portal_password  = "CfgPrtl-PW";
-
-// Your nRF52 <-> ESP8266 baud rate:
-#define ESP8266_BAUD 115200
-
-#endif      //defines_h
-```
 
 #### 3. File [Credentials.h](examples/nRF52_ESP8266Shield/Credentials.h)
 
-```cpp
-#ifndef Credentials_h
-#define Credentials_h
+https://github.com/khoih-prog/ESP_AT_WM_Lite/blob/83964d54bd43fce6d8a7167b08e45d506ced8d27/examples/nRF52_ESP8266Shield/Credentials.h#L13-L89
 
-#include "defines.h"
-
-/// Start Default Config Data //////////////////
-
-/*
-#define SSID_MAX_LEN      32
-//From v1.0.3, WPA2 passwords can be up to 63 characters long.
-#define PASS_MAX_LEN      64
-
-typedef struct
-{
-  char wifi_ssid[SSID_MAX_LEN];
-  char wifi_pw  [PASS_MAX_LEN];
-}  WiFi_Credentials;
-
-#define NUM_WIFI_CREDENTIALS      2
-
-// Configurable items besides fixed Header, just add board_name 
-#define NUM_CONFIGURABLE_ITEMS    ( ( 2 * NUM_WIFI_CREDENTIALS ) + 1 )
-////////////////
-
-typedef struct Configuration
-{
-  char header         [16];
-  WiFi_Credentials  WiFi_Creds  [NUM_WIFI_CREDENTIALS];
-  char board_name     [24];
-  int  checkSum;
-} ESP8266_AT_Configuration;
-*/
-
-#define TO_LOAD_DEFAULT_CONFIG_DATA      true
-
-#if TO_LOAD_DEFAULT_CONFIG_DATA
-
-// This feature is primarily used in development to force a known set of values as Config Data
-// It will NOT force the Config Portal to activate. Use DRD or erase Config Data with Blynk.clearConfigData()
-
-// Used mostly for development and debugging. FORCES default values to be loaded each run.
-// Config Portal data input will be ignored and overridden by DEFAULT_CONFIG_DATA
-//bool LOAD_DEFAULT_CONFIG_DATA = true;
-
-// Used mostly once debugged. Assumes good data already saved in device.
-// Config Portal data input will be override DEFAULT_CONFIG_DATA
-bool LOAD_DEFAULT_CONFIG_DATA = false;
-
-
-ESP8266_AT_Configuration defaultConfig =
-{
-  //char header[16], dummy, not used
-  "SHD_ESP8266",
-  // WiFi_Credentials  WiFi_Creds  [NUM_WIFI_CREDENTIALS];
-  // WiFi_Credentials.wifi_ssid and WiFi_Credentials.wifi_pw
-  "SSID1",  "password1",
-  "SSID2",  "password2",
-  //char board_name     [24];
-  "nRF52-ESP_AT",
-  // terminate the list
-  //int  checkSum, dummy, not used
-  0
-  /////////// End Default Config Data /////////////
-};
-
-#else
-
-bool LOAD_DEFAULT_CONFIG_DATA = false;
-
-ESP8266_AT_Configuration defaultConfig;
-
-#endif    // TO_LOAD_DEFAULT_CONFIG_DATA
-
-/////////// End Default Config Data /////////////
-
-
-#endif    //Credentials_h
-```
 
 #### 4. File [dynamicParams.h](examples/nRF52_ESP8266Shield/dynamicParams.h)
 
-```cpp
-#ifndef dynamicParams_h
-#define dynamicParams_h
 
-#include "defines.h"
-
-// USE_DYNAMIC_PARAMETERS defined in defined.h
-//#define USE_DYNAMIC_PARAMETERS      true
-
-/////////////// Start dynamic Credentials ///////////////
-
-//Defined in <Esp8266_AT_WM_Lite_nRF52.h>
-/**************************************
-  #define MAX_ID_LEN                5
-  #define MAX_DISPLAY_NAME_LEN      16
-
-  typedef struct
-  {
-  char id             [MAX_ID_LEN + 1];
-  char displayName    [MAX_DISPLAY_NAME_LEN + 1];
-  char *pdata;
-  uint8_t maxlen;
-  } MenuItem;
-**************************************/
-
-#if USE_DYNAMIC_PARAMETERS
-
-#define MAX_MQTT_SERVER_LEN      34
-char MQTT_Server  [MAX_MQTT_SERVER_LEN + 1]   = "mqtt-server";
-
-#define MAX_MQTT_PORT_LEN        6
-char MQTT_Port   [MAX_MQTT_PORT_LEN + 1]  = "1883";
+https://github.com/khoih-prog/ESP_AT_WM_Lite/blob/83964d54bd43fce6d8a7167b08e45d506ced8d27/examples/nRF52_ESP8266Shield/dynamicParams.h#L13-L68
 
 
-MenuItem myMenuItems [] =
-{
-  { "mqtt", "MQTT Server",      MQTT_Server,      MAX_MQTT_SERVER_LEN },
-  { "mqpt", "Port",             MQTT_Port,        MAX_MQTT_PORT_LEN   },
-};
-
-// Due to notorious 2K buffer limitation of ESO8266-AT shield, the NUM_MENU_ITEMS is limited to max 3
-// to avoid WebServer not working due to HTML data larger than 2K can't be sent successfully
-// The items with index larger than 3 will be ignored
-
-uint16_t NUM_MENU_ITEMS = min( 3, sizeof(myMenuItems) / sizeof(MenuItem));  //MenuItemSize;
-
-#else
-
-MenuItem myMenuItems [] = {};
-
-uint16_t NUM_MENU_ITEMS = 0;
-#endif
-
-/////// // End dynamic Credentials ///////////
-
-
-#endif      //dynamicParams_h
-```
 
 ---
 ---
@@ -1477,7 +1121,7 @@ This is the terminal output when running [nRF52_ESP8266Shield](examples/nRF52_ES
 
 ```
 Start nRF52_ESP8266Shield on NRF52840_FEATHER
-ESP_AT_WM_Lite v1.5.1
+ESP_AT_WM_Lite v1.5.2
 Debug Level = 3
 [ESP_AT] Use ES8266-AT Command
 LittleFS Flag read = 0xd0d01234
@@ -1506,18 +1150,18 @@ ClearFlag write = 0xd0d04321
 [ESP_AT] 8: FishBowl, -13dB
 [ESP_AT] SSID=CfgPrtl-SSID,PW=CfgPrtl-PW
 [ESP_AT] IP=192.168.4.1,CH=1
-F
+C
 Stored Dynamic Params:
 MQTT Server = mqtt-server
 Port = 1883
-FFFF
+CCCC
 ```
 
 #### 1.2 Got valid Credential from Config Portal, then connected to WiFi
 
 ```
 Start nRF52_ESP8266Shield on NRF52840_FEATHER
-ESP_AT_WM_Lite v1.5.1
+ESP_AT_WM_Lite v1.5.2
 Debug Level = 3
 [ESP_AT] Use ES8266-AT Command
 LittleFS Flag read = 0xd0d04321
@@ -1553,7 +1197,7 @@ HHHHHHHHH HHHHHHHHHH HHHHHHHHHH HHHHHHHHHH
 
 ```
 Start nRF52_ESP8266Shield on NRF52840_FEATHER
-ESP_AT_WM_Lite v1.5.1
+ESP_AT_WM_Lite v1.5.2
 Debug Level = 3
 [ESP_AT] Use ES8266-AT Command
 LittleFS Flag read = 0xd0d04321
@@ -1597,7 +1241,7 @@ This is the terminal output when running [SAMD_ESP8266Shield](examples/SAMD_ESP8
 
 ```
 Start SAMD_ESP8266Shield on ITSYBITSY_M4
-ESP_AT_WM_Lite v1.5.1
+ESP_AT_WM_Lite v1.5.2
 Debug Level = 3
 [ESP_AT] Use ES8266-AT Command
 Flag read = 0xffffffff
@@ -1623,7 +1267,7 @@ SetFlag write = 0xd0d01234
 [ESP_AT] IP=192.168.4.1,CH=6
 Stop doubleResetDetecting
 ClearFlag write = 0xd0d04321
-F
+C
 Stored Dynamic Params:
 MQTT Server = mqtt-server
 Port = 1883
@@ -1637,7 +1281,7 @@ FFFF[ESP_AT] h:UpdFlash
 
 ```
 Start SAMD_ESP8266Shield on ITSYBITSY_M4
-ESP_AT_WM_Lite v1.5.1
+ESP_AT_WM_Lite v1.5.2
 Debug Level = 3
 [ESP_AT] Use ES8266-AT Command
 Flag read = 0xd0d04321
@@ -1665,7 +1309,7 @@ HHHHHHHHH HHHHHHHHHH HHHHHHHHHH HHHHHHHHHH
 
 ```
 Start SAMD_ESP8266Shield on ITSYBITSY_M4
-ESP_AT_WM_Lite v1.5.1
+ESP_AT_WM_Lite v1.5.2
 Debug Level = 3
 [ESP_AT] Use ES8266-AT Command
 Flag read = 0xd0d04321
@@ -1705,7 +1349,7 @@ This is the terminal output when running [RPi_Pico_ESP8266Shield](examples/RPi_P
 
 ```
 Start RPi_Pico_ESP8266Shield on RASPBERRY_PI_PICO
-ESP_AT_WM_Lite v1.5.1
+ESP_AT_WM_Lite v1.5.2
 Debug Level = 3
 [ESP_AT] Use ES8266-AT Command
 LittleFS Flag read = 0xd0d04321
@@ -1736,18 +1380,18 @@ Saving to DRD file : 0xd0d04321
 Saving DRD file OK
 LittleFS Flag read = 0xd0d04321
 ClearFlag write = 0xd0d04321
-F
+C
 Stored Dynamic Params:
 MQTT Server = mqtt-server
 Port = 1883
-FFFFFFFFF FFFF
+CCCCCCCCC CCCC
 ```
 
 #### 3.2 Got valid Credential from Config Portal, then connected to WiFi
 
 ```
 Start RPi_Pico_ESP8266Shield on RASPBERRY_PI_PICO
-ESP_AT_WM_Lite v1.5.1
+ESP_AT_WM_Lite v1.5.2
 Debug Level = 4
 [ESP_AT] Use ES8266-AT Command
 LittleFS Flag read = 0xd0d04321
@@ -1814,7 +1458,7 @@ This is the terminal output when running [RPi_Pico_ESP8266Shield](examples/RPi_P
 
 ```
 Start RPi_Pico_ESP8266Shield on MBED RASPBERRY_PI_PICO
-ESP_AT_WM_Lite v1.5.1
+ESP_AT_WM_Lite v1.5.2
 Debug Level = 3
 [ESP_AT] Use ES8266-AT Command
 LittleFS size (KB) = 64
@@ -1847,18 +1491,18 @@ Saving to DRD file : 0xd0d04321
 Saving DRD file OK
 LittleFS Flag read = 0xd0d04321
 ClearFlag write = 0xd0d04321
-F
+C
 Stored Dynamic Params:
 MQTT Server = mqtt-server
 Port = 1883
-FFFFFFFFF FFFF
+CCCCCCCCC CCCC
 ```
 
 #### 4.2 Got valid Credential from Config Portal, then connected to WiFi
 
 ```
 Start RPi_Pico_ESP8266Shield on MBED RASPBERRY_PI_PICO
-ESP_AT_WM_Lite v1.5.1
+ESP_AT_WM_Lite v1.5.2
 Debug Level = 4
 [ESP_AT] Use ES8266-AT Command
 LittleFS size (KB) = 64
@@ -1968,7 +1612,9 @@ Submit issues to: [ESP_AT_WM_Lite issues](https://github.com/khoih-prog/ESP_AT_W
 20. Update to be compatible with new `FlashStorage_SAMD`
 21. Use better `FlashStorage_STM32` or `FlashStorage_STM32F1` library for STM32
 22. Add support to generic SAMD21 boards : `__SAMD21E1xA__`, `__SAMD21G1xA__` and `__SAMD21J1xA__`
-
+23. Optimize code by passing by `reference` instead of `value`
+24. Optional `Board_Name` in Config Portal
+25. Add function `isConfigMode()` to signal system is in Config Portal mode
 
 ---
 ---

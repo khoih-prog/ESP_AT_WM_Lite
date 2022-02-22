@@ -29,6 +29,7 @@ getFullConfigData KEYWORD2
 localIP KEYWORD2
 clearConfigData KEYWORD2
 isConfigDataValid KEYWORD2
+isConfigMode  KEYWORD2
 resetFunc	KEYWORD2
 
 IPAddressToString KEYWORD2
