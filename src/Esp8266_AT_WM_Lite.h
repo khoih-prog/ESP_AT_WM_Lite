@@ -8,25 +8,16 @@
 
   Built by Khoi Hoang https://github.com/khoih-prog/ESP_AT_WM_Lite
   Licensed under MIT license
-  Version: 1.5.1
+  Version: 1.5.2
 
   Version Modified By   Date        Comments
   ------- -----------  ----------   -----------
   1.0.0   K Hoang      09/03/2020  Initial coding
-  1.0.1   K Hoang      20/03/2020  Add feature to enable adding dynamically more Credentials parameters in sketch
-  1.0.2   K Hoang      17/04/2020  Fix bug. Add support to SAMD51 and SAMD DUE. WPA2 SSID PW to 63 chars.
-                                   Permit to input special chars such as !,@,#,$,%,^,&,* into data fields.
-  1.0.3   K Hoang      11/06/2020  Add support to nRF52 boards, such as AdaFruit Feather nRF52832, NINA_B30_ublox, etc.
-                                   Add DRD support. Add MultiWiFi support 
-  1.0.4   K Hoang      03/07/2020  Add support to ESP32-AT shields. Modify LOAD_DEFAULT_CONFIG_DATA logic.
-                                   Enhance MultiWiFi connection logic. Fix WiFi Status bug.
-  1.1.0   K Hoang      13/04/2021  Fix invalid "blank" Config Data treated as Valid. Optional one set of WiFi Credentials
-  1.2.0   Michael H    28/04/2021  Enable scan of WiFi networks for selection in Configuration Portal
-  1.3.0   K Hoang      12/05/2021  Add support to RASPBERRY_PI_PICO using Arduino-pico core
-  1.4.0   K Hoang      01/06/2021  Add support to Nano_RP2040_Connect, RASPBERRY_PI_PICO using RP2040 Arduino mbed core  
-  1.4.1   K Hoang      10/10/2021  Update `platform.ini` and `library.json`
+  ...
   1.5.0   K Hoang      08/01/2022  Fix the blocking issue in loop() with configurable WIFI_RECON_INTERVAL
   1.5.1   K Hoang      26/01/2022  Update to be compatible with new FlashStorage libraries. Add support to more SAMD/STM32 boards
+  1.5.2   K Hoang      22/02/2022  Optional Board_Name in Menu. Optimize code by using passing by reference
+                                   Add optional CONFIG_MODE_LED. Add function isConfigMode()
  ***************************************************************************************************************************************/
 
 #ifndef Esp8266_AT_WM_Lite_h
@@ -41,13 +32,13 @@
 #endif
 
 #ifndef ESP_AT_WM_LITE_VERSION
-  #define ESP_AT_WM_LITE_VERSION            "ESP_AT_WM_Lite v1.5.1"
+  #define ESP_AT_WM_LITE_VERSION            "ESP_AT_WM_Lite v1.5.2"
 
   #define ESP_AT_WM_LITE_VERSION_MAJOR      1
   #define ESP_AT_WM_LITE_VERSION_MINOR      5
-  #define ESP_AT_WM_LITE_VERSION_PATCH      1
+  #define ESP_AT_WM_LITE_VERSION_PATCH      2
 
-  #define ESP_AT_WM_LITE_VERSION_INT        1005001
+  #define ESP_AT_WM_LITE_VERSION_INT        1005002
 
 #endif
 
@@ -140,7 +131,7 @@ extern ESP8266_AT_Configuration defaultConfig;
 
 //////////////////////////////////////////////
 
-String IPAddressToString(IPAddress _address)
+String IPAddressToString(const IPAddress& _address)
 {
   String str = String(_address[0]);
   str += ".";
@@ -225,7 +216,13 @@ class ESP_AT_WiFiManager_Lite
       if (NUM_MENU_ITEMS > 3)
         NUM_MENU_ITEMS = 3;
 #endif
-           
+
+#if USING_CONFIG_MODE_LED  
+      //Turn OFF
+      pinMode(LED_BUILTIN, OUTPUT);
+      digitalWrite(LED_BUILTIN, LED_OFF);
+#endif
+                 
       //// New DRD ////
       drd = new DoubleResetDetector_Generic(DRD_TIMEOUT, DRD_ADDRESS);  
       bool useConfigPortal = false;
@@ -344,6 +341,11 @@ class ESP_AT_WiFiManager_Lite
         if (WiFi.status() == WL_CONNECTED)
         {
           wifi_connected = true;
+          
+#if USING_CONFIG_MODE_LED
+          // turn the LED_BUILTIN OFF to tell us we exit configuration mode.
+          digitalWrite(CONFIG_MODE_LED, LED_OFF);
+#endif
         }
         else
         {
@@ -432,12 +434,17 @@ class ESP_AT_WiFiManager_Lite
       {
         configuration_mode = false;
         ESP_AT_LOGERROR(F("r:gotWBack"));
+        
+#if USING_CONFIG_MODE_LED
+          // turn the LED_BUILTIN OFF to tell us we exit configuration mode.
+          digitalWrite(CONFIG_MODE_LED, LED_OFF);
+#endif        
       }
     }
     
     //////////////////////////////////////////////
 
-    void setConfigPortalIP(IPAddress portalIP = IPAddress(192, 168, 4, 1))
+    void setConfigPortalIP(const IPAddress& portalIP = IPAddress(192, 168, 4, 1))
     {
       portal_apIP = portalIP;
     }
@@ -447,7 +454,7 @@ class ESP_AT_WiFiManager_Lite
     #define MIN_WIFI_CHANNEL      1
     #define MAX_WIFI_CHANNEL      12    // Channel 13 is flaky, because of bad number 13 ;-)
 
-    int setConfigPortalChannel(int channel = 1)
+    int setConfigPortalChannel(const int& channel = 1)
     {
       // If channel < MIN_WIFI_CHANNEL - 1 or channel > MAX_WIFI_CHANNEL => channel = 1
       // If channel == 0 => will use random channel from MIN_WIFI_CHANNEL to MAX_WIFI_CHANNEL
@@ -462,7 +469,7 @@ class ESP_AT_WiFiManager_Lite
     
     //////////////////////////////////////////////
     
-    void setConfigPortal(String ssid = "", String pass = "")
+    void setConfigPortal(const String& ssid = "", const String& pass = "")
     {
       portal_ssid = ssid;
       portal_pass = pass;
@@ -470,7 +477,7 @@ class ESP_AT_WiFiManager_Lite
     
     //////////////////////////////////////////////
 
-    void setSTAStaticIPConfig(IPAddress ip)
+    void setSTAStaticIPConfig(const IPAddress& ip)
     {
       static_IP = ip;
     }
@@ -557,6 +564,13 @@ class ESP_AT_WiFiManager_Lite
     }
     
     //////////////////////////////////////////////
+    
+    bool isConfigMode()
+    {
+      return configuration_mode;
+    }
+    
+    //////////////////////////////////////////////
 
     void resetFunc()
     {
@@ -591,7 +605,7 @@ class ESP_AT_WiFiManager_Lite
     
     //////////////////////////////////////////////
 
-    void displayConfigData(ESP8266_AT_Configuration configData)
+    void displayConfigData(const ESP8266_AT_Configuration& configData)
     {
       ESP_AT_LOGDEBUG5(F("Hdr="),   configData.header, F(",SSID="), configData.wifi_ssid,
                 F(",PW="),   configData.wifi_pw);  
@@ -1119,8 +1133,6 @@ class ESP_AT_WiFiManager_Lite
 
       String pitem;
       
-      
-
 #if USE_DYNAMIC_PARAMETERS     
       if (NUM_MENU_ITEMS > 0)
       { 
@@ -1338,6 +1350,11 @@ class ESP_AT_WiFiManager_Lite
 
     void startConfigurationMode()
     {
+#if USING_CONFIG_MODE_LED
+      // turn the LED_BUILTIN ON to tell us we enter configuration mode.
+      digitalWrite(CONFIG_MODE_LED, LED_ON);
+#endif
+    
       WiFi.configAP(portal_apIP);
 
       if ( (portal_ssid == "") || portal_pass == "" )

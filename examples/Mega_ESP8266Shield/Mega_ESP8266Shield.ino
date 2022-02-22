@@ -20,10 +20,22 @@ void heartBeatPrint()
 {
   static int num = 1;
 
+  if (ESP_AT_WiFiManager->getWiFiStatus())
+    Serial.print("H");        // H means connected to WiFi
+  else
+  {
+    if (ESP_AT_WiFiManager->isConfigMode())
+      Serial.print("C");        // C means in Config Mode
+    else
+      Serial.print("F");        // F means not connected to WiFi  
+  }
+
+#if 0
   if (WiFi.status() == WL_CONNECTED)
     Serial.print(F("H"));        // H means connected to WiFi
   else
     Serial.print(F("F"));        // F means not connected to WiFi
+#endif
   
   if (num == 80) 
   {

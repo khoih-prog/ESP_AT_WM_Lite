@@ -113,6 +113,28 @@
 
 /////////////////////////////////////////////
 
+// Optional, to use Board Name in Menu
+#define USING_BOARD_NAME                    false     //true
+
+/////////////////////////////////////////////
+
+// Optional, to use Board Name in Menu
+#define USING_CONFIG_MODE_LED               true
+
+#if USING_CONFIG_MODE_LED
+  #if defined(LED_BUILTIN)
+    #define CONFIG_MODE_LED     LED_BUILTIN
+  #else
+    // Using default pin 13 for CONFIG_MODE_LED. To be changed as necessary
+    #define CONFIG_MODE_LED     13
+  #endif
+
+  #define LED_ON      HIGH
+  #define LED_OFF     LOW
+#endif
+
+/////////////////////////////////////////////
+
 #include <Esp8266_AT_WM_Lite_nRF52.h>
 
 #define HOST_NAME   "nRF52-ESP_AT"
