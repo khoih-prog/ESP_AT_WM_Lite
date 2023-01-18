@@ -1,11 +1,11 @@
 /****************************************************************************************************************************
   Credentials.h
   For STM32 boards using ESP8266 AT WiFi Shields, using much less code to support boards with smaller memory
-  
+
   ESP_AT_WM_Lite is a library for the Mega, Teensy, SAM DUE, SAMD and STM32 boards (https://github.com/khoih-prog/ESP_AT_WM_Lite)
   to enable store Credentials in EEPROM to easy configuration/reconfiguration and autoconnect/autoreconnect of WiFi and other services
   without Hardcoding.
-  
+
   Built by Khoi Hoang https://github.com/khoih-prog/ESP_AT_WM_Lite
   Licensed under MIT license
  *****************************************************************************************************************************/
@@ -18,29 +18,29 @@
 /// Start Default Config Data //////////////////
 
 /*
-#define SSID_MAX_LEN      32
-//From v1.0.3, WPA2 passwords can be up to 63 characters long.
-#define PASS_MAX_LEN      64
+  #define SSID_MAX_LEN      32
+  //From v1.0.3, WPA2 passwords can be up to 63 characters long.
+  #define PASS_MAX_LEN      64
 
-typedef struct
-{
+  typedef struct
+  {
   char wifi_ssid[SSID_MAX_LEN];
   char wifi_pw  [PASS_MAX_LEN];
-}  WiFi_Credentials;
+  }  WiFi_Credentials;
 
-#define NUM_WIFI_CREDENTIALS      2
+  #define NUM_WIFI_CREDENTIALS      2
 
-// Configurable items besides fixed Header, just add board_name 
-#define NUM_CONFIGURABLE_ITEMS    ( ( 2 * NUM_WIFI_CREDENTIALS ) + 1 )
-////////////////
+  // Configurable items besides fixed Header, just add board_name
+  #define NUM_CONFIGURABLE_ITEMS    ( ( 2 * NUM_WIFI_CREDENTIALS ) + 1 )
+  ////////////////
 
-typedef struct Configuration
-{
+  typedef struct Configuration
+  {
   char header         [16];
   WiFi_Credentials  WiFi_Creds  [NUM_WIFI_CREDENTIALS];
   char board_name     [24];
   int  checkSum;
-} ESP8266_AT_Configuration;
+  } ESP8266_AT_Configuration;
 */
 
 #define TO_LOAD_DEFAULT_CONFIG_DATA      true

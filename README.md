@@ -17,6 +17,7 @@
 * [Why do we need this ESP_AT_WM_Lite library](#why-do-we-need-this-esp_at_wm_lite-library)
   * [Features](#features)
   * [Currently supported Boards](#currently-supported-boards)
+  * [Currently Supported AT-command shields](#currently-supported-at-command-shields)
 * [Changelog](changelog.md)
 * [Prerequisites](#prerequisites)
 * [Important Notes about AT Firmwares](#important-notes-about-at-firmwares)
@@ -72,7 +73,8 @@
   * [ 3. SAM_DUE_ESP8266Shield](examples/SAM_DUE_ESP8266Shield)
   * [ 4. STM32_ESP8266Shield](examples/STM32_ESP8266Shield)
   * [ 5. nRF52_ESP8266Shield](examples/nRF52_ESP8266Shield)
-  * [ 6. RPi_Pico_ESP8266Shield](examples/RPi_Pico_ESP8266Shield) **New**
+  * [ 6. RPi_Pico_ESP8266Shield](examples/RPi_Pico_ESP8266Shield)
+  * [ 7. RPi_Pico_WizFi360](examples/RPi_Pico_WizFi360) **New**
 * [So, how it works?](#so-how-it-works)
   * [1. Without SCAN_WIFI_NETWORKS](#1-without-scan_wifi_networks)
   * [2. With SCAN_WIFI_NETWORKS](#2-with-scan_wifi_networks)
@@ -103,6 +105,9 @@
   * [4. RPi_Pico_ESP8266Shield on MBED RASPBERRY_PI_PICO](#4-rpi_pico_esp8266shield-on-mbed-raspberry_pi_pico)
     * [4.1 Open Config Portal](#41-open-config-portal)
     * [4.2 Got valid Credential from Config Portal, then connected to WiFi](#42-got-valid-credential-from-config-portal-then-connected-to-wifi)
+  * [5. RPi_Pico_WizFi360 on WIZNET_WIZFI360_EVB_PICO](#5-RPi_Pico_WizFi360-on-WIZNET_WIZFI360_EVB_PICO)
+    * [5.1 Open Config Portal](#51-open-config-portal)
+    * [5.2 Got valid Credential from Config Portal, then connected to WiFi](#52-got-valid-credential-from-config-portal-then-connected-to-wifi)
 * [Debug](#debug)
 * [Troubleshooting](#troubleshooting)
 * [Issues](#issues)
@@ -192,6 +197,32 @@ This [**ESP_AT_WM_Lite** library](https://github.com/khoih-prog/ESP_AT_WM_Lite) 
 
  8. RP2040-based boards, such as **RASPBERRY_PI_PICO, ADAFRUIT_FEATHER_RP2040 and GENERIC_RP2040**, using [**Arduino-mbed RP2040** core](https://github.com/arduino/ArduinoCore-mbed) or [**Earle Philhower's arduino-pico** core](https://github.com/earlephilhower/arduino-pico).
  
+ 9. **WIZNET_WIZFI360_EVB_PICO** using [**Earle Philhower's arduino-pico** core](https://github.com/earlephilhower/arduino-pico)
+
+#### WIZNET_WIZFI360_EVB_PICO
+
+<p align="center">
+    <img src="https://github.com/khoih-prog/ESP_AT_WM_Lite/raw/master/pics/WIZNET_WIZFI360_EVB_PICO.png">
+</p>
+
+
+---
+
+#### Currently Supported AT-command shields
+
+ 1. `ESP8266-AT-command` shield
+ 2. `ESP32-AT-command` shield
+ 3. `W600` and `WIS600-01S` AT-command shield
+ 4. `WizFi360` AT-command shield
+ 
+#### WIZFI360
+ 
+<p align="center">
+    <img src="https://github.com/khoih-prog/ESP_AT_WM_Lite/raw/master/pics/wizfi360-pa.png">
+</p>
+
+ 
+ 
 ---
 ---
 
@@ -199,16 +230,16 @@ This [**ESP_AT_WM_Lite** library](https://github.com/khoih-prog/ESP_AT_WM_Lite) 
 
  1. [`Arduino IDE 1.8.19+` for Arduino](https://github.com/arduino/Arduino). [![GitHub release](https://img.shields.io/github/release/arduino/Arduino.svg)](https://github.com/arduino/Arduino/releases/latest)
  2. [`Arduino AVR core 1.8.6+`](https://github.com/arduino/ArduinoCore-avr) for Arduino (Use Arduino Board Manager) for AVR boards. [![GitHub release](https://img.shields.io/github/release/arduino/ArduinoCore-avr.svg)](https://github.com/arduino/ArduinoCore-avr/releases/latest)
- 3. [`Arduino Core for STM32 v2.3.0+`](https://github.com/stm32duino/Arduino_Core_STM32) for STM32F/L/H/G/WB/MP1 boards (Nucleo-144 NUCLEO_F767ZI, Nucleo-64 NUCLEO_L053R8, etc.). [![GitHub release](https://img.shields.io/github/release/stm32duino/Arduino_Core_STM32.svg)](https://github.com/stm32duino/Arduino_Core_STM32/releases/latest)
- 4. [`Teensy core 1.57+`](https://www.pjrc.com/teensy/td_download.html) for Teensy (4.1, 4.0, 3.6, 3.5, 3,2, 3.1, 3.0, LC) boards
+ 3. [`Arduino Core for STM32 v2.4.0+`](https://github.com/stm32duino/Arduino_Core_STM32) for STM32F/L/H/G/WB/MP1 boards (Nucleo-144 NUCLEO_F767ZI, Nucleo-64 NUCLEO_L053R8, etc.). [![GitHub release](https://img.shields.io/github/release/stm32duino/Arduino_Core_STM32.svg)](https://github.com/stm32duino/Arduino_Core_STM32/releases/latest)
+ 4. [`Teensy core v1.57+`](https://github.com/PaulStoffregen/cores) for Teensy 4.1.  [![GitHub release](https://img.shields.io/github/release/PaulStoffregen/cores.svg)](https://github.com/PaulStoffregen/cores/releases/latest)
  5. [`Arduino SAM DUE core v1.6.12+`](https://github.com/arduino/ArduinoCore-sam) for SAM DUE ARM Cortex-M3 boards.
  6. [`Arduino SAMD core 1.8.13+`](https://github.com/arduino/ArduinoCore-samd) for SAMD ARM Cortex-M0+ boards. [![GitHub release](https://img.shields.io/github/release/arduino/ArduinoCore-samd.svg)](https://github.com/arduino/ArduinoCore-samd/releases/latest)
  7. [`Adafruit SAMD core 1.7.11+`](https://github.com/adafruit/ArduinoCore-samd) for SAMD ARM Cortex-M0+ and M4 boards (Nano 33 IoT, etc.). [![GitHub release](https://img.shields.io/github/release/adafruit/ArduinoCore-samd.svg)](https://github.com/adafruit/ArduinoCore-samd/releases/latest)
  8. [`Seeeduino SAMD core 1.8.3+`](https://github.com/Seeed-Studio/ArduinoCore-samd) for SAMD21/SAMD51 boards (XIAO M0, Wio Terminal, etc.). [![Latest release](https://img.shields.io/github/release/Seeed-Studio/ArduinoCore-samd.svg)](https://github.com/Seeed-Studio/ArduinoCore-samd/releases/latest/)
  9. [`Adafruit nRF52 v1.3.0+`](https://github.com/adafruit/Adafruit_nRF52_Arduino) for nRF52 boards such as Adafruit NRF52840_FEATHER, NRF52832_FEATHER, NRF52840_FEATHER_SENSE, NRF52840_ITSYBITSY, NRF52840_CIRCUITPLAY, NRF52840_CLUE, NRF52840_METRO, NRF52840_PCA10056, PARTICLE_XENON, **NINA_B302_ublox**, etc. [![GitHub release](https://img.shields.io/github/release/adafruit/Adafruit_nRF52_Arduino.svg)](https://github.com/adafruit/Adafruit_nRF52_Arduino/releases/latest)
-10. [`Arduino mbed_rp2040 core 3.4.1+`](https://github.com/arduino/ArduinoCore-mbed) for Arduino RP2040-based boards, such as **Arduino Nano RP2040 Connect, RASPBERRY_PI_PICO, etc.**. [![GitHub release](https://img.shields.io/github/release/arduino/ArduinoCore-mbed.svg)](https://github.com/arduino/ArduinoCore-mbed/releases/latest)
-11. [`Earle Philhower's arduino-pico core v2.6.3+`](https://github.com/earlephilhower/arduino-pico) for RP2040-based boards such as **RASPBERRY_PI_PICO, ADAFRUIT_FEATHER_RP2040 and GENERIC_RP2040**, etc. [![GitHub release](https://img.shields.io/github/release/earlephilhower/arduino-pico.svg)](https://github.com/earlephilhower/arduino-pico/releases/latest)
-12. [`ESP8266_AT_WebServer library v1.6.0+`](https://github.com/khoih-prog/ESP8266_AT_WebServer) to be able to support ESP32-AT shields. To install, check [![arduino-library-badge](https://www.ardu-badge.com/badge/ESP8266_AT_WebServer.svg?)](https://www.ardu-badge.com/ESP8266_AT_WebServer)
+10. [`Arduino mbed_rp2040 core 3.5.4+`](https://github.com/arduino/ArduinoCore-mbed) for Arduino RP2040-based boards, such as **Arduino Nano RP2040 Connect, RASPBERRY_PI_PICO, etc.**. [![GitHub release](https://img.shields.io/github/release/arduino/ArduinoCore-mbed.svg)](https://github.com/arduino/ArduinoCore-mbed/releases/latest)
+11. [`Earle Philhower's arduino-pico core v2.7.1+`](https://github.com/earlephilhower/arduino-pico) for RP2040-based boards such as **RASPBERRY_PI_PICO, ADAFRUIT_FEATHER_RP2040 and GENERIC_RP2040**, etc. [![GitHub release](https://img.shields.io/github/release/earlephilhower/arduino-pico.svg)](https://github.com/earlephilhower/arduino-pico/releases/latest)
+12. [`ESP8266_AT_WebServer library v1.7.1+`](https://github.com/khoih-prog/ESP8266_AT_WebServer) to be able to support ESP32-AT shields. To install, check [![arduino-library-badge](https://www.ardu-badge.com/badge/ESP8266_AT_WebServer.svg?)](https://www.ardu-badge.com/ESP8266_AT_WebServer)
 13. [`FlashStorage_SAMD library v1.3.2+`](https://github.com/khoih-prog/FlashStorage_SAMD) for SAMD21 and SAMD51 boards (ZERO, MKR, NANO_33_IOT, M0, M0 Pro, AdaFruit Itsy-Bitsy M4, etc.). To install, check [![arduino-library-badge](https://www.ardu-badge.com/badge/FlashStorage_SAMD.svg?)](https://www.ardu-badge.com/FlashStorage_SAMD)
 14. [`FlashStorage_STM32F1 library v1.1.0+`](https://github.com/khoih-prog/FlashStorage_STM32F1) for STM32F1/F3 boards. To install. check [![arduino-library-badge](https://www.ardu-badge.com/badge/FlashStorage_STM32F1.svg?)](https://www.ardu-badge.com/FlashStorage_STM32F1)
 15. [`FlashStorage_STM32 library v1.2.0+`](https://github.com/khoih-prog/FlashStorage_STM32) for STM32F/L/H/G/WB/MP1 boards. To install. check [![arduino-library-badge](https://www.ardu-badge.com/badge/FlashStorage_STM32.svg?)](https://www.ardu-badge.com/FlashStorage_STM32) 
@@ -888,7 +919,8 @@ Please be noted that the following **reserved names are already used in library*
 3. [SAM_DUE_ESP8266Shield](examples/SAM_DUE_ESP8266Shield)
 4. [STM32_ESP8266Shield](examples/STM32_ESP8266Shield)
 5. [nRF52_ESP8266Shield](examples/nRF52_ESP8266Shield)
-6. [RPi_Pico_ESP8266Shield](examples/RPi_Pico_ESP8266Shield). **New**
+6. [RPi_Pico_ESP8266Shield](examples/RPi_Pico_ESP8266Shield)
+7. [RPi_Pico_WizFi360](examples/RPi_Pico_WizFi360). **New**
 
 ---
 
@@ -1191,7 +1223,7 @@ This is the terminal output when running [nRF52_ESP8266Shield](examples/nRF52_ES
 
 ```
 Start nRF52_ESP8266Shield on NRF52840_FEATHER
-ESP_AT_WM_Lite v1.5.2
+ESP_AT_WM_Lite v1.6.0
 Debug Level = 3
 [ESP_AT] Use ES8266-AT Command
 LittleFS Flag read = 0xd0d01234
@@ -1231,7 +1263,7 @@ CCCC
 
 ```
 Start nRF52_ESP8266Shield on NRF52840_FEATHER
-ESP_AT_WM_Lite v1.5.2
+ESP_AT_WM_Lite v1.6.0
 Debug Level = 3
 [ESP_AT] Use ES8266-AT Command
 LittleFS Flag read = 0xd0d04321
@@ -1267,7 +1299,7 @@ HHHHHHHHH HHHHHHHHHH HHHHHHHHHH HHHHHHHHHH
 
 ```
 Start nRF52_ESP8266Shield on NRF52840_FEATHER
-ESP_AT_WM_Lite v1.5.2
+ESP_AT_WM_Lite v1.6.0
 Debug Level = 3
 [ESP_AT] Use ES8266-AT Command
 LittleFS Flag read = 0xd0d04321
@@ -1311,7 +1343,7 @@ This is the terminal output when running [SAMD_ESP8266Shield](examples/SAMD_ESP8
 
 ```
 Start SAMD_ESP8266Shield on ITSYBITSY_M4
-ESP_AT_WM_Lite v1.5.2
+ESP_AT_WM_Lite v1.6.0
 Debug Level = 3
 [ESP_AT] Use ES8266-AT Command
 Flag read = 0xffffffff
@@ -1351,7 +1383,7 @@ FFFF[ESP_AT] h:UpdFlash
 
 ```
 Start SAMD_ESP8266Shield on ITSYBITSY_M4
-ESP_AT_WM_Lite v1.5.2
+ESP_AT_WM_Lite v1.6.0
 Debug Level = 3
 [ESP_AT] Use ES8266-AT Command
 Flag read = 0xd0d04321
@@ -1379,7 +1411,7 @@ HHHHHHHHH HHHHHHHHHH HHHHHHHHHH HHHHHHHHHH
 
 ```
 Start SAMD_ESP8266Shield on ITSYBITSY_M4
-ESP_AT_WM_Lite v1.5.2
+ESP_AT_WM_Lite v1.6.0
 Debug Level = 3
 [ESP_AT] Use ES8266-AT Command
 Flag read = 0xd0d04321
@@ -1419,7 +1451,7 @@ This is the terminal output when running [RPi_Pico_ESP8266Shield](examples/RPi_P
 
 ```
 Start RPi_Pico_ESP8266Shield on RASPBERRY_PI_PICO
-ESP_AT_WM_Lite v1.5.2
+ESP_AT_WM_Lite v1.6.0
 Debug Level = 3
 [ESP_AT] Use ES8266-AT Command
 LittleFS Flag read = 0xd0d04321
@@ -1461,7 +1493,7 @@ CCCCCCCCC CCCC
 
 ```
 Start RPi_Pico_ESP8266Shield on RASPBERRY_PI_PICO
-ESP_AT_WM_Lite v1.5.2
+ESP_AT_WM_Lite v1.6.0
 Debug Level = 4
 [ESP_AT] Use ES8266-AT Command
 LittleFS Flag read = 0xd0d04321
@@ -1528,7 +1560,7 @@ This is the terminal output when running [RPi_Pico_ESP8266Shield](examples/RPi_P
 
 ```
 Start RPi_Pico_ESP8266Shield on MBED RASPBERRY_PI_PICO
-ESP_AT_WM_Lite v1.5.2
+ESP_AT_WM_Lite v1.6.0
 Debug Level = 3
 [ESP_AT] Use ES8266-AT Command
 LittleFS size (KB) = 64
@@ -1572,7 +1604,7 @@ CCCCCCCCC CCCC
 
 ```
 Start RPi_Pico_ESP8266Shield on MBED RASPBERRY_PI_PICO
-ESP_AT_WM_Lite v1.5.2
+ESP_AT_WM_Lite v1.6.0
 Debug Level = 4
 [ESP_AT] Use ES8266-AT Command
 LittleFS size (KB) = 64
@@ -1609,6 +1641,77 @@ LittleFS Flag read = 0xd0d04321
 ClearFlag write = 0xd0d04321
 HHHHHHHHHH HHHHHHHHHH HHHHHHHHHH HH
 ```
+
+
+---
+
+#### 5. RPi_Pico_WizFi360 on WIZNET_WIZFI360_EVB_PICO
+
+This is the terminal output when running [RPi_Pico_WizFi360](examples/RPi_Pico_WizFi360) example on **WIZNET_WIZFI360_EVB_PICO**
+
+#### 5.1 Open Config Portal
+
+```
+Start RPi_Pico_WizFi360 on WIZNET_WIZFI360_EVB_PICO
+ESP_AT_WM_Lite v1.6.0
+Debug Level = 1
+[ESP_AT] Using ESP32-AT Command
+LittleFS Flag read = 0xd0d04321
+Flag read = 0xd0d04321
+No doubleResetDetected
+Saving DOUBLERESETDETECTOR_FLAG to DRD file : 0xd0d01234
+Saving DRD file OK
+SetFlag write = 0xd0d01234
+[ESP_AT] Invalid Stored WiFi Config Data.
+[ESP_AT] WiFi PWD len < 8
+[ESP_AT] b:StayInCfgPortal:NoCfgDat
+[ESP_AT] Scanning Network
+[ESP_AT] scanWifiNetworks: Done, Scanned Networks n = 9
+[ESP_AT] WiFi networks found:
+[ESP_AT] 1: HueNetNew, -71dB
+[ESP_AT] 2: SmartRG-02a2, -83dB
+[ESP_AT] 3: , -89dB
+[ESP_AT] 4: Elkhoury, -77dB
+[ESP_AT] 6: ESP151CD5, -77dB
+[ESP_AT] 8: house, -44dB
+[ESP_AT] 9: Home, -83dB
+[ESP_AT] SSID=ESP_AT_ABCDEF,PW=ESP_AT_PW
+[ESP_AT] IP=192.168.220.1,CH=7
+[ESP_AT] useESP32_AT mode 2 WIZFI360
+Stop doubleResetDetecting
+Saving to DRD file : 0xd0d04321
+Saving DRD file OK
+LittleFS Flag read = 0xd0d04321
+ClearFlag write = 0xd0d04321
+CCC[ESP_AT] h:UpdLittleFS
+[ESP_AT] h:Rst
+```
+
+#### 5.2 Got valid Credential from Config Portal, then connected to WiFi
+
+```
+Start RPi_Pico_WizFi360 on WIZNET_WIZFI360_EVB_PICO
+ESP_AT_WM_Lite v1.6.0
+Debug Level = 1
+[ESP_AT] Using ESP32-AT Command
+LittleFS Flag read = 0xd0d04321
+Flag read = 0xd0d04321
+No doubleResetDetected
+Saving DOUBLERESETDETECTOR_FLAG to DRD file : 0xd0d01234
+Saving DRD file OK
+SetFlag write = 0xd0d01234
+[ESP_AT] con2WF:SSID=HueNet,PW=12345678
+[ESP_AT] con2WF:OK
+[ESP_AT] IP=192.168.2.125
+Stop doubleResetDetecting
+Saving to DRD file : 0xd0d04321
+Saving DRD file OK
+LittleFS Flag read = 0xd0d04321
+ClearFlag write = 0xd0d04321
+HHHHHH
+```
+
+
 
 ---
 ---
@@ -1675,7 +1778,7 @@ Submit issues to: [ESP_AT_WM_Lite issues](https://github.com/khoih-prog/ESP_AT_W
 13. Enforce WiFi PWD minimum length of 8 chars
 14. Enable **scan of WiFi networks** for selection in Configuration Portal
 15. Add support to new STM32 core v2.0.0 and new STM32L5 boards.
-16. Add support to RP2040-based boards, such as **RASPBERRY_PI_PICO, ADAFRUIT_FEATHER_RP2040 and GENERIC_RP2040**, using [**Earle Philhower's arduino-pico** core](https://github.com/earlephilhower/arduino-pico).
+16. Add support to RP2040-based boards, such as **RASPBERRY_PI_PICO, ADAFRUIT_FEATHER_RP2040 and GENERIC_RP2040**, using [**arduino-pico** core](https://github.com/earlephilhower/arduino-pico).
 17. Add support to RP2040-based boards, such as **RASPBERRY_PI_PICO, ADAFRUIT_FEATHER_RP2040 and GENERIC_RP2040**, using [**Arduino-mbed RP2040** core](https://github.com/arduino/ArduinoCore-mbed)
 18. Add support to **Arduino Nano RP2040 Connect** using [**Arduino mbed OS for Nano boards**](https://github.com/arduino/ArduinoCore-mbed).
 19. Fix the blocking issue in loop() with configurable `WIFI_RECON_INTERVAL`
@@ -1685,6 +1788,9 @@ Submit issues to: [ESP_AT_WM_Lite issues](https://github.com/khoih-prog/ESP_AT_W
 23. Optimize code by passing by `reference` instead of `value`
 24. Optional `Board_Name` in Config Portal
 25. Add function `isConfigMode()` to signal system is in Config Portal mode
+26. Add support to WizNet `WizFi360`, such as `WIZNET_WIZFI360_EVB_PICO` using [**arduino-pico** core](https://github.com/earlephilhower/arduino-pico).
+27. Add Config Portal scaling support to mobile devices
+
 
 ---
 ---

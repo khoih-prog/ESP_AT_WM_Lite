@@ -1,11 +1,11 @@
 /****************************************************************************************************************************
   defines.h
   For SAMD boards using ESP8266 AT WiFi Shields, using much less code to support boards with smaller memory
-  
+
   ESP_AT_WM_Lite is a library for the Mega, Teensy, SAM DUE, SAMD and STM32 boards (https://github.com/khoih-prog/ESP_AT_WM_Lite)
   to enable store Credentials in EEPROM to easy configuration/reconfiguration and autoconnect/autoreconnect of WiFi and other services
   without Hardcoding.
-  
+
   Built by Khoi Hoang https://github.com/khoih-prog/ESP_AT_WM_Lite
   Licensed under MIT license
  *****************************************************************************************************************************/
@@ -36,18 +36,18 @@
     || defined(__SAMD21E15A__) || defined(__SAMD21E16A__) || defined(__SAMD21E17A__) || defined(__SAMD21E18A__) \
     || defined(__SAMD21G15A__) || defined(__SAMD21G16A__) || defined(__SAMD21G17A__) || defined(__SAMD21G18A__) \
     || defined(__SAMD21J15A__) || defined(__SAMD21J16A__) || defined(__SAMD21J17A__) || defined(__SAMD21J18A__) )
-  #if defined(ESP8266_AT_USE_SAMD)
-    #undef ESP8266_AT_USE_SAMD
-  #endif
-  #define ESP8266_AT_USE_SAMD      true
+#if defined(ESP8266_AT_USE_SAMD)
+  #undef ESP8266_AT_USE_SAMD
+#endif
+#define ESP8266_AT_USE_SAMD      true
 #else
-  #error This code is intended to run only on the SAMD boards ! Please check your Tools->Board setting.
+#error This code is intended to run only on the SAMD boards ! Please check your Tools->Board setting.
 #endif
 
 #if defined(ESP8266_AT_USE_SAMD)
   // For SAMD
   #define EspSerial Serial1
-  
+
   #if defined(ARDUINO_SAMD_ZERO)
     #define BOARD_TYPE      "SAMD Zero"
   #elif defined(ARDUINO_SAMD_MKR1000)

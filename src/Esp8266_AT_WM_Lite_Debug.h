@@ -2,13 +2,13 @@
   Esp8266_AT_WM_Lite_Debug.h
   For AVR or Generic boards using ESP8266 AT WiFi Shields, using much less code to support boards with smaller memory
 
-  ESP_AT_WM_Lite is a library for the Mega, Teensy, SAM DUE, SAMD and STM32, nRF52 boards (https://github.com/khoih-prog/ESP_AT_WM_Lite)
-  to enable store Credentials in EEPROM to easy configuration/reconfiguration and autoconnect/autoreconnect of WiFi and other services
-  without Hardcoding.
+  ESP_AT_WM_Lite is a library for the Mega, Teensy, SAM DUE, SAMD and STM32, nRF52 boards to enable store Credentials 
+  in EEPROM to easy configuration/reconfiguration and autoconnect/autoreconnect of WiFi and other services without Hardcoding.
 
   Built by Khoi Hoang https://github.com/khoih-prog/ESP_AT_WM_Lite
   Licensed under MIT license
-  Version: 1.5.2
+  
+  Version: 1.6.0
 
   Version Modified By   Date        Comments
   ------- -----------  ----------   -----------
@@ -18,6 +18,7 @@
   1.5.1   K Hoang      26/01/2022  Update to be compatible with new FlashStorage libraries. Add support to more SAMD/STM32 boards
   1.5.2   K Hoang      22/02/2022  Optional Board_Name in Menu. Optimize code by using passing by reference
                                    Add optional CONFIG_MODE_LED. Add function isConfigMode()
+  1.6.0   K Hoang      18/01/2023  Add support to WizNet WizFi360 such as WIZNET_WIZFI360_EVB_PICO using arduino-pico core
  ***************************************************************************************************************************************/
 
 #ifndef Esp8266_AT_WM_Lite_Debug_h

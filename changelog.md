@@ -9,13 +9,13 @@
 <a href="https://www.buymeacoffee.com/khoihprog6" title="Donate to my libraries using BuyMeACoffee"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Donate to my libraries using BuyMeACoffee" style="height: 50px !important;width: 181px !important;" ></a>
 <a href="https://www.buymeacoffee.com/khoihprog6" title="Donate to my libraries using BuyMeACoffee"><img src="https://img.shields.io/badge/buy%20me%20a%20coffee-donate-orange.svg?logo=buy-me-a-coffee&logoColor=FFDD00" style="height: 20px !important;width: 200px !important;" ></a>
 
-
 ---
 ---
 
 ## Table of Contents
 
 * [Changelog](#changelog)
+  * [Release v1.6.0](#release-v160)
   * [Release v1.5.2](#release-v152)
   * [Release v1.5.1](#release-v151)
   * [Release v1.5.0](#release-v150)
@@ -33,6 +33,11 @@
 ---
 
 ## Changelog
+
+### Release v1.6.0
+
+1. Add support to WizNet `WizFi360`, such as `WIZNET_WIZFI360_EVB_PICO` using `arduino-pico` core
+2. Add Config Portal scaling support to mobile devices.
 
 ### Release v1.5.2
 

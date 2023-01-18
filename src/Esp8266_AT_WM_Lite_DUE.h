@@ -2,13 +2,13 @@
   Esp8266_AT_WM_Lite_DUE.h
   For SAM DUE boards using ESP8266 AT WiFi Shields, using much less code to support boards with smaller memory
 
-  ESP_AT_WM_Lite is a library for the Mega, Teensy, SAM DUE, SAMD and STM32, nRF52 boards (https://github.com/khoih-prog/ESP_AT_WM_Lite)
-  to enable store Credentials in EEPROM to easy configuration/reconfiguration and autoconnect/autoreconnect of WiFi and other services
-  without Hardcoding.
+  ESP_AT_WM_Lite is a library for the Mega, Teensy, SAM DUE, SAMD and STM32, nRF52 boards to enable store Credentials 
+  in EEPROM to easy configuration/reconfiguration and autoconnect/autoreconnect of WiFi and other services without Hardcoding.
 
   Built by Khoi Hoang https://github.com/khoih-prog/ESP_AT_WM_Lite
   Licensed under MIT license
-  Version: 1.5.2
+  
+  Version: 1.6.0
 
   Version Modified By   Date        Comments
   ------- -----------  ----------   -----------
@@ -18,6 +18,7 @@
   1.5.1   K Hoang      26/01/2022  Update to be compatible with new FlashStorage libraries. Add support to more SAMD/STM32 boards
   1.5.2   K Hoang      22/02/2022  Optional Board_Name in Menu. Optimize code by using passing by reference
                                    Add optional CONFIG_MODE_LED. Add function isConfigMode()
+  1.6.0   K Hoang      18/01/2023  Add support to WizNet WizFi360 such as WIZNET_WIZFI360_EVB_PICO using arduino-pico core
  ***************************************************************************************************************************************/
 
 #ifndef Esp8266_AT_WM_Lite_DUE_h
@@ -33,16 +34,20 @@
   #error This code is intended to run on the SAM DUE platform! Please check your Tools->Board setting.
 #endif
 
+//////////////////////////////////////////////
+
 #ifndef ESP_AT_WM_LITE_VERSION
-  #define ESP_AT_WM_LITE_VERSION            "ESP_AT_WM_Lite v1.5.2"
+  #define ESP_AT_WM_LITE_VERSION            "ESP_AT_WM_Lite v1.6.0"
 
   #define ESP_AT_WM_LITE_VERSION_MAJOR      1
-  #define ESP_AT_WM_LITE_VERSION_MINOR      5
-  #define ESP_AT_WM_LITE_VERSION_PATCH      2
+  #define ESP_AT_WM_LITE_VERSION_MINOR      6
+  #define ESP_AT_WM_LITE_VERSION_PATCH      0
 
-  #define ESP_AT_WM_LITE_VERSION_INT        1005002
+  #define ESP_AT_WM_LITE_VERSION_INT        1006000
 
 #endif
+
+//////////////////////////////////////////////
 
 #define DEFAULT_BOARD_NAME            "SAM-DUE"
 
@@ -77,7 +82,7 @@ DueFlashStorage dueFlashStorageData;
 #if !defined(SCAN_WIFI_NETWORKS)
   #define SCAN_WIFI_NETWORKS     true     //false
 #endif
-
+	
 #if SCAN_WIFI_NETWORKS
   #if !defined(MANUAL_SSID_INPUT_ALLOWED)
     #define MANUAL_SSID_INPUT_ALLOWED     true
@@ -95,7 +100,7 @@ DueFlashStorage dueFlashStorageData;
     #define MAX_SSID_IN_LIST      6
   #endif
 #else
-  #warning SCAN_WIFI_NETWORKS disabled
+  #warning SCAN_WIFI_NETWORKS disabled	
 #endif
 
 ///////// NEW for DRD /////////////
@@ -160,10 +165,10 @@ typedef struct
 #define NUM_WIFI_CREDENTIALS      2
 
 #if USING_BOARD_NAME
-  // Configurable items besides fixed Header, just add board_name
+  // Configurable items besides fixed Header, just add board_name 
   #define NUM_CONFIGURABLE_ITEMS    ( ( 2 * NUM_WIFI_CREDENTIALS ) + 1 )
 #else
-  // Configurable items besides fixed Header, just add board_name
+  // Configurable items besides fixed Header, just add board_name 
   #define NUM_CONFIGURABLE_ITEMS    ( ( 2 * NUM_WIFI_CREDENTIALS ))
 #endif
 
@@ -190,26 +195,23 @@ extern ESP8266_AT_Configuration defaultConfig;
 //////////////////////////////////////////////
 
 // -- HTML page fragments
-const char ESP_AT_HTML_HEAD_START[] /*PROGMEM*/ = "<!DOCTYPE html><html><head><title>SAM_DUE_AT_WM_Lite</title>";
+const char ESP_AT_HTML_HEAD_START[] /*PROGMEM*/ = "<!DOCTYPE html><html><head><title>SAM_DUE_AT_WM_Lite</title><meta name='viewport' content='width=device-width, initial-scale=1'>";
 
-const char ESP_AT_HTML_HEAD_STYLE[] /*PROGMEM*/ =
-  "<style>div,input{padding:5px;font-size:1em;}input{width:95%;}body{text-align: center;}button{background-color:#16A1E7;color:#fff;line-height:2.4rem;font-size:1.2rem;width:100%;}fieldset{border-radius:0.3rem;margin:0px;}</style>";
+const char ESP_AT_HTML_HEAD_STYLE[] /*PROGMEM*/ = "<style>div,input{padding:5px;font-size:1em;}input{width:95%;}body{text-align: center;}button{background-color:#16A1E7;color:#fff;line-height:2.4rem;font-size:1.2rem;width:100%;}fieldset{border-radius:0.3rem;margin:0px;}</style>";
 
 #if USING_BOARD_NAME
-  const char ESP_AT_HTML_HEAD_END[]   /*PROGMEM*/ =
-  "</head><div style='text-align:left;display:inline-block;min-width:260px;'>\
-  <fieldset><div><label>*WiFi SSID</label><div>[[input_id]]</div></div>\
-  <div><label>*PWD (8+ chars)</label><input value='[[pw]]' id='pw'><div></div></div>\
-  <div><label>*WiFi SSID1</label><div>[[input_id1]]</div></div>\
-  <div><label>*PWD1 (8+ chars)</label><input value='[[pw1]]' id='pw1'><div></div></div></fieldset>\
-  <fieldset><div><label>Board Name</label><input value='[[nm]]' id='nm'><div></div></div></fieldset>";	// DO NOT CHANGE THIS STRING EVER!!!!
+const char ESP_AT_HTML_HEAD_END[]   /*PROGMEM*/ = "</head><div style='text-align:left;display:inline-block;min-width:260px;'>\
+<fieldset><div><label>*WiFi SSID</label><div>[[input_id]]</div></div>\
+<div><label>*PWD (8+ chars)</label><input value='[[pw]]' id='pw'><div></div></div>\
+<div><label>*WiFi SSID1</label><div>[[input_id1]]</div></div>\
+<div><label>*PWD1 (8+ chars)</label><input value='[[pw1]]' id='pw1'><div></div></div></fieldset>\
+<fieldset><div><label>Board Name</label><input value='[[nm]]' id='nm'><div></div></div></fieldset>";	// DO NOT CHANGE THIS STRING EVER!!!!
 #else
-  const char ESP_AT_HTML_HEAD_END[]   /*PROGMEM*/ =
-  "</head><div style='text-align:left;display:inline-block;min-width:260px;'>\
-  <fieldset><div><label>*WiFi SSID</label><div>[[input_id]]</div></div>\
-  <div><label>*PWD (8+ chars)</label><input value='[[pw]]' id='pw'><div></div></div>\
-  <div><label>*WiFi SSID1</label><div>[[input_id1]]</div></div>\
-  <div><label>*PWD1 (8+ chars)</label><input value='[[pw1]]' id='pw1'><div></div></div></fieldset>";	// DO NOT CHANGE THIS STRING EVER!!!!
+const char ESP_AT_HTML_HEAD_END[]   /*PROGMEM*/ = "</head><div style='text-align:left;display:inline-block;min-width:260px;'>\
+<fieldset><div><label>*WiFi SSID</label><div>[[input_id]]</div></div>\
+<div><label>*PWD (8+ chars)</label><input value='[[pw]]' id='pw'><div></div></div>\
+<div><label>*WiFi SSID1</label><div>[[input_id1]]</div></div>\
+<div><label>*PWD1 (8+ chars)</label><input value='[[pw1]]' id='pw1'><div></div></div></fieldset>";	// DO NOT CHANGE THIS STRING EVER!!!!
 #endif
 
 const char ESP_AT_HTML_INPUT_ID[]   /*PROGMEM*/ = "<input value='[[id]]' id='id'>";
@@ -217,23 +219,22 @@ const char ESP_AT_HTML_INPUT_ID1[]  /*PROGMEM*/ = "<input value='[[id1]]' id='id
 
 const char ESP_AT_FLDSET_START[]  /*PROGMEM*/ = "<fieldset>";
 const char ESP_AT_FLDSET_END[]    /*PROGMEM*/ = "</fieldset>";
-const char ESP_AT_HTML_PARAM[]    /*PROGMEM*/ =
-  "<div><label>{b}</label><input value='[[{v}]]'id='{i}'><div></div></div>";
+const char ESP_AT_HTML_PARAM[]    /*PROGMEM*/ = "<div><label>{b}</label><input value='[[{v}]]'id='{i}'><div></div></div>";
 const char ESP_AT_HTML_BUTTON[]   /*PROGMEM*/ = "<button onclick='sv()'>Save</button></div>";
 
 #if USING_BOARD_NAME
-  const char ESP_AT_HTML_SCRIPT[]   /*PROGMEM*/ = "<script id=\"jsbin-javascript\">\
-  function udVal(key,val){var request=new XMLHttpRequest();var url='/?key='+key+'&value='+encodeURIComponent(val);\
-  request.open('GET',url,false);request.send(null);}\
-  function sv(){udVal('id',document.getElementById('id').value);udVal('pw',document.getElementById('pw').value);\
-  udVal('id1',document.getElementById('id1').value);udVal('pw1',document.getElementById('pw1').value);\
-  udVal('nm',document.getElementById('nm').value);";
+const char ESP_AT_HTML_SCRIPT[]   /*PROGMEM*/ = "<script id='jsbin-javascript'>\
+function udVal(key,val){var request=new XMLHttpRequest();var url='/?key='+key+'&value='+encodeURIComponent(val);\
+request.open('GET',url,false);request.send(null);}\
+function sv(){udVal('id',document.getElementById('id').value);udVal('pw',document.getElementById('pw').value);\
+udVal('id1',document.getElementById('id1').value);udVal('pw1',document.getElementById('pw1').value);\
+udVal('nm',document.getElementById('nm').value);";
 #else
-  const char ESP_AT_HTML_SCRIPT[]   /*PROGMEM*/ = "<script id=\"jsbin-javascript\">\
-  function udVal(key,val){var request=new XMLHttpRequest();var url='/?key='+key+'&value='+encodeURIComponent(val);\
-  request.open('GET',url,false);request.send(null);}\
-  function sv(){udVal('id',document.getElementById('id').value);udVal('pw',document.getElementById('pw').value);\
-  udVal('id1',document.getElementById('id1').value);udVal('pw1',document.getElementById('pw1').value);";
+const char ESP_AT_HTML_SCRIPT[]   /*PROGMEM*/ = "<script id='jsbin-javascript'>\
+function udVal(key,val){var request=new XMLHttpRequest();var url='/?key='+key+'&value='+encodeURIComponent(val);\
+request.open('GET',url,false);request.send(null);}\
+function sv(){udVal('id',document.getElementById('id').value);udVal('pw',document.getElementById('pw').value);\
+udVal('id1',document.getElementById('id1').value);udVal('pw1',document.getElementById('pw1').value);";
 #endif
 
 const char ESP_AT_HTML_SCRIPT_ITEM[]  /*PROGMEM*/ = "udVal('{d}',document.getElementById('{d}').value);";
@@ -241,13 +242,13 @@ const char ESP_AT_HTML_SCRIPT_END[]   /*PROGMEM*/ = "alert('Updated');}</script>
 const char ESP_AT_HTML_END[]          /*PROGMEM*/ = "</html>";
 
 #if SCAN_WIFI_NETWORKS
-  const char WM_SELECT_START[]      /*PROGMEM*/ = "<select id=";
-  const char WM_SELECT_END[]        /*PROGMEM*/ = "</select>";
-  const char WM_DATALIST_START[]    /*PROGMEM*/ = "<datalist id=";
-  const char WM_DATALIST_END[]      /*PROGMEM*/ = "</datalist>";
-  const char WM_OPTION_START[]      /*PROGMEM*/ = "<option>";
-  const char WM_OPTION_END[]        /*PROGMEM*/ = "";     // "</option>"; is not required
-  const char WM_NO_NETWORKS_FOUND[] /*PROGMEM*/ = "No suitable WiFi networks available!";
+const char WM_SELECT_START[]      /*PROGMEM*/ = "<select id=";
+const char WM_SELECT_END[]        /*PROGMEM*/ = "</select>";
+const char WM_DATALIST_START[]    /*PROGMEM*/ = "<datalist id=";
+const char WM_DATALIST_END[]      /*PROGMEM*/ = "</datalist>";
+const char WM_OPTION_START[]      /*PROGMEM*/ = "<option>";
+const char WM_OPTION_END[]        /*PROGMEM*/ = "";			// "</option>"; is not required
+const char WM_NO_NETWORKS_FOUND[] /*PROGMEM*/ = "No suitable WiFi networks available!";
 #endif
 
 //////////////////////////////////////////
@@ -294,23 +295,23 @@ String IPAddressToString(const IPAddress& _address)
 
 class ESP_AT_WiFiManager_Lite
 {
-  public:
-
+    public:
+    
     ESP_AT_WiFiManager_Lite(Stream* espSerial, uint32_t speed = 115200)
     {
       (void) speed;
-
-      WiFi.init(espSerial);
-
+      
+      WiFi.init(espSerial); 
+      
       // check for the presence of the shield
-      if (WiFi.status() == WL_NO_SHIELD)
+      if (WiFi.status() == WL_NO_SHIELD) 
       {
         ESP_AT_LOGDEBUG(F("NoESP"));
       }
-
+      
       //WiFi.reset();
     }
-
+    
     //////////////////////////////////////////////
 
     ~ESP_AT_WiFiManager_Lite()
@@ -320,23 +321,21 @@ class ESP_AT_WiFiManager_Lite
         delete server;
 
 #if SCAN_WIFI_NETWORKS
-
         if (indices)
         {
           free(indices); //indices array no longer required so free memory
         }
-
 #endif
       }
     }
-
+    
     //////////////////////////////////////////////
-
+        
     bool connectWiFi(const char* ssid, const char* pass)
     {
       ESP_AT_LOGDEBUG1(F("Con2:"), ssid);
 
-      if ( WiFi.begin(ssid, pass) )
+      if ( WiFi.begin(ssid, pass) )  
       {
         displayWiFiData();
       }
@@ -352,60 +351,57 @@ class ESP_AT_WiFiManager_Lite
 
       return true;
     }
-
+    
     //////////////////////////////////////////////
-
+   
     void begin(const char* ssid,
                const char* pass )
     {
       ESP_AT_LOGDEBUG(F("conW"));
       connectWiFi(ssid, pass);
     }
-
+    
     //////////////////////////////////////////////
 
     void begin()
     {
-#define RETRY_TIMES_CONNECT_WIFI      3
+#define RETRY_TIMES_CONNECT_WIFI			3
 
       // Due to notorious 2K buffer limitation of ESP8266-AT shield, the NUM_MENU_ITEMS is limited to max 3
       // to avoid WebServer not working due to HTML data larger than 2K can't be sent successfully
       // The items with index larger than 3 will be ignored
-      // Limit NUM_MENU_ITEMS to max 3
-#if USE_DYNAMIC_PARAMETERS
-
+      // Limit NUM_MENU_ITEMS to max 3     
+#if USE_DYNAMIC_PARAMETERS        
       if (NUM_MENU_ITEMS > 3)
         NUM_MENU_ITEMS = 3;
-
 #endif
 
-#if USING_CONFIG_MODE_LED
+#if USING_CONFIG_MODE_LED  
       //Turn OFF
       pinMode(LED_BUILTIN, OUTPUT);
       digitalWrite(LED_BUILTIN, LED_OFF);
 #endif
-
+                 
       //// New DRD ////
-      drd = new DoubleResetDetector_Generic(DRD_TIMEOUT, DRD_ADDRESS);
+      drd = new DoubleResetDetector_Generic(DRD_TIMEOUT, DRD_ADDRESS);  
       bool useConfigPortal = false;
-
+   
       if (drd->detectDoubleReset())
       {
         ESP_AT_LOGDEBUG(F("Double Reset Detected"));
-
+     
         useConfigPortal = true;
       }
-
       //// New DRD ////
       ESP_AT_LOGDEBUG(F("======= Start Default Config Data ======="));
       displayConfigData(defaultConfig);
-
+      
       hadConfigData = getConfigData();
-
+        
       //// New DRD ////
       //  useConfigPortal when getConfigData() not OK or DRD'ed
-      if (hadConfigData && !useConfigPortal)
-        //// New DRD ////
+      if (hadConfigData && !useConfigPortal) 
+      //// New DRD //// 
       {
         if (connectMultiWiFi(RETRY_TIMES_CONNECT_WIFI))
         {
@@ -421,76 +417,76 @@ class ESP_AT_WiFiManager_Lite
       else
       {
         ESP_AT_LOGERROR1(F("b:StayInCfgPortal:"), useConfigPortal ? F("DRD") : F("NoCfgDat"));
-
+        
         // failed to connect to WiFi, will start configuration mode
         hadConfigData = false;
         startConfigurationMode();
       }
     }
-
+    
     //////////////////////////////////////////////
 
 #ifndef RETRY_TIMES_RECONNECT_WIFI
-#define RETRY_TIMES_RECONNECT_WIFI   2
+  #define RETRY_TIMES_RECONNECT_WIFI   2
 #else
-    // Force range of user-defined RETRY_TIMES_RECONNECT_WIFI between 2-5 times
-#if (RETRY_TIMES_RECONNECT_WIFI < 2)
-#warning RETRY_TIMES_RECONNECT_WIFI too low. Reseting to 2
-#undef RETRY_TIMES_RECONNECT_WIFI
-#define RETRY_TIMES_RECONNECT_WIFI   2
-#elif (RETRY_TIMES_RECONNECT_WIFI > 5)
-#warning RETRY_TIMES_RECONNECT_WIFI too high. Reseting to 5
-#undef RETRY_TIMES_RECONNECT_WIFI
-#define RETRY_TIMES_RECONNECT_WIFI   5
-#endif
+  // Force range of user-defined RETRY_TIMES_RECONNECT_WIFI between 2-5 times
+  #if (RETRY_TIMES_RECONNECT_WIFI < 2)
+    #warning RETRY_TIMES_RECONNECT_WIFI too low. Reseting to 2
+    #undef RETRY_TIMES_RECONNECT_WIFI
+    #define RETRY_TIMES_RECONNECT_WIFI   2
+  #elif (RETRY_TIMES_RECONNECT_WIFI > 5)
+    #warning RETRY_TIMES_RECONNECT_WIFI too high. Reseting to 5
+    #undef RETRY_TIMES_RECONNECT_WIFI
+    #define RETRY_TIMES_RECONNECT_WIFI   5
+  #endif
 #endif
 
 #ifndef RESET_IF_CONFIG_TIMEOUT
-#define RESET_IF_CONFIG_TIMEOUT   true
+  #define RESET_IF_CONFIG_TIMEOUT   true
 #endif
 
 #ifndef CONFIG_TIMEOUT_RETRYTIMES_BEFORE_RESET
-#define CONFIG_TIMEOUT_RETRYTIMES_BEFORE_RESET          10
+  #define CONFIG_TIMEOUT_RETRYTIMES_BEFORE_RESET          10
 #else
-    // Force range of user-defined TIMES_BEFORE_RESET between 2-100
-#if (CONFIG_TIMEOUT_RETRYTIMES_BEFORE_RESET < 2)
-#warning CONFIG_TIMEOUT_RETRYTIMES_BEFORE_RESET too low. Reseting to 2
-#undef CONFIG_TIMEOUT_RETRYTIMES_BEFORE_RESET
-#define CONFIG_TIMEOUT_RETRYTIMES_BEFORE_RESET   2
-#elif (CONFIG_TIMEOUT_RETRYTIMES_BEFORE_RESET > 100)
-#warning CONFIG_TIMEOUT_RETRYTIMES_BEFORE_RESET too high. Resetting to 100
-#undef CONFIG_TIMEOUT_RETRYTIMES_BEFORE_RESET
-#define CONFIG_TIMEOUT_RETRYTIMES_BEFORE_RESET   100
-#endif
+  // Force range of user-defined TIMES_BEFORE_RESET between 2-100
+  #if (CONFIG_TIMEOUT_RETRYTIMES_BEFORE_RESET < 2)
+    #warning CONFIG_TIMEOUT_RETRYTIMES_BEFORE_RESET too low. Reseting to 2
+    #undef CONFIG_TIMEOUT_RETRYTIMES_BEFORE_RESET
+    #define CONFIG_TIMEOUT_RETRYTIMES_BEFORE_RESET   2
+  #elif (CONFIG_TIMEOUT_RETRYTIMES_BEFORE_RESET > 100)
+    #warning CONFIG_TIMEOUT_RETRYTIMES_BEFORE_RESET too high. Resetting to 100
+    #undef CONFIG_TIMEOUT_RETRYTIMES_BEFORE_RESET
+    #define CONFIG_TIMEOUT_RETRYTIMES_BEFORE_RESET   100
+  #endif
 #endif
 
-    //////////////////////////////////////////////
+  //////////////////////////////////////////////
 
-#if !defined(WIFI_RECON_INTERVAL)
-#define WIFI_RECON_INTERVAL       0         // default 0s between reconnecting WiFi
+#if !defined(WIFI_RECON_INTERVAL)      
+  #define WIFI_RECON_INTERVAL       0         // default 0s between reconnecting WiFi
 #else
-#if (WIFI_RECON_INTERVAL < 0)
-#define WIFI_RECON_INTERVAL     0
-#elif  (WIFI_RECON_INTERVAL > 600000)
-#define WIFI_RECON_INTERVAL     600000    // Max 10min
-#endif
+  #if (WIFI_RECON_INTERVAL < 0)
+    #define WIFI_RECON_INTERVAL     0
+  #elif  (WIFI_RECON_INTERVAL > 600000)
+    #define WIFI_RECON_INTERVAL     600000    // Max 10min
+  #endif
 #endif
 
     void run()
     {
       static int retryTimes = 0;
       static bool wifiDisconnectedOnce = false;
-
+      
       // Lost connection in running. Give chance to reconfig.
       // Check WiFi status every 5s and update status
       // Check twice to be sure wifi disconnected is real
       static unsigned long checkstatus_timeout = 0;
-#define WIFI_STATUS_CHECK_INTERVAL    5000L
-
+      #define WIFI_STATUS_CHECK_INTERVAL    5000L
+      
       static uint32_t curMillis;
-
+      
       curMillis = millis();
-
+      
       //// New DRD ////
       // Call the double reset detector loop method every so often,
       // so that it can recognise when the timeout expires.
@@ -498,13 +494,13 @@ class ESP_AT_WiFiManager_Lite
       // consider the next reset as a double reset.
       drd->loop();
       //// New DRD ////
-
+         
       if ( !configuration_mode && (curMillis > checkstatus_timeout) )
-      {
+      {       
         if (WiFi.status() == WL_CONNECTED)
         {
           wifi_connected = true;
-
+          
 #if USING_CONFIG_MODE_LED
           // turn the LED_BUILTIN OFF to tell us we exit configuration mode.
           digitalWrite(CONFIG_MODE_LED, LED_OFF);
@@ -523,9 +519,9 @@ class ESP_AT_WiFiManager_Lite
             wifiDisconnectedOnce = true;
           }
         }
-
+        
         checkstatus_timeout = curMillis + WIFI_STATUS_CHECK_INTERVAL;
-      }
+      }    
 
       // Lost connection in running. Give chance to reconfig.
       if ( !wifi_connected )
@@ -541,13 +537,12 @@ class ESP_AT_WiFiManager_Lite
             //ESP_AT_LOGDEBUG(F("r:handleClient"));
             server->handleClient();
           }
-
+           
           return;
         }
         else
         {
 #if RESET_IF_CONFIG_TIMEOUT
-
           // If we're here but still in configuration_mode, permit running TIMES_BEFORE_RESET times before reset hardware
           // to permit user another chance to config.
           if ( configuration_mode && (configTimeout != 0) )
@@ -561,39 +556,36 @@ class ESP_AT_WiFiManager_Lite
               resetFunc();  //call reset
             }
           }
-
 #endif
 
           // Not in config mode, try reconnecting before forcing to config mode
           if ( !wifi_connected )
           {
-
-
+            
+ 
 #if (WIFI_RECON_INTERVAL > 0)
 
             static uint32_t lastMillis = 0;
-
+            
             if ( (lastMillis == 0) || (curMillis - lastMillis) > WIFI_RECON_INTERVAL )
             {
               lastMillis = curMillis;
-
+              
               ESP_AT_LOGERROR(F("r:WLost.ReconW"));
-
+               
               if (connectMultiWiFi(RETRY_TIMES_RECONNECT_WIFI))
               {
                 ESP_AT_LOGERROR(F("r:WOK"));
               }
             }
-
 #else
             ESP_AT_LOGERROR(F("r:WLost.ReconW"));
-
+            
             if (connectMultiWiFi(RETRY_TIMES_RECONNECT_WIFI))
             {
               ESP_AT_LOGERROR(F("r:WOK"));
             }
-
-#endif
+#endif            
           }
         }
       }
@@ -601,25 +593,25 @@ class ESP_AT_WiFiManager_Lite
       {
         configuration_mode = false;
         ESP_AT_LOGERROR(F("r:gotWBack"));
-
+        
 #if USING_CONFIG_MODE_LED
-        // turn the LED_BUILTIN OFF to tell us we exit configuration mode.
-        digitalWrite(CONFIG_MODE_LED, LED_OFF);
-#endif
+          // turn the LED_BUILTIN OFF to tell us we exit configuration mode.
+          digitalWrite(CONFIG_MODE_LED, LED_OFF);
+#endif        
       }
     }
-
+    
     //////////////////////////////////////////////
 
     void setConfigPortalIP(const IPAddress& portalIP = IPAddress(192, 168, 4, 1))
     {
       portal_apIP = portalIP;
     }
-
+    
     //////////////////////////////////////////////
 
-#define MIN_WIFI_CHANNEL      1
-#define MAX_WIFI_CHANNEL      11    // Channel 12,13 is flaky, because of bad number 13 ;-)
+    #define MIN_WIFI_CHANNEL      1
+    #define MAX_WIFI_CHANNEL      11    // Channel 12,13 is flaky, because of bad number 13 ;-)
 
     int setConfigPortalChannel(const int& channel = 1)
     {
@@ -633,55 +625,55 @@ class ESP_AT_WiFiManager_Lite
 
       return AP_channel;
     }
-
+    
     //////////////////////////////////////////////
-
+    
     void setConfigPortal(const String& ssid = "", const String& pass = "")
     {
       portal_ssid = ssid;
       portal_pass = pass;
     }
-
+    
     //////////////////////////////////////////////
 
     void setSTAStaticIPConfig(const IPAddress& ip)
     {
       static_IP = ip;
     }
-
+    
     //////////////////////////////////////////////
-
+    
     String getWiFiSSID(const uint8_t& index)
-    {
+    { 
       if (index >= NUM_WIFI_CREDENTIALS)
         return String("");
-
+        
       if (!hadConfigData)
         getConfigData();
 
       return (String(ESP8266_AT_config.WiFi_Creds[index].wifi_ssid));
     }
-
+    
     //////////////////////////////////////////////
 
     String getWiFiPW(const uint8_t& index)
     {
       if (index >= NUM_WIFI_CREDENTIALS)
         return String("");
-
+        
       if (!hadConfigData)
         getConfigData();
 
       return (String(ESP8266_AT_config.WiFi_Creds[index].wifi_pw));
     }
-
+    
     //////////////////////////////////////////////
-
+    
     bool getWiFiStatus()
     {
       return wifi_connected;
     }
-
+    
     //////////////////////////////////////////////
 
     ESP8266_AT_Configuration* getFullConfigData(ESP8266_AT_Configuration *configData)
@@ -695,7 +687,7 @@ class ESP_AT_WiFiManager_Lite
 
       return (configData);
     }
-
+    
     //////////////////////////////////////////////
 
     String localIP()
@@ -711,47 +703,45 @@ class ESP_AT_WiFiManager_Lite
 
       return ipAddress;
     }
-
+    
     //////////////////////////////////////////////
 
     void clearConfigData()
     {
       memset(&ESP8266_AT_config, 0, sizeof(ESP8266_AT_config));
-
-#if USE_DYNAMIC_PARAMETERS
-
+      
+#if USE_DYNAMIC_PARAMETERS      
       for (uint16_t i = 0; i < NUM_MENU_ITEMS; i++)
       {
         // Actual size of pdata is [maxlen + 1]
         memset(myMenuItems[i].pdata, 0, myMenuItems[i].maxlen + 1);
       }
-
 #endif
 
-      saveConfigData();
+      saveConfigData();      
     }
-
+    
     //////////////////////////////////////////////
-
+        
     bool isConfigDataValid()
     {
       return hadConfigData;
     }
-
+    
     //////////////////////////////////////////////
-
+    
     bool isConfigMode()
     {
       return configuration_mode;
     }
-
+    
     //////////////////////////////////////////////
 
     void resetFunc()
     {
-      rstc_start_software_reset(RSTC);
+      rstc_start_software_reset(RSTC);    
     }
-
+    
     //////////////////////////////////////////////
 
   private:
@@ -764,7 +754,7 @@ class ESP_AT_WiFiManager_Lite
     bool hadConfigData = false;
 
     ESP8266_AT_Configuration ESP8266_AT_config;
-
+    
     uint16_t totalDataSize = 0;
 
     String macAddress = "";
@@ -777,30 +767,30 @@ class ESP_AT_WiFiManager_Lite
     String portal_pass = "";
 
     IPAddress static_IP   = IPAddress(0, 0, 0, 0);
-
+    
     /////////////////////////////////////
-
+    
     // Add customs headers from v1.2.0
-
+    
 #if USING_CUSTOMS_STYLE
     const char* ESP_AT_HTML_HEAD_CUSTOMS_STYLE = NULL;
 #endif
-
+    
 #if USING_CUSTOMS_HEAD_ELEMENT
     const char* _CustomsHeadElement = NULL;
 #endif
-
-#if USING_CORS_FEATURE
+    
+#if USING_CORS_FEATURE    
     const char* _CORS_Header        = WM_HTTP_CORS_ALLOW_ALL;   //"*";
 #endif
-
+       
     /////////////////////////////////////
     // Add WiFi Scan from v1.2.0
-
+    
 #if SCAN_WIFI_NETWORKS
-    int WiFiNetworksFound = 0;    // Number of SSIDs found by WiFi scan, including low quality and duplicates
-    int *indices;                 // WiFi network data, filled by scan (SSID, BSSID)
-    String ListOfSSIDs = "";      // List of SSIDs found by scan, in HTML <option> format
+  int WiFiNetworksFound = 0;		// Number of SSIDs found by WiFi scan, including low quality and duplicates
+  int *indices;					        // WiFi network data, filled by scan (SSID, BSSID)
+  String ListOfSSIDs = "";		  // List of SSIDs found by scan, in HTML <option> format
 #endif
 
     //////////////////////////////////////
@@ -808,53 +798,50 @@ class ESP_AT_WiFiManager_Lite
     void displayConfigData(const ESP8266_AT_Configuration& configData)
     {
       ESP_AT_LOGDEBUG5(F("Hdr="),   configData.header, F(",SSID="), configData.WiFi_Creds[0].wifi_ssid,
-                       F(",PW="),   configData.WiFi_Creds[0].wifi_pw);
-      ESP_AT_LOGDEBUG3(F("SSID1="), configData.WiFi_Creds[1].wifi_ssid, F(",PW1="),  configData.WiFi_Creds[1].wifi_pw);
-      ESP_AT_LOGDEBUG1(F("BName="), configData.board_name);
-
-#if USE_DYNAMIC_PARAMETERS
-
+                F(",PW="),   configData.WiFi_Creds[0].wifi_pw);
+      ESP_AT_LOGDEBUG3(F("SSID1="), configData.WiFi_Creds[1].wifi_ssid, F(",PW1="),  configData.WiFi_Creds[1].wifi_pw);     
+      ESP_AT_LOGDEBUG1(F("BName="), configData.board_name);     
+              
+#if USE_DYNAMIC_PARAMETERS     
       for (uint16_t i = 0; i < NUM_MENU_ITEMS; i++)
       {
         ESP_AT_LOGERROR5("i=", i, ",id=", myMenuItems[i].id, ",data=", myMenuItems[i].pdata);
       }
-
-#endif
+#endif        
     }
-
+    
     //////////////////////////////////////////////
 
     void displayWiFiData()
     {
       ESP_AT_LOGDEBUG1(F("IP="), localIP() );
     }
-
+    
     //////////////////////////////////////////////
 
 #if USE_ESP32_AT
-#define ESP_AT_BOARD_TYPE   "SHD_ESP32"
+  #define ESP_AT_BOARD_TYPE   "SHD_ESP32"
 #else
-#define ESP_AT_BOARD_TYPE   "SHD_ESP8266"
+  #define ESP_AT_BOARD_TYPE   "SHD_ESP8266"
 #endif
 
 #define WM_NO_CONFIG        "blank"
 
-    //////////////////////////////////////////////
+//////////////////////////////////////////////
 
 #ifndef EEPROM_START
-#define EEPROM_START     0
-#warning EEPROM_START not defined. Set to 0
+  #define EEPROM_START     0
+  #warning EEPROM_START not defined. Set to 0
 #endif
 
-    // Stating positon to store ESP8266_AT_config
+// Stating positon to store ESP8266_AT_config
 #define CONFIG_EEPROM_START    (EEPROM_START + DRD_FLAG_DATA_SIZE)
 
     //////////////////////////////////////////////
-
+    
     int calcChecksum()
     {
       int checkSum = 0;
-
       for (uint16_t index = 0; index < (sizeof(ESP8266_AT_config) - sizeof(ESP8266_AT_config.checkSum)); index++)
       {
         checkSum += * ( ( (byte*) &ESP8266_AT_config ) + index);
@@ -862,38 +849,38 @@ class ESP_AT_WiFiManager_Lite
 
       return checkSum;
     }
-
+    
     //////////////////////////////////////////////
 
 #if USE_DYNAMIC_PARAMETERS
-
+   
     bool checkDynamicData()
     {
       int checkSum = 0;
       int readCheckSum;
-
+      
       uint16_t  byteCount = 0;
-
-#define BIG_BUFFER_LEN        768
-      byte bigBuffer[BIG_BUFFER_LEN + 1];
-
-      uint16_t offset = CONFIG_EEPROM_START + sizeof(ESP8266_AT_config);
-
+           
+      #define BIG_BUFFER_LEN        768     
+      byte bigBuffer[BIG_BUFFER_LEN + 1];      
+      
+      uint16_t offset = CONFIG_EEPROM_START + sizeof(ESP8266_AT_config);      
+           
       // Make address 4-byte aligned
       if ( (offset % 4) != 0 )
       {
         offset += 4 - (offset % 4);
       }
-
+      
       // Find the longest pdata, then dynamically allocate buffer. Remember to free when done
       // This is used to store tempo data to calculate checksum to see of data is valid
       // We dont like to destroy myMenuItems[i].pdata with invalid data
       int totalLength = 0;
-
+            
       for (uint8_t i = 0; i < NUM_MENU_ITEMS; i++)
-      {
+      {       
         totalLength += myMenuItems[i].maxlen;
-
+        
         if ( (totalLength > BIG_BUFFER_LEN) )
         {
           // Size too large, abort and flag false
@@ -901,157 +888,157 @@ class ESP_AT_WiFiManager_Lite
           return false;
         }
       }
-
-      // Both Buffers big enough, read all dynamicData to BigBuffer once
+                         
+      // Both Buffers big enough, read all dynamicData to BigBuffer once 
       // as address need to be 4-byte aligned
       byte* dataPointer = (byte* ) dueFlashStorageData.readAddress(offset);
-
+      
       // Prepare buffer, more than enough
       memset(bigBuffer, 0, sizeof(bigBuffer));
-      memcpy(bigBuffer, dataPointer, sizeof(bigBuffer));
-
+      memcpy(bigBuffer, dataPointer, sizeof(bigBuffer));               
+         
       // Don't need readBuffer
       // Now to split into individual piece to add to CSum
       for (uint8_t i = 0; i < NUM_MENU_ITEMS; i++)
-      {
+      {       
         char* _pointer = (char*) bigBuffer;
-
+        
         for (uint16_t j = 0; j < myMenuItems[i].maxlen; j++, _pointer++, byteCount++)
         {
           *_pointer = bigBuffer[byteCount];
-
-          checkSum += *_pointer;
-        }
+                  
+          checkSum += *_pointer;  
+        }    
       }
-
+      
       memcpy(&readCheckSum, &bigBuffer[byteCount], sizeof(readCheckSum));
-
+      
       totalDataSize = sizeof(ESP8266_AT_config) + totalLength + sizeof(readCheckSum);
-
+          
       ESP_AT_LOGDEBUG3(F("ChkCrR:CrCCsum=0x"), String(checkSum, HEX), F(",CrRCsum=0x"), String(readCheckSum, HEX));
-
+           
       if ( checkSum != readCheckSum )
       {
         return false;
       }
-
-      return true;
+      
+      return true;    
     }
 
-    //////////////////////////////////////////////
-
+//////////////////////////////////////////////
+    
     bool dueFlashStorage_getDynamicData()
-    {
+    {      
       uint16_t offset = CONFIG_EEPROM_START + sizeof(ESP8266_AT_config);
-
+           
       // Make address 4-byte aligned
       if ( (offset % 4) != 0 )
       {
         offset += 4 - (offset % 4);
       }
-
+            
       int checkSum = 0;
       int readCheckSum;
-
+      
       uint16_t  byteCount = 0;
-
-#define BIG_BUFFER_LEN        768
-      byte buffer[BIG_BUFFER_LEN + 1];
-
+           
+      #define BIG_BUFFER_LEN        768     
+      byte buffer[BIG_BUFFER_LEN + 1];      
+      
       byte* dataPointer = (byte* ) dueFlashStorageData.readAddress(offset);
-
+      
       memcpy(buffer, dataPointer, sizeof(buffer));
-
+      
       totalDataSize = sizeof(ESP8266_AT_config) + sizeof(readCheckSum);
-
+   
       for (int i = 0; i < NUM_MENU_ITEMS; i++)
-      {
+      {       
         char* _pointer = myMenuItems[i].pdata;
         totalDataSize += myMenuItems[i].maxlen;
-
+        
         // Actual size of pdata is [maxlen + 1]
         memset(myMenuItems[i].pdata, 0, myMenuItems[i].maxlen + 1);
-
-        for (uint16_t j = 0; j < myMenuItems[i].maxlen; j++, _pointer++, byteCount++)
+                      
+        for (uint16_t j = 0; j < myMenuItems[i].maxlen; j++,_pointer++, byteCount++)
         {
           *_pointer = buffer[byteCount];
-
-          checkSum += *_pointer;
-        }
+          
+          checkSum += *_pointer;  
+        }     
       }
-
+      
       memcpy(&readCheckSum, &buffer[byteCount], sizeof(readCheckSum));
-
-      byteCount += sizeof(readCheckSum);
-
-      ESP_AT_LOGERROR5(F("CrCCsum=0x"), String(checkSum, HEX), F(",CrRCsum=0x"), String(readCheckSum, HEX),
-                       F(",TotalDataSz="), totalDataSize);
-
+      
+      byteCount += sizeof(readCheckSum);      
+      
+      ESP_AT_LOGERROR5(F("CrCCsum=0x"), String(checkSum, HEX), F(",CrRCsum=0x"), String(readCheckSum, HEX), 
+                F(",TotalDataSz="), totalDataSize);
+      
       if ( checkSum != readCheckSum)
       {
         return false;
       }
-
+      
       return true;
     }
-
+    
     //////////////////////////////////////////////
-
+    
     void dueFlashStorage_putDynamicData()
-    {
+    {   
       uint16_t offset = CONFIG_EEPROM_START + sizeof(ESP8266_AT_config);
-
+      
       // Make address 4-byte aligned
       if ( (offset % 4) != 0 )
       {
         offset += 4 - (offset % 4);
       }
-
+      
       int       checkSum = 0;
       uint16_t  byteCount = 0;
-
+           
       // Use 2K buffer, if need more memory, can reduce this
       byte buffer[2048];
-
+         
       for (int i = 0; i < NUM_MENU_ITEMS; i++)
-      {
+      {       
         char* _pointer = myMenuItems[i].pdata;
-
+ 
         ESP_AT_LOGDEBUG3(F("pdata="), myMenuItems[i].pdata, F(",len="), myMenuItems[i].maxlen);
-
+                     
         for (uint16_t j = 0; j < myMenuItems[i].maxlen; j++, _pointer++, /*offset++,*/ byteCount++)
         {
           if (byteCount >= sizeof(buffer))
           {
             ESP_AT_LOGERROR1(F("Danger:dynamic data too long >"), sizeof(buffer));
           }
-
-          buffer[byteCount] = *_pointer;
-          checkSum += *_pointer;
-        }
+          
+          buffer[byteCount] = *_pointer;          
+          checkSum += *_pointer;     
+         }
       }
-
+           
       memcpy(&buffer[byteCount], &checkSum, sizeof(checkSum));
-
+      
       byteCount += sizeof(checkSum);
-
+      
       dueFlashStorageData.write(offset, buffer, byteCount);
-
+      
       ESP_AT_LOGERROR3(F("CrCCSum=0x"), String(checkSum, HEX), F(",byteCount="), byteCount);
     }
 #endif
 
     //////////////////////////////////////////////
-
+ 
     void NULLTerminateConfig()
     {
       //#define HEADER_MAX_LEN      16
       //#define BOARD_NAME_MAX_LEN  24
-
+      
       // NULL Terminating to be sure
       ESP8266_AT_config.header    [HEADER_MAX_LEN - 1]      = 0;
       ESP8266_AT_config.board_name[BOARD_NAME_MAX_LEN - 1]  = 0;
-
+      
       // For WiFi SSID/PWD here
       for (uint8_t i = 0; i < NUM_WIFI_CREDENTIALS; i++)
       {
@@ -1059,136 +1046,134 @@ class ESP_AT_WiFiManager_Lite
         ESP8266_AT_config.WiFi_Creds[i].wifi_pw  [PASS_MAX_LEN - 1] = 0;
       }
     }
-
-    //////////////////////////////////////////////
-
+    
+    //////////////////////////////////////////////  
+    
     bool isWiFiConfigValid()
     {
-#if REQUIRE_ONE_SET_SSID_PW
-
+      #if REQUIRE_ONE_SET_SSID_PW
       // If SSID ="blank" or NULL, or PWD length < 8 (as required by standard) => return false
       // Only need 1 set of valid SSID/PWD
-      if (!( ( ( strncmp(ESP8266_AT_config.WiFi_Creds[0].wifi_ssid, WM_NO_CONFIG, strlen(WM_NO_CONFIG)) &&
+      if (!( ( ( strncmp(ESP8266_AT_config.WiFi_Creds[0].wifi_ssid, WM_NO_CONFIG, strlen(WM_NO_CONFIG)) && 
                  strlen(ESP8266_AT_config.WiFi_Creds[0].wifi_ssid) >  0 )  &&
-               (   strlen(ESP8266_AT_config.WiFi_Creds[0].wifi_pw) >= PASSWORD_MIN_LEN ) ) ||
-             ( ( strncmp(ESP8266_AT_config.WiFi_Creds[1].wifi_ssid, WM_NO_CONFIG, strlen(WM_NO_CONFIG)) &&
+             (   strlen(ESP8266_AT_config.WiFi_Creds[0].wifi_pw) >= PASSWORD_MIN_LEN ) ) ||
+             ( ( strncmp(ESP8266_AT_config.WiFi_Creds[1].wifi_ssid, WM_NO_CONFIG, strlen(WM_NO_CONFIG)) && 
                  strlen(ESP8266_AT_config.WiFi_Creds[1].wifi_ssid) >  0 )  &&
                ( strlen(ESP8266_AT_config.WiFi_Creds[1].wifi_pw) >= PASSWORD_MIN_LEN ) ) ))
-#else
-
+      #else
       // If SSID ="blank" or NULL, or PWD length < 8 (as required by standard) => invalid set
       // Need both sets of valid SSID/PWD
       if ( !strncmp(ESP8266_AT_config.WiFi_Creds[0].wifi_ssid,   WM_NO_CONFIG, strlen(WM_NO_CONFIG) )  ||
            !strncmp(ESP8266_AT_config.WiFi_Creds[0].wifi_pw,     WM_NO_CONFIG, strlen(WM_NO_CONFIG) )  ||
            !strncmp(ESP8266_AT_config.WiFi_Creds[1].wifi_ssid,   WM_NO_CONFIG, strlen(WM_NO_CONFIG) )  ||
            !strncmp(ESP8266_AT_config.WiFi_Creds[1].wifi_pw,     WM_NO_CONFIG, strlen(WM_NO_CONFIG) )  ||
-           ( strlen(ESP8266_AT_config.WiFi_Creds[0].wifi_ssid) == 0 ) ||
+           ( strlen(ESP8266_AT_config.WiFi_Creds[0].wifi_ssid) == 0 ) || 
            ( strlen(ESP8266_AT_config.WiFi_Creds[1].wifi_ssid) == 0 ) ||
            ( strlen(ESP8266_AT_config.WiFi_Creds[0].wifi_pw)   < PASSWORD_MIN_LEN ) ||
            ( strlen(ESP8266_AT_config.WiFi_Creds[1].wifi_pw)   < PASSWORD_MIN_LEN ) )
-#endif
+      #endif     
       {
         ESP_AT_LOGERROR(F("Invalid Stored WiFi Config Data."));
-
+        
         // Nullify the invalid data to avoid displaying garbage
         memset(&ESP8266_AT_config, 0, sizeof(ESP8266_AT_config));
-
-        // If SSID, PW ="blank" or NULL, or PPWD len < 8, set the flag
+        
+        // If SSID, PW ="blank" or NULL, or PPWD len < 8, set the flag      
         if ( ( strlen(ESP8266_AT_config.WiFi_Creds[0].wifi_pw) < PASSWORD_MIN_LEN ) ||
              ( strlen(ESP8266_AT_config.WiFi_Creds[1].wifi_pw) < PASSWORD_MIN_LEN ) )
-        {
+        {    
           ESP_AT_LOGERROR(F("WiFi PWD len < 8"));
         }
         else
         {
           ESP_AT_LOGERROR(F("SSID is blank or NULL"));
         }
-
+        
         hadConfigData = false;
-
+        
         return false;
       }
-
+      
       return true;
     }
-
+            
     //////////////////////////////////////////////
-
+    
     bool dueFlashStorage_get()
     {
       uint16_t offset = CONFIG_EEPROM_START;
-
+            
       byte* dataPointer = (byte* ) dueFlashStorageData.readAddress(offset);
-
+      
       memcpy(&ESP8266_AT_config, dataPointer, sizeof(ESP8266_AT_config));
-
+     
       NULLTerminateConfig();
-
+      
       return isWiFiConfigValid();
     }
-
+    
     //////////////////////////////////////////////
-
+    
     void dueFlashStorage_put()
     {
       uint16_t offset = CONFIG_EEPROM_START;
-
-      dueFlashStorageData.write(offset, (byte *) &ESP8266_AT_config, sizeof(ESP8266_AT_config));
+      
+      dueFlashStorageData.write(offset, (byte *) &ESP8266_AT_config, sizeof(ESP8266_AT_config));   
     }
-
+    
     //////////////////////////////////////////////
 
     void saveConfigData()
     {
       int calChecksum = calcChecksum();
       ESP8266_AT_config.checkSum = calChecksum;
-
+      
       ESP_AT_LOGERROR1(F("SaveData,ChkSum=0x"), String(calChecksum, HEX));
 
       dueFlashStorage_put();
-
-#if USE_DYNAMIC_PARAMETERS
+      
+#if USE_DYNAMIC_PARAMETERS      
       dueFlashStorage_putDynamicData();
-#endif
+#endif      
     }
-
-
+    
+    
     //////////////////////////////////////////////
-
+    
     // New from v1.0.4
     void loadAndSaveDefaultConfigData()
     {
       // Load Default Config Data from Sketch
       memcpy(&ESP8266_AT_config, &defaultConfig, sizeof(ESP8266_AT_config));
       strcpy(ESP8266_AT_config.header, ESP_AT_BOARD_TYPE);
-
+      
       // Including config and dynamic data, and assume valid
       saveConfigData();
-
+          
       ESP_AT_LOGDEBUG(F("======= Start Loaded Config Data ======="));
-      displayConfigData(ESP8266_AT_config);
+      displayConfigData(ESP8266_AT_config);    
     }
-
+    
     //////////////////////////////////////////////
-
+ 
     bool getConfigData()
     {
       bool dynamicDataValid = true;
       int calChecksum;
-
-      hadConfigData = false;
-
+      
+      hadConfigData = false;    
+          
       // For DUE, DATA_LENGTH = ((IFLASH1_PAGE_SIZE/sizeof(byte))*4) = 1KBytes
       ESP_AT_LOGWARN1(F("Simulate EEPROM, Sz:"), DATA_LENGTH);
 
       // Use new LOAD_DEFAULT_CONFIG_DATA logic
       if (LOAD_DEFAULT_CONFIG_DATA)
-      {
+      {     
         // Load Config Data from Sketch
         loadAndSaveDefaultConfigData();
-
+        
         // Don't need Config Portal anymore
-        return true;
+        return true; 
       }
       else
       {
@@ -1198,34 +1183,34 @@ class ESP_AT_WiFiManager_Lite
         if (!dueFlashStorage_get())
         {
           return false;
-        }
-
+        }       
+            
         calChecksum = calcChecksum();
 
         ESP_AT_LOGERROR3(F("CCSum=0x"), String(calChecksum, HEX),
                          F(",RCSum=0x"), String(ESP8266_AT_config.checkSum, HEX));
-
-#if USE_DYNAMIC_PARAMETERS
+        
+#if USE_DYNAMIC_PARAMETERS      
         // Load stored config / dynamic data from dueFlashStorage
         // Verify ChkSum
         dynamicDataValid = checkDynamicData();
 #endif
-
+        
         // If checksum = 0 => DueFlashStorage has been cleared (by uploading new FW, etc) => force to CP
         // If bad checksum = 0 => force to CP
         if ( (calChecksum != 0) && (calChecksum == ESP8266_AT_config.checkSum) )
-        {
+        {            
           if (dynamicDataValid)
           {
-#if USE_DYNAMIC_PARAMETERS
+#if USE_DYNAMIC_PARAMETERS  
             dueFlashStorage_getDynamicData();
-
+            
             ESP_AT_LOGERROR(F("Valid Stored Dynamic Data"));
 #endif
-
+                   
             ESP_AT_LOGERROR(F("======= Start Stored Config Data ======="));
             displayConfigData(ESP8266_AT_config);
-
+            
             // Don't need Config Portal anymore
             return true;
           }
@@ -1233,16 +1218,16 @@ class ESP_AT_WiFiManager_Lite
           {
             // Invalid Stored config data => Config Portal
             ESP_AT_LOGERROR(F("Invalid Stored Dynamic Data. Load default from Sketch"));
-
+            
             // Load Default Config Data from Sketch, better than just "blank"
             loadAndSaveDefaultConfigData();
-
+                             
             // Need Config Portal here as data can be just dummy
-            // Even if you don't open CP, you're OK on next boot if your default config data is valid
+            // Even if you don't open CP, you're OK on next boot if your default config data is valid 
             return false;
-          }
-        }
-      }
+          } 
+        }     
+      }     
 
       if ( (strncmp(ESP8266_AT_config.header, ESP_AT_BOARD_TYPE, strlen(ESP_AT_BOARD_TYPE)) != 0) ||
            (calChecksum != ESP8266_AT_config.checkSum) || !dynamicDataValid )
@@ -1250,7 +1235,7 @@ class ESP_AT_WiFiManager_Lite
         // Including Credentials CSum
         ESP_AT_LOGERROR1(F("InitCfgDat,Sz="), sizeof(ESP8266_AT_config));
 
-        // doesn't have any configuration
+        // doesn't have any configuration        
         if (LOAD_DEFAULT_CONFIG_DATA)
         {
           memcpy(&ESP8266_AT_config, &defaultConfig, sizeof(ESP8266_AT_config));
@@ -1260,48 +1245,42 @@ class ESP_AT_WiFiManager_Lite
           memset(&ESP8266_AT_config, 0, sizeof(ESP8266_AT_config));
 
 #if USE_DYNAMIC_PARAMETERS
-
           for (uint8_t i = 0; i < NUM_MENU_ITEMS; i++)
           {
             // Actual size of pdata is [maxlen + 1]
             memset(myMenuItems[i].pdata, 0, myMenuItems[i].maxlen + 1);
           }
-
 #endif
-
-          // doesn't have any configuration
+                   
+          // doesn't have any configuration    
           strcpy(ESP8266_AT_config.WiFi_Creds[0].wifi_ssid,   WM_NO_CONFIG);
           strcpy(ESP8266_AT_config.WiFi_Creds[0].wifi_pw,     WM_NO_CONFIG);
           strcpy(ESP8266_AT_config.WiFi_Creds[1].wifi_ssid,   WM_NO_CONFIG);
           strcpy(ESP8266_AT_config.WiFi_Creds[1].wifi_pw,     WM_NO_CONFIG);
           strcpy(ESP8266_AT_config.board_name, DEFAULT_BOARD_NAME);
 
-#if USE_DYNAMIC_PARAMETERS
-
+#if USE_DYNAMIC_PARAMETERS          
           for (uint8_t i = 0; i < NUM_MENU_ITEMS; i++)
           {
             strncpy(myMenuItems[i].pdata, WM_NO_CONFIG, myMenuItems[i].maxlen);
           }
-
-#endif
+#endif          
         }
-
+    
         strcpy(ESP8266_AT_config.header, ESP_AT_BOARD_TYPE);
 
-#if USE_DYNAMIC_PARAMETERS
-
+#if USE_DYNAMIC_PARAMETERS        
         for (uint8_t i = 0; i < NUM_MENU_ITEMS; i++)
         {
           ESP_AT_LOGDEBUG3(F("g:myMenuItems["), i, F("]="), myMenuItems[i].pdata );
         }
-
 #endif
-
+        
         // Don't need
         ESP8266_AT_config.checkSum = 0;
 
         saveConfigData();
-
+        
         return false;
       }
       else if ( !isWiFiConfigValid() )
@@ -1317,17 +1296,17 @@ class ESP_AT_WiFiManager_Lite
 
       return true;
     }
-
+    
     //////////////////////////////////////////////
-
-    // Max times to try WiFi per loop() iteration. To avoid blocking issue in loop()
-    // Default 1 and minimum 1.
-#if !defined(MAX_NUM_WIFI_RECON_TRIES_PER_LOOP)
-#define MAX_NUM_WIFI_RECON_TRIES_PER_LOOP     1
+    
+// Max times to try WiFi per loop() iteration. To avoid blocking issue in loop()
+// Default 1 and minimum 1.
+#if !defined(MAX_NUM_WIFI_RECON_TRIES_PER_LOOP)      
+  #define MAX_NUM_WIFI_RECON_TRIES_PER_LOOP     1
 #else
-#if (MAX_NUM_WIFI_RECON_TRIES_PER_LOOP < 1)
-#define MAX_NUM_WIFI_RECON_TRIES_PER_LOOP     1
-#endif
+  #if (MAX_NUM_WIFI_RECON_TRIES_PER_LOOP < 1)  
+    #define MAX_NUM_WIFI_RECON_TRIES_PER_LOOP     1
+  #endif
 #endif
 
     // New connection logic from v1.2.0
@@ -1337,33 +1316,32 @@ class ESP_AT_WiFiManager_Lite
       int index       = 0;
       int new_index   = 0;
       uint8_t status  = WL_IDLE_STATUS;
-
+                       
       static int lastConnectedIndex = 255;
 
       ESP_AT_LOGDEBUG(F("ConMultiWifi"));
-
+      
       if (static_IP != IPAddress(0, 0, 0, 0))
       {
         ESP_AT_LOGDEBUG(F("UseStatIP"));
         WiFi.config(static_IP);
       }
-
+      
       if (lastConnectedIndex != 255)
       {
         //  Successive connection, index = ??
         // Checking if new_index is OK
         new_index = (lastConnectedIndex + 1) % NUM_WIFI_CREDENTIALS;
-
+        
         if ( strlen(ESP8266_AT_config.WiFi_Creds[new_index].wifi_pw) >= PASSWORD_MIN_LEN )
-        {
+        {    
           index = new_index;
           ESP_AT_LOGDEBUG3(F("Using index="), index, F(", lastConnectedIndex="), lastConnectedIndex);
         }
         else
         {
-          ESP_AT_LOGERROR3(F("Ignore invalid WiFi PW : index="), new_index, F(", PW="),
-                           ESP8266_AT_config.WiFi_Creds[new_index].wifi_pw);
-
+          ESP_AT_LOGERROR3(F("Ignore invalid WiFi PW : index="), new_index, F(", PW="), ESP8266_AT_config.WiFi_Creds[new_index].wifi_pw);
+          
           // Using the previous valid index
           index = lastConnectedIndex;
         }
@@ -1372,71 +1350,70 @@ class ESP_AT_WiFiManager_Lite
       {
         //  First connection ever, index = 0
         if ( strlen(ESP8266_AT_config.WiFi_Creds[0].wifi_pw) >= PASSWORD_MIN_LEN )
-        {
+        {    
           ESP_AT_LOGDEBUG(F("First connection, Using index=0"));
         }
         else
         {
           ESP_AT_LOGERROR3(F("Ignore invalid WiFi PW : index=0, SSID="), ESP8266_AT_config.WiFi_Creds[0].wifi_ssid,
-                           F(", PWD="), ESP8266_AT_config.WiFi_Creds[0].wifi_pw);
-
+                       F(", PWD="), ESP8266_AT_config.WiFi_Creds[0].wifi_pw);
+          
           // Using the next valid index
           index = 1;
         }
-      }
-
+      } 
+         
       ESP_AT_LOGERROR3(F("con2WF:SSID="), ESP8266_AT_config.WiFi_Creds[index].wifi_ssid,
-                       F(",PW="), ESP8266_AT_config.WiFi_Creds[index].wifi_pw);
-
+                   F(",PW="), ESP8266_AT_config.WiFi_Creds[index].wifi_pw);
+      
       uint8_t numIndexTried = 0;
-
+      
       uint8_t numWiFiReconTries = 0;
-
-      while ( !wifi_connected && (numIndexTried++ < NUM_WIFI_CREDENTIALS)
-              && (numWiFiReconTries++ < MAX_NUM_WIFI_RECON_TRIES_PER_LOOP) )
-      {
+     
+      while ( !wifi_connected && (numIndexTried++ < NUM_WIFI_CREDENTIALS) && (numWiFiReconTries++ < MAX_NUM_WIFI_RECON_TRIES_PER_LOOP) )
+      {         
         while ( 0 < retry_time )
-        {
+        {      
           ESP_AT_LOGDEBUG1(F("Remaining retry_time="), retry_time);
-
-          status = WiFi.begin(ESP8266_AT_config.WiFi_Creds[index].wifi_ssid, ESP8266_AT_config.WiFi_Creds[index].wifi_pw);
-
-          // Need restart WiFi at beginning of each cycle
+          
+          status = WiFi.begin(ESP8266_AT_config.WiFi_Creds[index].wifi_ssid, ESP8266_AT_config.WiFi_Creds[index].wifi_pw); 
+              
+          // Need restart WiFi at beginning of each cycle 
           if (status == WL_CONNECTED)
           {
-            wifi_connected = true;
-            lastConnectedIndex = index;
+            wifi_connected = true;          
+            lastConnectedIndex = index;                                     
             ESP_AT_LOGDEBUG1(F("WOK, lastConnectedIndex="), lastConnectedIndex);
-
+            
             break;
           }
           else
           {
             delay(sleep_time);
             retry_time--;
-          }
+          }         
         }
-
+        
         if (status == WL_CONNECTED)
-        {
+        {         
           break;
         }
         else
-        {
+        {        
           if (retry_time <= 0)
-          {
+          {      
             ESP_AT_LOGERROR3(F("Failed using index="), index, F(", retry_time="), retry_time);
-            retry_time = RETRY_TIMES_CONNECT_WIFI;
+            retry_time = RETRY_TIMES_CONNECT_WIFI;  
           }
-
+          
           new_index = (index + 1) % NUM_WIFI_CREDENTIALS;
-
+          
           // only use new index if valid (len >= PASSWORD_MIN_LEN = 8)
           if ( strlen(ESP8266_AT_config.WiFi_Creds[new_index].wifi_pw) >= PASSWORD_MIN_LEN )
           {
             index = new_index;
           }
-
+          
           //WiFi.end();
         }
       }
@@ -1444,48 +1421,44 @@ class ESP_AT_WiFiManager_Lite
       if (wifi_connected)
       {
         ESP_AT_LOGERROR(F("con2WF:OK"));
-
+        
         ESP_AT_LOGERROR1(F("IP="), WiFi.localIP() );
-
+        
         displayWiFiData();
       }
       else
       {
-        ESP_AT_LOGERROR(F("con2WF:failed"));
+        ESP_AT_LOGERROR(F("con2WF:failed"));  
         // Can't connect, so try another index next time. Faking this index is OK and lost
-        lastConnectedIndex = index;
+        lastConnectedIndex = index;  
       }
 
-      return wifi_connected;
+      return wifi_connected;  
     }
-
+       
     //////////////////////////////////////////////
     // NEW
     void createHTML(String& root_html_template)
     {
       String pitem;
-
+      
       root_html_template  = ESP_AT_HTML_HEAD_START;
-
-#if USING_CUSTOMS_STYLE
-
+      
+  #if USING_CUSTOMS_STYLE
       // Using Customs style when not NULL
       if (ESP_AT_HTML_HEAD_CUSTOMS_STYLE)
         root_html_template  += ESP_AT_HTML_HEAD_CUSTOMS_STYLE;
       else
         root_html_template  += ESP_AT_HTML_HEAD_STYLE;
-
-#else
+  #else     
       root_html_template  += ESP_AT_HTML_HEAD_STYLE;
-#endif
-
-#if USING_CUSTOMS_HEAD_ELEMENT
-
+  #endif
+      
+  #if USING_CUSTOMS_HEAD_ELEMENT
       if (_CustomsHeadElement)
         root_html_template += _CustomsHeadElement;
-
-#endif
-
+  #endif          
+     
 #if SCAN_WIFI_NETWORKS
       ESP_AT_LOGDEBUG1(WiFiNetworksFound, F(" SSIDs found, generating HTML now"));
       // Replace HTML <input...> with <select...>, based on WiFi network scan in startConfigurationMode()
@@ -1494,27 +1467,25 @@ class ESP_AT_WiFiManager_Lite
 
       for (int i = 0, list_items = 0; (i < WiFiNetworksFound) && (list_items < MAX_SSID_IN_LIST); i++)
       {
-        if (indices[i] == -1)
-          continue;     // skip duplicates and those that are below the required quality
-
-        ListOfSSIDs += WM_OPTION_START + String(WiFi.SSID(indices[i])) + WM_OPTION_END;
-        list_items++;   // Count number of suitable, distinct SSIDs to be included in list
+        if (indices[i] == -1) 
+          continue; 		// skip duplicates and those that are below the required quality
+          
+        ListOfSSIDs += WM_OPTION_START + String(WiFi.SSID(indices[i])) + WM_OPTION_END;	
+        list_items++;		// Count number of suitable, distinct SSIDs to be included in list
       }
 
       ESP_AT_LOGDEBUG(ListOfSSIDs);
 
-      if (ListOfSSIDs == "")    // No SSID found or none was good enough
+      if (ListOfSSIDs == "")		// No SSID found or none was good enough
         ListOfSSIDs = WM_OPTION_START + String(WM_NO_NETWORKS_FOUND) + WM_OPTION_END;
 
       pitem = String(ESP_AT_HTML_HEAD_END);
 
 #if MANUAL_SSID_INPUT_ALLOWED
-      pitem.replace("[[input_id]]",  "<input id='id' list='SSIDs'>"  + String(WM_DATALIST_START) + "'SSIDs'>" + ListOfSSIDs +
-                    WM_DATALIST_END);
+      pitem.replace("[[input_id]]",  "<input id='id' list='SSIDs'>"  + String(WM_DATALIST_START) + "'SSIDs'>" + ListOfSSIDs + WM_DATALIST_END);
       ESP_AT_LOGDEBUG1(F("pitem:"), pitem);
-      pitem.replace("[[input_id1]]", "<input id='id1' list='SSIDs'>" + String(WM_DATALIST_START) + "'SSIDs'>" + ListOfSSIDs +
-                    WM_DATALIST_END);
-
+      pitem.replace("[[input_id1]]", "<input id='id1' list='SSIDs'>" + String(WM_DATALIST_START) + "'SSIDs'>" + ListOfSSIDs + WM_DATALIST_END);
+      
       ESP_AT_LOGDEBUG1(F("pitem:"), pitem);
 
 #else
@@ -1533,8 +1504,7 @@ class ESP_AT_WiFiManager_Lite
 
 #endif    // SCAN_WIFI_NETWORKS
 
-#if USE_DYNAMIC_PARAMETERS
-
+#if USE_DYNAMIC_PARAMETERS      
       for (uint16_t i = 0; i < NUM_MENU_ITEMS; i++)
       {
         pitem = String(ESP_AT_HTML_PARAM);
@@ -1542,57 +1512,54 @@ class ESP_AT_WiFiManager_Lite
         pitem.replace("{b}", myMenuItems[i].displayName);
         pitem.replace("{v}", myMenuItems[i].id);
         pitem.replace("{i}", myMenuItems[i].id);
-
+        
         root_html_template += pitem;
       }
-
 #endif
+     
+      root_html_template += String(ESP_AT_FLDSET_END) + ESP_AT_HTML_BUTTON + ESP_AT_HTML_SCRIPT;     
 
-      root_html_template += String(ESP_AT_FLDSET_END) + ESP_AT_HTML_BUTTON + ESP_AT_HTML_SCRIPT;
-
-#if USE_DYNAMIC_PARAMETERS
-
+#if USE_DYNAMIC_PARAMETERS      
       for (uint16_t i = 0; i < NUM_MENU_ITEMS; i++)
       {
         pitem = String(ESP_AT_HTML_SCRIPT_ITEM);
-
+        
         pitem.replace("{d}", myMenuItems[i].id);
-
+        
         root_html_template += pitem;
       }
-
 #endif
-
+      
       root_html_template += String(ESP_AT_HTML_SCRIPT_END) + ESP_AT_HTML_END;
-
-      return;
+      
+      return;     
     }
-
+    
     //////////////////////////////////////////////
 
     void serverSendHeaders()
     {
       ESP_AT_LOGDEBUG3(F("serverSendHeaders:WM_HTTP_CACHE_CONTROL:"), WM_HTTP_CACHE_CONTROL, "=", WM_HTTP_NO_STORE);
       server->sendHeader(WM_HTTP_CACHE_CONTROL, WM_HTTP_NO_STORE);
-
+      
 #if USING_CORS_FEATURE
       // New from v1.1.0, for configure CORS Header, default to WM_HTTP_CORS_ALLOW_ALL = "*"
       ESP_AT_LOGDEBUG3(F("serverSendHeaders:WM_HTTP_CORS:"), WM_HTTP_CORS, " : ", _CORS_Header);
       server->sendHeader(WM_HTTP_CORS, _CORS_Header);
 #endif
-
+     
       ESP_AT_LOGDEBUG3(F("serverSendHeaders:WM_HTTP_PRAGMA:"), WM_HTTP_PRAGMA, " : ", WM_HTTP_NO_CACHE);
       server->sendHeader(WM_HTTP_PRAGMA, WM_HTTP_NO_CACHE);
-
+      
       ESP_AT_LOGDEBUG3(F("serverSendHeaders:WM_HTTP_EXPIRES:"), WM_HTTP_EXPIRES, " : ", "-1");
       server->sendHeader(WM_HTTP_EXPIRES, "-1");
     }
-
+       
     //////////////////////////////////////////////
 
-
+    
     void handleRequest()
-    {
+    {     
       if (server)
       {
         String key    = server->arg("key");
@@ -1602,34 +1569,34 @@ class ESP_AT_WiFiManager_Lite
 
         if (key == "" && value == "")
         {
-          // New from v1.2.0
-          serverSendHeaders();
+          // New from v1.2.0         
+          serverSendHeaders();        
           //////
-
+          
           String result;
           createHTML(result);
-
+          
           ESP_AT_LOGDEBUG(F("h:repl"));
 
           // Reset configTimeout to stay here until finished.
           configTimeout = 0;
-
+          
           if ( ESP8266_AT_config.board_name[0] != 0 )
           {
             // Or replace only if board_name is valid.  Otherwise, keep intact
             result.replace("SAM_DUE_AT_WM_Lite", ESP8266_AT_config.board_name);
           }
-
+         
           if (hadConfigData)
           {
             result.replace("[[id]]",     ESP8266_AT_config.WiFi_Creds[0].wifi_ssid);
             result.replace("[[pw]]",     ESP8266_AT_config.WiFi_Creds[0].wifi_pw);
             result.replace("[[id1]]",    ESP8266_AT_config.WiFi_Creds[1].wifi_ssid);
             result.replace("[[pw1]]",    ESP8266_AT_config.WiFi_Creds[1].wifi_pw);
-
-#if USING_BOARD_NAME
+            
+#if USING_BOARD_NAME            
             result.replace("[[nm]]",     ESP8266_AT_config.board_name);
-#endif
+#endif            
           }
           else
           {
@@ -1637,34 +1604,32 @@ class ESP_AT_WiFiManager_Lite
             result.replace("[[pw]]",  "");
             result.replace("[[id1]]", "");
             result.replace("[[pw1]]", "");
-
-#if USING_BOARD_NAME
+            
+#if USING_BOARD_NAME            
             result.replace("[[nm]]",  "");
-#endif
+#endif            
           }
-
-#if USE_DYNAMIC_PARAMETERS
-
+ 
+#if USE_DYNAMIC_PARAMETERS          
           for (uint8_t i = 0; i < NUM_MENU_ITEMS; i++)
           {
             String toChange = String("[[") + myMenuItems[i].id + "]]";
             result.replace(toChange, myMenuItems[i].pdata);
           }
-
 #endif
-
+          
           // Check if HTML size is larger than 2K, warn that WebServer won't work
-          // because of notorious 2K buffer limitation of ESP8266-AT.
+          // because of notorious 2K buffer limitation of ESP8266-AT. 
           // Use conservative value 2000 instead of 2048
           uint16_t HTML_page_size = result.length();
-
+          
           ESP_AT_LOGDEBUG1(F("h:HTML page size:"), HTML_page_size);
-
+          
           if (HTML_page_size > 2000)
           {
             ESP_AT_LOGERROR(F("h:HTML page larger than 2K. Config Portal won't work. Reduce dynamic params"));
-          }
-
+          }   
+          
           server->send(200, "text/html", result);
 
           return;
@@ -1677,59 +1642,56 @@ class ESP_AT_WiFiManager_Lite
         }
 
 #if USE_DYNAMIC_PARAMETERS
-
         if (!menuItemUpdated)
         {
           // Don't need to free
           menuItemUpdated = new bool[NUM_MENU_ITEMS];
-
+          
           if (menuItemUpdated)
           {
             for (uint16_t i = 0; i < NUM_MENU_ITEMS; i++)
-            {
+            {           
               // To flag item is not yet updated
-              menuItemUpdated[i] = false;
+              menuItemUpdated[i] = false;       
             }
-
-            ESP_AT_LOGDEBUG1(F("h: Init menuItemUpdated :" ), NUM_MENU_ITEMS);
+            
+            ESP_AT_LOGDEBUG1(F("h: Init menuItemUpdated :" ), NUM_MENU_ITEMS);                    
           }
           else
           {
             ESP_AT_LOGERROR(F("h: Error can't alloc memory for menuItemUpdated" ));
           }
-        }
-
+        }  
 #endif
 
         static bool id_Updated  = false;
         static bool pw_Updated  = false;
         static bool id1_Updated = false;
         static bool pw1_Updated = false;
-
-#if USING_BOARD_NAME
+        
+#if USING_BOARD_NAME         
         static bool nm_Updated  = false;
 #endif
-
+        
         if (!id_Updated && (key == String("id")))
         {
           ESP_AT_LOGDEBUG(F("h:repl id"));
           id_Updated = true;
-
+          
           number_items_Updated++;
-
+          
           if (strlen(value.c_str()) < sizeof(ESP8266_AT_config.WiFi_Creds[0].wifi_ssid) - 1)
             strcpy(ESP8266_AT_config.WiFi_Creds[0].wifi_ssid, value.c_str());
           else
-            strncpy(ESP8266_AT_config.WiFi_Creds[0].wifi_ssid, value.c_str(),
-                    sizeof(ESP8266_AT_config.WiFi_Creds[0].wifi_ssid) - 1);
+            strncpy(ESP8266_AT_config.WiFi_Creds[0].wifi_ssid, value.c_str(), sizeof(ESP8266_AT_config.WiFi_Creds[0].wifi_ssid) - 1);
         }
         else if (!pw_Updated && (key == String("pw")))
         {
           ESP_AT_LOGDEBUG(F("h:repl pw"));
           pw_Updated = true;
-
+          
           number_items_Updated++;
-
+          
           if (strlen(value.c_str()) < sizeof(ESP8266_AT_config.WiFi_Creds[0].wifi_pw) - 1)
             strcpy(ESP8266_AT_config.WiFi_Creds[0].wifi_pw, value.c_str());
           else
@@ -1739,56 +1701,51 @@ class ESP_AT_WiFiManager_Lite
         {
           ESP_AT_LOGDEBUG(F("h:repl id1"));
           id1_Updated = true;
-
+          
           number_items_Updated++;
-
+          
           if (strlen(value.c_str()) < sizeof(ESP8266_AT_config.WiFi_Creds[1].wifi_ssid) - 1)
             strcpy(ESP8266_AT_config.WiFi_Creds[1].wifi_ssid, value.c_str());
           else
-            strncpy(ESP8266_AT_config.WiFi_Creds[1].wifi_ssid, value.c_str(),
-                    sizeof(ESP8266_AT_config.WiFi_Creds[1].wifi_ssid) - 1);
+            strncpy(ESP8266_AT_config.WiFi_Creds[1].wifi_ssid, value.c_str(), sizeof(ESP8266_AT_config.WiFi_Creds[1].wifi_ssid) - 1);
         }
         else if (!pw1_Updated && (key == String("pw1")))
         {
           ESP_AT_LOGDEBUG(F("h:repl pw1"));
           pw1_Updated = true;
-
+          
           number_items_Updated++;
-
+          
           if (strlen(value.c_str()) < sizeof(ESP8266_AT_config.WiFi_Creds[1].wifi_pw) - 1)
             strcpy(ESP8266_AT_config.WiFi_Creds[1].wifi_pw, value.c_str());
           else
             strncpy(ESP8266_AT_config.WiFi_Creds[1].wifi_pw, value.c_str(), sizeof(ESP8266_AT_config.WiFi_Creds[1].wifi_pw) - 1);
         }
-
-#if USING_BOARD_NAME
+#if USING_BOARD_NAME        
         else if (!nm_Updated && (key == String("nm")))
         {
           ESP_AT_LOGDEBUG(F("h:repl nm"));
           nm_Updated = true;
-
+          
           number_items_Updated++;
-
           if (strlen(value.c_str()) < sizeof(ESP8266_AT_config.board_name) - 1)
             strcpy(ESP8266_AT_config.board_name, value.c_str());
           else
             strncpy(ESP8266_AT_config.board_name, value.c_str(), sizeof(ESP8266_AT_config.board_name) - 1);
-        }
-
+        }    
 #endif
         else
         {
-
-#if USE_DYNAMIC_PARAMETERS
-
+        
+#if USE_DYNAMIC_PARAMETERS        
           for (uint16_t i = 0; i < NUM_MENU_ITEMS; i++)
-          {
+          {           
             if ( !menuItemUpdated[i] && (key == myMenuItems[i].id) )
             {
               ESP_AT_LOGDEBUG3(F("h:"), myMenuItems[i].id, F("="), value.c_str() );
-
+              
               menuItemUpdated[i] = true;
-
+              
               number_items_Updated++;
 
               // Actual size of pdata is [maxlen + 1]
@@ -1798,21 +1755,19 @@ class ESP_AT_WiFiManager_Lite
                 strcpy(myMenuItems[i].pdata, value.c_str());
               else
                 strncpy(myMenuItems[i].pdata, value.c_str(), myMenuItems[i].maxlen);
-
-              break;
+                
+              break;  
             }
           }
-
 #endif
         }
-
+        
         ESP_AT_LOGDEBUG1(F("h:items updated ="), number_items_Updated);
         ESP_AT_LOGDEBUG3(F("h:key ="), key, ", value =", value);
-
+        
         server->send(200, "text/html", "OK");
 
-#if USE_DYNAMIC_PARAMETERS
-
+#if USE_DYNAMIC_PARAMETERS        
         if (number_items_Updated == NUM_CONFIGURABLE_ITEMS + NUM_MENU_ITEMS)
 #else
         if (number_items_Updated == NUM_CONFIGURABLE_ITEMS)
@@ -1831,30 +1786,30 @@ class ESP_AT_WiFiManager_Lite
         }
       }   // if (server)
     }
-
-    //////////////////////////////////////////////
-
+    
+    //////////////////////////////////////////////   
+    
 #ifndef CONFIG_TIMEOUT
-#warning Default CONFIG_TIMEOUT = 60s
-#define CONFIG_TIMEOUT      60000L
-#endif
+  #warning Default CONFIG_TIMEOUT = 60s
+  #define CONFIG_TIMEOUT			60000L
+#endif    
 
     void startConfigurationMode()
     {
       // ReInitialize ESP module
       //WiFi.reInit();
-
+      
 #if USING_CONFIG_MODE_LED
       // turn the LED_BUILTIN ON to tell us we enter configuration mode.
       digitalWrite(CONFIG_MODE_LED, LED_ON);
 #endif
-
+      
 #if SCAN_WIFI_NETWORKS
-      configTimeout = 0;  // To allow user input in CP
-
-      WiFiNetworksFound = scanWifiNetworks(&indices);
+	    configTimeout = 0;  // To allow user input in CP
+	    
+	    WiFiNetworksFound = scanWifiNetworks(&indices);	
 #endif
-
+    
       WiFi.config(portal_apIP);
 
       if ( (portal_ssid == "") || portal_pass == "" )
@@ -1867,10 +1822,10 @@ class ESP_AT_WiFiManager_Lite
       }
 
       // start access point, AP only, channel 10
-
+           
       uint16_t channel;
-
-      // Use random channel if  AP_channel == 0
+     
+      // Use random channel if  AP_channel == 0     
       if (AP_channel == 0)
         channel = (millis() % MAX_WIFI_CHANNEL) + 1;     //random(MAX_WIFI_CHANNEL) + 1;
       else
@@ -1878,7 +1833,7 @@ class ESP_AT_WiFiManager_Lite
 
       ESP_AT_LOGERROR3(F("SSID="), portal_ssid, F(",PW="), portal_pass);
       ESP_AT_LOGERROR3(F("IP="), portal_apIP, F(",CH="), channel);
-
+     
       WiFi.beginAP(portal_ssid.c_str(), channel, portal_pass.c_str(), ENC_TYPE_WPA2_PSK, true);
 
       if (!server)
@@ -1892,10 +1847,7 @@ class ESP_AT_WiFiManager_Lite
 
       if (server)
       {
-        server->on("/", [this]()
-        {
-          handleRequest();
-        });
+        server->on("/", [this](){ handleRequest(); });
         server->begin();
       }
 
@@ -1908,179 +1860,179 @@ class ESP_AT_WiFiManager_Lite
 
       configuration_mode = true;
     }
-
+    
 #if SCAN_WIFI_NETWORKS
 
-    // Source code adapted from https://github.com/khoih-prog/ESP_WiFiManager/blob/master/src/ESP_WiFiManager-Impl.h
+	  // Source code adapted from https://github.com/khoih-prog/ESP_WiFiManager/blob/master/src/ESP_WiFiManager-Impl.h
 
     int           _paramsCount            = 0;
     int           _minimumQuality         = -1;
     bool          _removeDuplicateAPs     = true;
-
-    //////////////////////////////////////////
-
+	
+	  //////////////////////////////////////////
+    
     void swap(int *thisOne, int *thatOne)
     {
-      int tempo;
+       int tempo;
 
-      tempo    = *thatOne;
-      *thatOne = *thisOne;
-      *thisOne = tempo;
+       tempo    = *thatOne;
+       *thatOne = *thisOne;
+       *thisOne = tempo;
     }
 
     //////////////////////////////////////////
+	
+	  void setMinimumSignalQuality(const int& quality)
+	  {
+	    _minimumQuality = quality;
+	  }
 
-    void setMinimumSignalQuality(const int& quality)
-    {
-      _minimumQuality = quality;
-    }
+	  //////////////////////////////////////////
 
-    //////////////////////////////////////////
+	  //if this is true, remove duplicate Access Points - default true
+	  void setRemoveDuplicateAPs(const bool& removeDuplicates)
+	  {
+	    _removeDuplicateAPs = removeDuplicates;
+	  }
 
-    //if this is true, remove duplicate Access Points - default true
-    void setRemoveDuplicateAPs(const bool& removeDuplicates)
-    {
-      _removeDuplicateAPs = removeDuplicates;
-    }
+	  //////////////////////////////////////////
 
-    //////////////////////////////////////////
+	  //Scan for WiFiNetworks in range and sort by signal strength
+	  //space for indices array allocated on the heap and should be freed when no longer required  
+	  int scanWifiNetworks(int **indicesptr)
+	  {
+	    ESP_AT_LOGERROR(F("Scanning Network"));
 
-    //Scan for WiFiNetworks in range and sort by signal strength
-    //space for indices array allocated on the heap and should be freed when no longer required
-    int scanWifiNetworks(int **indicesptr)
-    {
-      ESP_AT_LOGERROR(F("Scanning Network"));
+	    int n = WiFi.scanNetworks();
 
-      int n = WiFi.scanNetworks();
+	    ESP_AT_LOGERROR1(F("scanWifiNetworks: Done, Scanned Networks n = "), n); 
 
-      ESP_AT_LOGERROR1(F("scanWifiNetworks: Done, Scanned Networks n = "), n);
+	    //KH, Terrible bug here. WiFi.scanNetworks() returns n < 0 => malloc( negative == very big ) => crash!!!
+	    //In .../esp32/libraries/WiFi/src/WiFiType.h
+	    //#define WIFI_SCAN_RUNNING   (-1)
+	    //#define WIFI_SCAN_FAILED    (-2)
+	    //if (n == 0)
+	    if (n <= 0)
+	    {
+		    ESP_AT_LOGERROR(F("No network found"));
+		    return (0);
+	    }
+	    else
+	    {
+		    // Allocate space off the heap for indices array.
+		    // This space should be freed when no longer required.
+		    int* indices = (int *)malloc(n * sizeof(int));
 
-      //KH, Terrible bug here. WiFi.scanNetworks() returns n < 0 => malloc( negative == very big ) => crash!!!
-      //In .../esp32/libraries/WiFi/src/WiFiType.h
-      //#define WIFI_SCAN_RUNNING   (-1)
-      //#define WIFI_SCAN_FAILED    (-2)
-      //if (n == 0)
-      if (n <= 0)
-      {
-        ESP_AT_LOGERROR(F("No network found"));
-        return (0);
-      }
-      else
-      {
-        // Allocate space off the heap for indices array.
-        // This space should be freed when no longer required.
-        int* indices = (int *)malloc(n * sizeof(int));
+		    if (indices == NULL)
+		    {
+		      ESP_AT_LOGERROR(F("ERROR: Out of memory"));
+		      *indicesptr = NULL;
+		      return (0);
+		    }
 
-        if (indices == NULL)
-        {
-          ESP_AT_LOGERROR(F("ERROR: Out of memory"));
-          *indicesptr = NULL;
-          return (0);
-        }
+		    *indicesptr = indices;
+	       
+		    //sort networks
+		    for (int i = 0; i < n; i++)
+		    {
+		      indices[i] = i;
+		    }
 
-        *indicesptr = indices;
+		    ESP_AT_LOGDEBUG(F("Sorting"));
 
-        //sort networks
-        for (int i = 0; i < n; i++)
-        {
-          indices[i] = i;
-        }
+		    // RSSI SORT
+		    // old sort
+		    for (int i = 0; i < n; i++)
+		    {
+		      for (int j = i + 1; j < n; j++)
+		      {
+			      if (WiFi.RSSI(indices[j]) > WiFi.RSSI(indices[i]))
+			      {
+                    //std::swap(indices[i], indices[j]);
+                    // Using locally defined swap()
+                    swap(&indices[i], &indices[j]);
+       			}
+		      }
+		    }
 
-        ESP_AT_LOGDEBUG(F("Sorting"));
+		    ESP_AT_LOGDEBUG(F("Removing Dup"));
 
-        // RSSI SORT
-        // old sort
-        for (int i = 0; i < n; i++)
-        {
-          for (int j = i + 1; j < n; j++)
-          {
-            if (WiFi.RSSI(indices[j]) > WiFi.RSSI(indices[i]))
-            {
-              //std::swap(indices[i], indices[j]);
-              // Using locally defined swap()
-              swap(&indices[i], &indices[j]);
-            }
-          }
-        }
+		    // remove duplicates ( must be RSSI sorted )
+		    if (_removeDuplicateAPs)
+		    {
+		      String cssid;
+		      
+		      for (int i = 0; i < n; i++)
+		      {
+			      if (indices[i] == -1)
+			        continue;
 
-        ESP_AT_LOGDEBUG(F("Removing Dup"));
+			      cssid = WiFi.SSID(indices[i]);
+			      
+			      for (int j = i + 1; j < n; j++)
+			      {
+			        if (cssid == WiFi.SSID(indices[j]))
+			        {
+				        ESP_AT_LOGDEBUG1("DUP AP:", WiFi.SSID(indices[j]));
+				        indices[j] = -1; // set dup aps to index -1
+			        }
+			      }
+		      }
+		    }
 
-        // remove duplicates ( must be RSSI sorted )
-        if (_removeDuplicateAPs)
-        {
-          String cssid;
+		    for (int i = 0; i < n; i++)
+		    {
+		      if (indices[i] == -1)
+			      continue; // skip dups
 
-          for (int i = 0; i < n; i++)
-          {
-            if (indices[i] == -1)
-              continue;
+		      int quality = getRSSIasQuality(WiFi.RSSI(indices[i]));
 
-            cssid = WiFi.SSID(indices[i]);
+		      if (!(_minimumQuality == -1 || _minimumQuality < quality))
+		      {
+			      indices[i] = -1;
+			      ESP_AT_LOGDEBUG(F("Skipping low quality"));
+		      }
+		    }
 
-            for (int j = i + 1; j < n; j++)
-            {
-              if (cssid == WiFi.SSID(indices[j]))
-              {
-                ESP_AT_LOGDEBUG1("DUP AP:", WiFi.SSID(indices[j]));
-                indices[j] = -1; // set dup aps to index -1
-              }
-            }
-          }
-        }
+		    ESP_AT_LOGERROR(F("WiFi networks found:"));
+		    
+		    for (int i = 0; i < n; i++)
+		    {
+		      if (indices[i] == -1)
+			      continue; // skip dups
+		      else
+			      ESP_AT_LOGERROR5(i+1,": ",WiFi.SSID(indices[i]), ", ", WiFi.RSSI(i), "dB");
+		    }
 
-        for (int i = 0; i < n; i++)
-        {
-          if (indices[i] == -1)
-            continue; // skip dups
+		    return (n);
+	    }
+	  }
 
-          int quality = getRSSIasQuality(WiFi.RSSI(indices[i]));
+	  //////////////////////////////////////////
 
-          if (!(_minimumQuality == -1 || _minimumQuality < quality))
-          {
-            indices[i] = -1;
-            ESP_AT_LOGDEBUG(F("Skipping low quality"));
-          }
-        }
+	  int getRSSIasQuality(const int& RSSI)
+	  {
+	    int quality = 0;
 
-        ESP_AT_LOGERROR(F("WiFi networks found:"));
+	    if (RSSI <= -100)
+	    {
+		    quality = 0;
+	    }
+	    else if (RSSI >= -50)
+	    {
+		    quality = 100;
+	    }
+	    else
+	    {
+		    quality = 2 * (RSSI + 100);
+	    }
 
-        for (int i = 0; i < n; i++)
-        {
-          if (indices[i] == -1)
-            continue; // skip dups
-          else
-            ESP_AT_LOGERROR5(i + 1, ": ", WiFi.SSID(indices[i]), ", ", WiFi.RSSI(i), "dB");
-        }
+	    return quality;
+	  }
 
-        return (n);
-      }
-    }
+  //////////////////////////////////////////
 
-    //////////////////////////////////////////
-
-    int getRSSIasQuality(const int& RSSI)
-    {
-      int quality = 0;
-
-      if (RSSI <= -100)
-      {
-        quality = 0;
-      }
-      else if (RSSI >= -50)
-      {
-        quality = 100;
-      }
-      else
-      {
-        quality = 2 * (RSSI + 100);
-      }
-
-      return quality;
-    }
-
-    //////////////////////////////////////////
-
-#endif
+#endif    
 };
 
 

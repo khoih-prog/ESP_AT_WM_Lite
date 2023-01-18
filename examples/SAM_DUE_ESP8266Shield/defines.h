@@ -1,11 +1,11 @@
 /****************************************************************************************************************************
   defines.h
   For SAM DUE boards using ESP8266 AT WiFi Shields, using much less code to support boards with smaller memory
-  
+
   ESP_AT_WM_Lite is a library for the Mega, Teensy, SAM DUE, SAMD and STM32 boards (https://github.com/khoih-prog/ESP_AT_WM_Lite)
   to enable store Credentials in EEPROM to easy configuration/reconfiguration and autoconnect/autoreconnect of WiFi and other services
   without Hardcoding.
-  
+
   Built by Khoi Hoang https://github.com/khoih-prog/ESP_AT_WM_Lite
   Licensed under MIT license
  *****************************************************************************************************************************/
@@ -35,13 +35,13 @@
   #define ESP8266_AT_USE_SAM_DUE      true
   #warning Use SAM_DUE architecture
 #else
-  #error This code is intended to run on the SAM DUE platform! Please check your Tools->Board setting.  
+  #error This code is intended to run on the SAM DUE platform! Please check your Tools->Board setting.
 #endif
 
 #if defined(ESP8266_AT_USE_SAM_DUE)
   // For SAM DUE
   #define EspSerial Serial1
-  
+
   #if defined(ARDUINO_SAM_DUE)
     #define BOARD_TYPE      "SAM DUE"
   #elif defined(__SAM3X8E__)

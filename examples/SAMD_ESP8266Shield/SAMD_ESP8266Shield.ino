@@ -1,11 +1,11 @@
 /****************************************************************************************************************************
   SAMD_ESP8266Shield.ino
   For SAMD boards using ESP8266 AT WiFi Shields, using much less code to support boards with smaller memory
-  
+
   ESP_AT_WM_Lite is a library for the Mega, Teensy, SAM DUE, SAMD and STM32 boards (https://github.com/khoih-prog/ESP_AT_WM_Lite)
   to enable store Credentials in EEPROM to easy configuration/reconfiguration and autoconnect/autoreconnect of WiFi and other services
   without Hardcoding.
-  
+
   Built by Khoi Hoang https://github.com/khoih-prog/ESP_AT_WM_Lite
   Licensed under MIT license
  *****************************************************************************************************************************/
@@ -27,8 +27,8 @@ void heartBeatPrint()
     if (ESP_AT_WiFiManager->isConfigMode())
       Serial.print("C");        // C means in Config Mode
     else
-      Serial.print("F");        // F means not connected to WiFi  
-  } 
+      Serial.print("F");        // F means not connected to WiFi
+  }
 
   if (num == 80)
   {
@@ -47,6 +47,7 @@ void check_status()
 
   //KH
 #define HEARTBEAT_INTERVAL    20000L
+
   // Print hearbeat every HEARTBEAT_INTERVAL (20) seconds.
   if ((millis() > checkstatus_timeout) || (checkstatus_timeout == 0))
   {
@@ -59,6 +60,7 @@ void setup()
 {
   // Debug console
   Serial.begin(115200);
+
   while (!Serial);
 
   Serial.print("\nStart SAMD_ESP8266Shield on ");

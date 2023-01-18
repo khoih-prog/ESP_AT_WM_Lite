@@ -1,11 +1,11 @@
 /****************************************************************************************************************************
   defines.h
   For STM32 boards using ESP8266 AT WiFi Shields, using much less code to support boards with smaller memory
-  
+
   ESP_AT_WM_Lite is a library for the Mega, Teensy, SAM DUE, SAMD and STM32 boards (https://github.com/khoih-prog/ESP_AT_WM_Lite)
   to enable store Credentials in EEPROM to easy configuration/reconfiguration and autoconnect/autoreconnect of WiFi and other services
   without Hardcoding.
-  
+
   Built by Khoi Hoang https://github.com/khoih-prog/ESP_AT_WM_Lite
   Licensed under MIT license
  *****************************************************************************************************************************/
@@ -31,18 +31,18 @@
 #if ( defined(STM32F0) || defined(STM32F1)  || defined(STM32F2) || defined(STM32F3)  ||defined(STM32F4) || defined(STM32F7) || \
       defined(STM32L0) || defined(STM32L1)  || defined(STM32L4) || defined(STM32H7)  ||defined(STM32G0) || defined(STM32G4) || \
       defined(STM32WB) || defined(STM32MP1) || defined(STM32L5) )
-  #if defined(ESP8266_AT_USE_STM32)
-    #undef ESP8266_AT_USE_STM32
-  #endif
-  #define ESP8266_AT_USE_STM32      true
+#if defined(ESP8266_AT_USE_STM32)
+  #undef ESP8266_AT_USE_STM32
+#endif
+#define ESP8266_AT_USE_STM32      true
 #else
-  #error This code is intended to run on STM32F platform! Please check your Tools->Board setting.  
+#error This code is intended to run on STM32F platform! Please check your Tools->Board setting.
 #endif
 
 #if ESP8266_AT_USE_STM32
   // For STM32, you have to declare and enable coreresponding Serial Port somewhere else before using it
   #define EspSerial Serial1
-  
+
   #if defined(STM32F0)
     #warning STM32F0 board selected
     #define BOARD_TYPE  "STM32F0"
@@ -65,24 +65,24 @@
       // RX TX
       HardwareSerial Serial1(D0, D1);
     #else
-    
+
       #warning STM32F7 board selected
       #define BOARD_TYPE  "STM32F7"
 
     #endif
-    
+
   #elif defined(STM32L0)
     #if defined(ARDUINO_NUCLEO_L053R8)
       #warning Nucleo-64 NUCLEO_L053R8 board selected, using HardwareSerial Serial1 @ pin D0/RX and D1/TX
       // RX TX
       HardwareSerial Serial1(D0, D1);   // (PA3, PA2);
     #else
-    
+
       #warning STM32L0 board selected
       #define BOARD_TYPE  "STM32L0"
 
     #endif
-    
+
   #elif defined(STM32L1)
     #warning STM32L1 board selected
     #define BOARD_TYPE  "STM32L1"
@@ -91,7 +91,7 @@
     #define BOARD_TYPE  "STM32L4"
   #elif defined(STM32L5)
     #warning STM32L5 board selected
-    #define BOARD_TYPE  "STM32L5"  
+    #define BOARD_TYPE  "STM32L5"
   #elif defined(STM32H7)
     #warning STM32H7 board selected
     #define BOARD_TYPE  "STM32H7"

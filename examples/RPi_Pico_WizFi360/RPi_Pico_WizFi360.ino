@@ -1,6 +1,6 @@
 /****************************************************************************************************************************
-  Mega_ESP8266Shield.ino
-  For AVR or Generic boards using ESP8266 AT WiFi Shields, using much less code to support boards with smaller memory
+  RPi_Pico_WizFi360.ino
+  For nRF52 boards using ESP8266 AT WiFi Shields, using much less code to support boards with smaller memory
 
   ESP_AT_WM_Lite is a library for the Mega, Teensy, SAM DUE, SAMD and STM32 boards (https://github.com/khoih-prog/ESP_AT_WM_Lite)
   to enable store Credentials in EEPROM to easy configuration/reconfiguration and autoconnect/autoreconnect of WiFi and other services
@@ -30,15 +30,6 @@ void heartBeatPrint()
       Serial.print("F");        // F means not connected to WiFi
   }
 
-#if 0
-
-  if (WiFi.status() == WL_CONNECTED)
-    Serial.print(F("H"));        // H means connected to WiFi
-  else
-    Serial.print(F("F"));        // F means not connected to WiFi
-
-#endif
-
   if (num == 80)
   {
     Serial.println();
@@ -46,7 +37,7 @@ void heartBeatPrint()
   }
   else if (num++ % 10 == 0)
   {
-    Serial.print(F(" "));
+    Serial.print(" ");
   }
 }
 
@@ -70,11 +61,9 @@ void setup()
   // Debug console
   Serial.begin(115200);
 
-  while (!Serial);
+  while (!Serial && millis() < 5000);
 
-  //delay(1000);
-
-  Serial.print(F("\nStart Mega_ESP8266Shield on "));
+  Serial.print("\nStart RPi_Pico_WizFi360 on ");
   Serial.println(BOARD_NAME);
   Serial.println(ESP_AT_WM_LITE_VERSION);
   Serial.print("Debug Level = ");
@@ -85,13 +74,13 @@ void setup()
 
   ESP_AT_WiFiManager = new ESP_AT_WiFiManager_Lite(&EspSerial, ESP8266_BAUD);
 
-  // Optional to change default AP IP(192.168.4.1)
-  //ESP_AT_WiFiManager->setConfigPortalIP(IPAddress(192, 168, 120, 1));
+  // Optional to change default AP IP(192.168.100.1)
+  ESP_AT_WiFiManager->setConfigPortalIP(IPAddress(192, 168, 220, 1));
   // Use channel(0) for random AP WiFi channel
   ESP_AT_WiFiManager->setConfigPortalChannel(0);
 
   // Personalized portal_ssid and password
-  //ESP_AT_WiFiManager->setConfigPortal(portal_ssid, portal_password);
+  ESP_AT_WiFiManager->setConfigPortal(portal_ssid, portal_password);
 
   ESP_AT_WiFiManager->begin();
 }
